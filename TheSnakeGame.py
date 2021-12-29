@@ -35,12 +35,13 @@ except pickle.UnpicklingError:
 if non_cheater:
     if data['name'] == '' or data['name'] == None:
         user = 'NewUser'
+        Cursor=False
         Text_Val=''
         Text_Ent=False
     else:
         user = 'Home'
     file.close()
-
+iterrr=0
 
 def show(msg, color, x, y, size):
     score_show = pygame.font.Font("freesansbold.ttf",
@@ -360,21 +361,35 @@ def gameover():
 
 
 def newuser():
-    global user, Text_Val,Text_Ent
+    global user, Text_Val, Text_Ent, iterrr,Cursor
     SCREEN.fill(BLACK)
     show('Start typing your name :', WHITE, 20, 30, 32)
     show(Text_Val, WHITE, 20, 100, 32)
+    if iterrr%8==0:
+        Text_Val=Text_Val[:-1]+'|'
+        Cursor=True
+    if iterrr%8==4 and Cursor:
+        Text_Val=Text_Val[:-1]+' '
+        Cursor=False
+    iterrr+=1
+    # 
+    # if iterrr>10:
+    #     Text_Val+='|'
+    # else:
+    #     Text_Val=Text_Val[:-1]
+    # iterrr+=1
+    # iterrr=0 if iterrr>20 else iterrr
     for event in event_list:
         if event.type == pygame.KEYDOWN:
             if event.unicode in ALPHA:
-                Text_Val+=str(event.unicode)
+                Text_Val=Text_Val[:-1]+str(event.unicode)+('|' if Cursor else ' ')
             elif event.key==pygame.K_BACKSPACE:
-                Text_Val=Text_Val[:-1]
+                Text_Val=Text_Val[:-2]+('|' if Cursor else ' ')
             elif event.unicode=='\r':
                 Text_Ent=True
 
     if Text_Ent:
-        data = {'name': Text_Val, 'highscore': 0, 'coins': 0, 'time': ''}
+        data = {'name': Text_Val[-1], 'highscore': 0, 'coins': 0, 'time': ''}
         with open('userData.dat', 'wb') as file:
             pickle.dump(data, file)
             user = 'Home'
