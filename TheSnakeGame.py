@@ -22,7 +22,8 @@ YELLOW = (255, 255, 0)
 BLUE = (0, 255, 255)
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
-
+A="".join([chr(x) for x in range(65,91)])
+ALPHA=A+A.lower()+'_'+''.join([str(x) for x in range(10)])
 #user data
 try:
     file = open('userData.dat', 'rb')
@@ -34,6 +35,8 @@ except pickle.UnpicklingError:
 if non_cheater:
     if data['name'] == '' or data['name'] == None:
         user = 'NewUser'
+        Text_Val=''
+        Text_Ent=False
     else:
         user = 'Home'
     file.close()
@@ -357,14 +360,24 @@ def gameover():
 
 
 def newuser():
-    global user
+    global user, Text_Val,Text_Ent
     SCREEN.fill(BLACK)
-    show('See the console', WHITE, 20, 30, 32)
-    name = input('Enter your name :')
-    data = {'name': name, 'highscore': 0, 'coins': 0, 'time': ''}
-    with open('userData.dat', 'wb') as file:
-        pickle.dump(data, file)
-        user = 'Home'
+    show('Start typing your name :', WHITE, 20, 30, 32)
+    show(Text_Val, WHITE, 20, 100, 32)
+    for event in event_list:
+        if event.type == pygame.KEYDOWN:
+            if event.unicode in ALPHA:
+                Text_Val+=str(event.unicode)
+            elif event.key==pygame.K_BACKSPACE:
+                Text_Val=Text_Val[:-1]
+            elif event.unicode=='\r':
+                Text_Ent=True
+
+    if Text_Ent:
+        data = {'name': Text_Val, 'highscore': 0, 'coins': 0, 'time': ''}
+        with open('userData.dat', 'wb') as file:
+            pickle.dump(data, file)
+            user = 'Home'
     hScreen = button('Home', 200, 200, 100, 50)
     if hScreen: user = 'Home'
 
@@ -377,7 +390,7 @@ def cheater():
 
 
 def main():
-    global event_list
+    global event_list,Text_Val
     SCREEN.fill(BLACK)
     leaderboard_params()
     settings_params()
