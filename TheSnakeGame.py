@@ -22,9 +22,19 @@ YELLOW = (255, 255, 0)
 BLUE = (0, 255, 255)
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
-A="".join([chr(x) for x in range(65,91)])
-ALPHA=A+A.lower()+'_'+''.join([str(x) for x in range(10)])
+A = "".join([chr(x) for x in range(65, 91)])
+ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
+
+
 #user data
+def newUser_init():
+    global Cursor, Text_Ent, Text_Val, iterrr
+    iterrr = 0
+    Cursor = False
+    Text_Val = ''
+    Text_Ent = False
+
+
 try:
     file = open('userData.dat', 'rb')
     data = pickle.load(file)
@@ -35,13 +45,11 @@ except pickle.UnpicklingError:
 if non_cheater:
     if data['name'] == '' or data['name'] == None:
         user = 'NewUser'
-        Cursor=False
-        Text_Val=''
-        Text_Ent=False
+        newUser_init()
     else:
         user = 'Home'
     file.close()
-iterrr=0
+
 
 def show(msg, color, x, y, size):
     score_show = pygame.font.Font("freesansbold.ttf",
@@ -111,9 +119,14 @@ def home():
     SCREEN.fill(BLACK)
     global i, decreaser, done, user
     show('home', WHITE, 0, 0, 32)
-    emScreen = button('Emulator', 200, 200, 100, 30)
-    if emScreen:
-        user = 'Emulator'
+    show(data['name'], WHITE, 350, 0, 16)
+    newUser = button('NewUser', 200, 250, 100, 30)
+    if newUser:
+        newUser_init()
+        user = 'NewUser'
+    user = 'Emulator' if button('Emulator', 200, 200, 100, 30) else user
+    user = 'LeaderBoard' if button('LeaderBoard', 200, 300, 100, 30) else user
+
     # if not done:
     #     d = screen_animation()
     #     done = d
@@ -338,11 +351,20 @@ def emulator(blocks):
 
 
 def leaderboard_params():
+    global Variables
+    var1 = 'abcd'
+    var2 = 1234
+    var3 = 'Bruce'
+    var4 = 'JS'
+    Variables = [var1, var2, var3, var4]
     pass
 
 
 def leaderboard():
+    global Variables
     SCREEN.fill(BLACK)
+    for i, var in enumerate(Variables):
+        show(f'{var}', WHITE, 30, i * 40, 32)
     pass
 
 
@@ -361,18 +383,18 @@ def gameover():
 
 
 def newuser():
-    global user, Text_Val, Text_Ent, iterrr,Cursor
+    global user, Text_Val, Text_Ent, iterrr, Cursor, data
     SCREEN.fill(BLACK)
     show('Start typing your name :', WHITE, 20, 30, 32)
     show(Text_Val, WHITE, 20, 100, 32)
-    if iterrr%8==0:
-        Text_Val=Text_Val[:-1]+'|'
-        Cursor=True
-    if iterrr%8==4 and Cursor:
-        Text_Val=Text_Val[:-1]+' '
-        Cursor=False
-    iterrr+=1
-    # 
+    if iterrr % 8 == 0:
+        Text_Val = Text_Val[:-1] + '|'
+        Cursor = True
+    if iterrr % 8 == 4 and Cursor:
+        Text_Val = Text_Val[:-1] + ' '
+        Cursor = False
+    iterrr += 1
+    #
     # if iterrr>10:
     #     Text_Val+='|'
     # else:
@@ -382,14 +404,15 @@ def newuser():
     for event in event_list:
         if event.type == pygame.KEYDOWN:
             if event.unicode in ALPHA:
-                Text_Val=Text_Val[:-1]+str(event.unicode)+('|' if Cursor else ' ')
-            elif event.key==pygame.K_BACKSPACE:
-                Text_Val=Text_Val[:-2]+('|' if Cursor else ' ')
-            elif event.unicode=='\r':
-                Text_Ent=True
+                Text_Val = Text_Val[:-1] + str(
+                    event.unicode) + ('|' if Cursor else ' ')
+            elif event.key == pygame.K_BACKSPACE:
+                Text_Val = Text_Val[:-2] + ('|' if Cursor else ' ')
+            elif event.unicode == '\r':
+                Text_Ent = True
 
     if Text_Ent:
-        data = {'name': Text_Val[-1], 'highscore': 0, 'coins': 0, 'time': ''}
+        data = {'name': Text_Val[:-1], 'highscore': 0, 'coins': 0, 'time': ''}
         with open('userData.dat', 'wb') as file:
             pickle.dump(data, file)
             user = 'Home'
@@ -405,7 +428,7 @@ def cheater():
 
 
 def main():
-    global event_list,Text_Val
+    global event_list, Text_Val
     SCREEN.fill(BLACK)
     leaderboard_params()
     settings_params()
@@ -418,7 +441,7 @@ def main():
             home()
         elif user == 'Emulator':
             emulator(blocks)
-        elif user == 'Leaderboard':
+        elif user == 'LeaderBoard':
             leaderboard()
         elif user == 'Settings':
             settings()
