@@ -142,15 +142,9 @@ def home():
 
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm, teleport
-    global bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col
-    bg_color = BLACK
-    bomb_col = (210, 190, 210)
-    snake_col = RED
-    apple_col = YELLOW
-    empty_col = GREY
-    sup_col = GREEN
-    sdown_col = BLUE
-    text_col = WHITE
+    global Theme
+    Theme = [WHITE, (210, 190, 210), RED, YELLOW, GREY, GREEN, BLUE, WHITE]
+    # bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col
 
     teleport = False
     score = 0
@@ -171,21 +165,21 @@ def emulator_params():
             self.x = x
             self.y = y
             self.block_type = block_type
-            self.color = empty_col
+            self.color = Theme[4]
 
         def draw(self):
             if self.block_type == "snake" or self.block_type == "head":
-                self.color = snake_col
+                self.color = Theme[2]
             elif self.block_type == None:
-                self.color = empty_col
+                self.color = Theme[4]
             elif self.block_type == 'apple':
-                self.color = apple_col
+                self.color = Theme[3]
             elif self.block_type == 'bomb':
-                self.color = bomb_col
+                self.color = Theme[1]
             elif self.block_type == 'speedup':
-                self.color = sup_col
+                self.color = Theme[5]
             elif self.block_type == 'speeddown':
-                self.color = sdown_col
+                self.color = Theme[6]
             pygame.draw.rect(SCREEN, self.color,
                              (self.x + 1, self.y + 1, PIXEL - 2, PIXEL - 2))
 
@@ -207,10 +201,10 @@ def emulator_params():
 
 
 def emulator(blocks):
-    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, snake_col, text_col, empty_col, sup_col, apple_col, sdown_col, event_list, realm, t0
-    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, bomb_col, ee_dec, ee_done, teleport, user, bg_color, data
+    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0
+    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, teleport, user, data
     gameover = False
-    SCREEN.fill(bg_color)
+    SCREEN.fill(Theme[0])
     #Bomb
     if counter[0] == 0:
         bombx, bomby = -1, -1
@@ -304,9 +298,9 @@ def emulator(blocks):
     #Score
     data['highscore'] = score if score > data['highscore'] else data[
         'highscore']
-    show("Score :" + str(score), text_col, 0, 0, 16)
-    show("Speed :" + str(rate if rate < 200 else 0), text_col, 100, 0, 16)
-    show("High Score :" + str(data['highscore']), text_col, 200, 0, 16)
+    show("Score :" + str(score), Theme[7], 0, 0, 16)
+    show("Speed :" + str(rate if rate < 200 else 0), Theme[7], 100, 0, 16)
+    show("High Score :" + str(data['highscore']), Theme[7], 200, 0, 16)
     # 0 speed Realm
     if rate == 0:
         realm = True
@@ -314,9 +308,9 @@ def emulator(blocks):
         rate = 200
     if realm:
         teleport = True
-        snake_col, text_col = text_col, snake_col
-        empty_col = bg_color
-        sup_col, apple_col, sdown_col, bomb_col = VOILET, VOILET, VOILET, VOILET
+        Theme[2], Theme[7] = Theme[7], Theme[2]
+        Theme[4] = Theme[0]
+        Theme[5], Theme[3], Theme[6], Theme[1] = VOILET, VOILET, VOILET, VOILET
         if counter[0] % 5 == 0:
             body.append(body[-1])
         if counter[0] % 2 == 0:
@@ -332,10 +326,10 @@ def emulator(blocks):
                  22)
         else:
             if not ee_done:
-                ee_dec = screen_animation(False, 5, text_col, 0.001)
+                ee_dec = screen_animation(False, 5, Theme[7], 0.001)
                 ee_done = ee_dec
             if ee_done:
-                ee_dec = screen_animation(True, 5, text_col, 0.0001)
+                ee_dec = screen_animation(True, 5, Theme[7], 0.0001)
                 ee_done = not ee_dec
     #event loop
 
