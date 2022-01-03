@@ -61,6 +61,11 @@ I = 0
 iterr = 0
 
 
+def update_data():
+    with open('userData.dat', 'wb') as file:
+        pickle.dump(data, file)
+
+
 def button(text,
            x,
            y,
@@ -203,7 +208,7 @@ def emulator_params():
 
 def emulator(blocks):
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, snake_col, text_col, empty_col, sup_col, apple_col, sdown_col, event_list, realm, t0
-    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, bomb_col, ee_dec, ee_done, teleport, user, bg_color
+    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, bomb_col, ee_dec, ee_done, teleport, user, bg_color, data
     gameover = False
     SCREEN.fill(bg_color)
     #Bomb
@@ -294,9 +299,14 @@ def emulator(blocks):
     #GameOver
     if gameover:
         user = 'GameOver'
+        update_data()
+
     #Score
-    show("Score :" + str(score if score < 200 else 0), text_col, 0, 0, 16)
-    show("Speed :" + str(rate), text_col, 100, 0, 16)
+    data['highscore'] = score if score > data['highscore'] else data[
+        'highscore']
+    show("Score :" + str(score), text_col, 0, 0, 16)
+    show("Speed :" + str(rate if rate < 200 else 0), text_col, 100, 0, 16)
+    show("High Score :" + str(data['highscore']), text_col, 200, 0, 16)
     # 0 speed Realm
     if rate == 0:
         realm = True
@@ -413,9 +423,9 @@ def newuser():
 
     if Text_Ent:
         data = {'name': Text_Val[:-1], 'highscore': 0, 'coins': 0, 'time': ''}
-        with open('userData.dat', 'wb') as file:
-            pickle.dump(data, file)
-            user = 'Home'
+        update_data()
+        user = 'Home'
+
     hScreen = button('Home', 200, 200, 100, 50)
     if hScreen: user = 'Home'
 
