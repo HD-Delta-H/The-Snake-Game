@@ -5,6 +5,12 @@ import random
 import pickle
 pygame.init()
 
+# line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
+# rect pygame.draw.rect(SCREEN, BLUE, (400,400,50,25)) #screen, color, (starting_x, starting_y, width,height)
+# circle pygame.draw.circle(SCREEN, BLUE, (150,150), 75) #screen, color, (center_x, center_y), radius)
+# polygon pygame.draw.polygon(SCREEN, BLUE, ((25,75),(76,125),(250,375),(400,25),(60,540))) #screen, color, (coordinates of polygon(consecutive))
+# image pygame.image.load("space-invaders.png")
+
 #constants
 LENGTH = 454
 PIXEL = 15
@@ -12,6 +18,9 @@ SCREEN = pygame.display.set_mode((LENGTH, LENGTH))
 CLOCK = pygame.time.Clock()
 rate = 8
 #colours
+LIGHTBROWN = '#AD9157'
+DARKBROWN = '#4F3119'
+BLACKBROWN = '#11110F'
 BLACK = (0, 0, 0)
 GREY = (50, 50, 50)
 RED = (255, 0, 0)
@@ -24,6 +33,9 @@ GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
+
+#[[name,score,timeplayed,1_time,ref_id]]
+lb_data = [['Bruce', 999, 10, 1 / 10, 1], ['Robin', 222, 20, 1 / 20, 2]]
 
 
 #user data
@@ -143,7 +155,7 @@ def home():
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm, teleport
     global Theme
-    Theme = [WHITE, (210, 190, 210), RED, YELLOW, GREY, GREEN, BLUE, WHITE]
+    Theme = [BLACK, (210, 190, 210), RED, YELLOW, GREY, GREEN, BLUE, WHITE]
     # bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col
 
     teleport = False
@@ -355,21 +367,23 @@ def emulator(blocks):
 
 
 def leaderboard_params():
-    global Variables
-    var1 = 'abcd'
-    var2 = 1234
-    var3 = 'Bruce'
-    var4 = 'JS'
-    Variables = [var1, var2, var3, var4]
+    # global Variables
+    # var1 = 'abcd'
+    # var2 = 1234
+    # var3 = 'Bruce'
+    # var4 = 'JS'
+    # Variables = [var1, var2, var3, var4]
     pass
 
 
 def leaderboard():
-    global Variables
-    SCREEN.fill(BLACK)
-    for i, var in enumerate(Variables):
-        show(f'{var}', WHITE, 30, i * 40, 32)
-    pass
+    global Variables, lb_data
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('LEADERBOARDS', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 60, LENGTH - 20, LENGTH - 76))
+    # for i, var in enumerate(Variables):
+    #     show(f'{var}', WHITE, 30, i * 40, 32)
 
 
 def settings_params():
@@ -438,7 +452,6 @@ def main():
     settings_params()
     blocks = emulator_params()
     home_params()
-
     while True:
         event_list = pygame.event.get()
         if user == 'Home':
