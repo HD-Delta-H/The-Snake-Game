@@ -35,7 +35,8 @@ A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
 
 #[[name,score,timeplayed,1_time,ref_id]]
-lb_data = [['Bruce', 999, 10, 1 / 10, 1], ['Robin', 222, 20, 1 / 20, 2]]
+
+lb_data = [['Bruce', 999, 10, 1 / 10, 1], ['Robin', 222, 20, 1 / 20, 2]]*5
 
 
 #user data
@@ -381,7 +382,13 @@ def leaderboard():
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('LEADERBOARDS', WHITE, 10, 10, 20)
-    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 60, LENGTH - 20, LENGTH - 76))
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 60, LENGTH - 20, LENGTH - 74))
+    for i,dt in enumerate(lb_data):
+        if i<10:
+            show(dt[0],BLACK,30,78+i*35,30)
+            show(str(dt[1]),BLACK,175,78+i*35,30)
+            show(str(dt[2]),BLACK,320,78+i*35,30)
+    button('R',LENGTH-40,10,20,20,BLACKBROWN,4,14,WHITE,LIGHTBROWN)
     # for i, var in enumerate(Variables):
     #     show(f'{var}', WHITE, 30, i * 40, 32)
 
