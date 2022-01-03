@@ -5,6 +5,12 @@ import random
 import pickle
 pygame.init()
 
+# line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
+# rect pygame.draw.rect(SCREEN, BLUE, (400,400,50,25)) #screen, color, (starting_x, starting_y, width,height)
+# circle pygame.draw.circle(SCREEN, BLUE, (150,150), 75) #screen, color, (center_x, center_y), radius)
+# polygon pygame.draw.polygon(SCREEN, BLUE, ((25,75),(76,125),(250,375),(400,25),(60,540))) #screen, color, (coordinates of polygon(consecutive))
+# image pygame.image.load("space-invaders.png")
+
 #constants
 LENGTH = 454
 PIXEL = 15
@@ -12,6 +18,9 @@ SCREEN = pygame.display.set_mode((LENGTH, LENGTH))
 CLOCK = pygame.time.Clock()
 rate = 8
 #colours
+LIGHTBROWN = '#AD9157'
+DARKBROWN = '#4F3119'
+BLACKBROWN = '#11110F'
 BLACK = (0, 0, 0)
 GREY = (50, 50, 50)
 RED = (255, 0, 0)
@@ -24,6 +33,9 @@ GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
+
+#[[name,score,timeplayed,1_time,ref_id]]
+lb_data = [['Bruce', 999, 10, 1 / 10, 1], ['Robin', 222, 20, 1 / 20, 2]]
 
 
 #user data
@@ -59,6 +71,11 @@ def show(msg, color, x, y, size):
 
 I = 0
 iterr = 0
+
+
+def update_data():
+    with open('userData.dat', 'wb') as file:
+        pickle.dump(data, file)
 
 
 def button(text,
@@ -137,15 +154,9 @@ def home():
 
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm, teleport
-    global bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col
-    bg_color = BLACK
-    bomb_col = (210, 190, 210)
-    snake_col = RED
-    apple_col = YELLOW
-    empty_col = GREY
-    sup_col = GREEN
-    sdown_col = BLUE
-    text_col = WHITE
+    global Theme
+    Theme = [BLACK, (210, 190, 210), RED, YELLOW, GREY, GREEN, BLUE, WHITE]
+    # bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col
 
     teleport = False
     score = 0
@@ -166,21 +177,21 @@ def emulator_params():
             self.x = x
             self.y = y
             self.block_type = block_type
-            self.color = empty_col
+            self.color = Theme[4]
 
         def draw(self):
             if self.block_type == "snake" or self.block_type == "head":
-                self.color = snake_col
+                self.color = Theme[2]
             elif self.block_type == None:
-                self.color = empty_col
+                self.color = Theme[4]
             elif self.block_type == 'apple':
-                self.color = apple_col
+                self.color = Theme[3]
             elif self.block_type == 'bomb':
-                self.color = bomb_col
+                self.color = Theme[1]
             elif self.block_type == 'speedup':
-                self.color = sup_col
+                self.color = Theme[5]
             elif self.block_type == 'speeddown':
-                self.color = sdown_col
+                self.color = Theme[6]
             pygame.draw.rect(SCREEN, self.color,
                              (self.x + 1, self.y + 1, PIXEL - 2, PIXEL - 2))
 
@@ -202,10 +213,10 @@ def emulator_params():
 
 
 def emulator(blocks):
-    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, snake_col, text_col, empty_col, sup_col, apple_col, sdown_col, event_list, realm, t0
-    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, bomb_col, ee_dec, ee_done, teleport, user, bg_color
+    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0
+    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, teleport, user, data
     gameover = False
-    SCREEN.fill(bg_color)
+    SCREEN.fill(Theme[0])
     #Bomb
     if counter[0] == 0:
         bombx, bomby = -1, -1
@@ -294,9 +305,14 @@ def emulator(blocks):
     #GameOver
     if gameover:
         user = 'GameOver'
+        update_data()
+
     #Score
-    show("Score :" + str(score if score < 200 else 0), text_col, 0, 0, 16)
-    show("Speed :" + str(rate), text_col, 100, 0, 16)
+    data['highscore'] = score if score > data['highscore'] else data[
+        'highscore']
+    show("Score :" + str(score), Theme[7], 0, 0, 16)
+    show("Speed :" + str(rate if rate < 200 else 0), Theme[7], 100, 0, 16)
+    show("High Score :" + str(data['highscore']), Theme[7], 200, 0, 16)
     # 0 speed Realm
     if rate == 0:
         realm = True
@@ -304,9 +320,9 @@ def emulator(blocks):
         rate = 200
     if realm:
         teleport = True
-        snake_col, text_col = text_col, snake_col
-        empty_col = bg_color
-        sup_col, apple_col, sdown_col, bomb_col = VOILET, VOILET, VOILET, VOILET
+        Theme[2], Theme[7] = Theme[7], Theme[2]
+        Theme[4] = Theme[0]
+        Theme[5], Theme[3], Theme[6], Theme[1] = VOILET, VOILET, VOILET, VOILET
         if counter[0] % 5 == 0:
             body.append(body[-1])
         if counter[0] % 2 == 0:
@@ -322,10 +338,10 @@ def emulator(blocks):
                  22)
         else:
             if not ee_done:
-                ee_dec = screen_animation(False, 5, text_col, 0.001)
+                ee_dec = screen_animation(False, 5, Theme[7], 0.001)
                 ee_done = ee_dec
             if ee_done:
-                ee_dec = screen_animation(True, 5, text_col, 0.0001)
+                ee_dec = screen_animation(True, 5, Theme[7], 0.0001)
                 ee_done = not ee_dec
     #event loop
 
@@ -351,21 +367,23 @@ def emulator(blocks):
 
 
 def leaderboard_params():
-    global Variables
-    var1 = 'abcd'
-    var2 = 1234
-    var3 = 'Bruce'
-    var4 = 'JS'
-    Variables = [var1, var2, var3, var4]
+    # global Variables
+    # var1 = 'abcd'
+    # var2 = 1234
+    # var3 = 'Bruce'
+    # var4 = 'JS'
+    # Variables = [var1, var2, var3, var4]
     pass
 
 
 def leaderboard():
-    global Variables
-    SCREEN.fill(BLACK)
-    for i, var in enumerate(Variables):
-        show(f'{var}', WHITE, 30, i * 40, 32)
-    pass
+    global Variables, lb_data
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('LEADERBOARDS', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 60, LENGTH - 20, LENGTH - 76))
+    # for i, var in enumerate(Variables):
+    #     show(f'{var}', WHITE, 30, i * 40, 32)
 
 
 def settings_params():
@@ -413,9 +431,9 @@ def newuser():
 
     if Text_Ent:
         data = {'name': Text_Val[:-1], 'highscore': 0, 'coins': 0, 'time': ''}
-        with open('userData.dat', 'wb') as file:
-            pickle.dump(data, file)
-            user = 'Home'
+        update_data()
+        user = 'Home'
+
     hScreen = button('Home', 200, 200, 100, 50)
     if hScreen: user = 'Home'
 
@@ -434,7 +452,6 @@ def main():
     settings_params()
     blocks = emulator_params()
     home_params()
-
     while True:
         event_list = pygame.event.get()
         if user == 'Home':
