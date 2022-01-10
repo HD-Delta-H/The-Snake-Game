@@ -1,9 +1,196 @@
+from faunadb.errors import ErrorData
 import pygame
 import sys
 import time
 import random
 import pickle
+import os
 pygame.init()
+
+import urllib.request
+
+
+def connect(host='http://google.com'):
+    try:
+        urllib.request.urlopen(host)
+        # print('Internet is on')
+        return True        
+    except:
+        return False
+
+
+internet = connect()
+
+if internet:
+    import operator
+    from typing import final
+    from faunadb import query as q
+    from faunadb.objects import Ref
+    from faunadb.client import FaunaClient
+    import re
+
+    client = FaunaClient(
+        secret="fnAEalXja4AAScBNFQW0lxRWEg-VZEhs-thXkrb6",
+        # secret = "fnAEcMKAPvAAR5LqwD05oCTtvuIWTdsSHyuOu7AE",
+        domain="db.us.fauna.com",
+        # NOTE: Use the correct domain for your database's Region Group.
+        port=443,
+        scheme="https")
+
+ndataset = 10
+
+def sortedLeaderboardList(index, collection):
+    indexes = client.query(q.paginate(q.match(q.index(index))))
+
+    data = [indexes['data']]  # list of ref ids
+    # print(indexes['data'])
+
+    result = re.findall('\d+',
+                        str(data))  # to find all the numbers in the list
+    # print(result)
+
+    fData = []
+
+    for i in result:
+        user_details = client.query(q.get(q.ref(q.collection(collection), i)))
+        details = user_details['data']
+        # print(details)
+        tempData = [
+            details['name'], details['score'], details['time'],
+            1 / float(details['time']),
+            int(user_details['ref'].id())
+        ]
+        # print(tempData)
+        fData.append(tempData)
+
+    finalData = sorted(fData, key=operator.itemgetter(1, 3), reverse=True)
+    # print(finalData)
+
+    return finalData
+
+
+def pushDictData(collection, data):
+    client.query(q.create(q.collection(collection), {'data': data}))
+
+
+def countDocs(collection):
+    count = client.query(q.count(q.documents(q.collection(collection))))
+
+    return count
+
+
+def deleteDoc(collection, refid):
+    client.query(q.delete(q.ref(q.collection(collection), refid)))
+
+
+def sameScoreTimes(data, score):
+    lTimes = []
+
+    for i in data:
+        if i[1] == score:
+            lTimes.append(i[2])
+
+    return lTimes
+
+
+
+def pushData(name, score, time):
+
+    sortedData1 = sortedLeaderboardList(index = 'testindex', collection = 'testcollection')
+
+    # for i in sortedData1:
+    #     print(i)
+
+    lScores = []
+
+    for i in sortedData1:
+        lScores.append(i[1])
+
+    # print(lScores)
+
+    count = countDocs(collection = 'testcollection')
+
+    dataDict = {'name':name, 'score':score, 'time':time}
+
+    sending = False
+
+    lTimes = sameScoreTimes(data = sortedData1, score = min(lScores))
+
+    if count < ndataset:
+        sending = True
+    elif score > min(lScores):
+        sending = True
+        if lScores.count(min(lScores)) == 1:
+            for i in sortedData1:
+                if i[1] == min(lScores):
+                    deleteDoc(collection = 'testcollection', refid = i[4])
+    elif score == min(lScores):
+        if time < max(lTimes):
+            sending = True
+            for i in sortedData1:
+                if i[2] == max(lTimes):
+                    deleteDoc(collection = 'testcollection', refid = i[4])
+
+    if (sending):
+        pushDictData(collection = 'testcollection', data = dataDict)
+        print("Data sent successfully!")
+    else:
+        print("Data not sent since conditions are not met")
+
+
+# pulling data
+def pullingSortedData():
+    try:
+        data = sortedLeaderboardList(index='testindex',
+                                     collection='testcollection')
+        file = open("sortedData.dat", "wb")
+        pickle.dump(data, file)
+        file.close()
+        print('data pulled')
+        return data
+    except:
+        try:
+            file = open("sortedData.dat", "rb")
+            data = pickle.load(file)
+            print('data taken from file')
+            file.close()
+            return data
+        except:
+            data = []
+            print('data can\'t be pulled and file is empty or non-existent')
+            return data
+
+
+def saveGameDataForLater(name, score, time):
+    try:
+        fileR = open('savedData.dat',"rb")
+        data = pickle.load(fileR)
+        if data['score'] < score:
+            fileW = open('savedData.dat','wb')
+            pickle.dump(data, fileW)
+        elif data['score'] == score:
+            if data['time'] > time:
+                fileW = open('savedData.dat','wb')
+                pickle.dump(data, fileW)
+        fileR.close()
+    except:
+        file = open('savedData.dat','wb')
+        data = {'name':name, 'score':score, 'time':time}
+        pickle.dump(data, file)
+        file.close()
+
+sortedData = pullingSortedData()
+
+if internet and os.path.exists("savedData.dat"):
+    try:
+        fileR = open('savedData.dat',"rb")
+        data = pickle.load(fileR)
+        pushData(name = data['name'], score = data['score'], time = data['time'])
+        fileR.close()
+        os.remove("savedData.dat")
+        print('Saved data from previous games sent')
+    except:
+        print('Saved data from previous games couldn\'t be sent due to an unexpected error')
 
 # line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
 # rect pygame.draw.rect(SCREEN, BLUE, (400,400,50,25)) #screen, color, (starting_x, starting_y, width,height)
@@ -35,8 +222,6 @@ A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
 
 #[[name,score,timeplayed,1_time,ref_id]]
-
-lb_data = [['Bruce', 999, 10, 1 / 10, 1], ['Robin', 222, 20, 1 / 20, 2]]*5
 
 
 #user data
@@ -135,7 +320,7 @@ def home_params():
 
 def home():
     SCREEN.fill(BLACK)
-    global i, decreaser, done, user
+    global i, decreaser, done, user, start
     show('home', WHITE, 0, 0, 32)
     show(data['name'], WHITE, 350, 0, 16)
     newUser = button('NewUser', 200, 250, 100, 30)
@@ -143,6 +328,8 @@ def home():
         newUser_init()
         user = 'NewUser'
     user = 'Emulator' if button('Emulator', 200, 200, 100, 30) else user
+    if user == 'Emulator':
+        start = time.time()
     user = 'LeaderBoard' if button('LeaderBoard', 200, 300, 100, 30) else user
 
     # if not done:
@@ -159,7 +346,7 @@ def emulator_params():
     Theme = [BLACK, (210, 190, 210), RED, YELLOW, GREY, GREEN, BLUE, WHITE]
     # bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col
 
-    teleport = False
+    teleport = True
     score = 0
     realm = False
     rnt = [0, 0, 0]
@@ -214,7 +401,7 @@ def emulator_params():
 
 
 def emulator(blocks):
-    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0
+    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, teleport, user, data
     gameover = False
     SCREEN.fill(Theme[0])
@@ -306,7 +493,19 @@ def emulator(blocks):
     #GameOver
     if gameover:
         user = 'GameOver'
+        data['time'] = f'{(time.time() - start):.2f}'
         update_data()
+
+        if internet:
+            try:
+                # pushData(name = data['name'], score = score, time = time)
+                pushData(data['name'], score, data['time'])
+            except:
+                print('Data not sent to servers due to an unexpected error')
+                saveGameDataForLater(data['name'], score, data['time'])
+        else:
+            print('Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.')
+            saveGameDataForLater(data['name'], score, data['time'])
 
     #Score
     data['highscore'] = score if score > data['highscore'] else data[
@@ -378,19 +577,24 @@ def leaderboard_params():
 
 
 def leaderboard():
-    global Variables, lb_data
+    global Variables, sortedData
+    # fauna
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('LEADERBOARDS', WHITE, 10, 10, 20)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 60, LENGTH - 20, LENGTH - 74))
-    for i,dt in enumerate(lb_data):
-        if i<10:
-            show(dt[0],BLACK,30,78+i*35,30)
-            show(str(dt[1]),BLACK,175,78+i*35,30)
-            show(str(dt[2]),BLACK,320,78+i*35,30)
-    button('R',LENGTH-40,10,20,20,BLACKBROWN,4,14,WHITE,LIGHTBROWN)
-    # for i, var in enumerate(Variables):
-    #     show(f'{var}', WHITE, 30, i * 40, 32)
+    if len(sortedData) > 0:
+        for i, dt in enumerate(sortedData):
+            if i < 10:
+                show(dt[0], BLACK, 30, 78 + i * 35, 30)
+                show(str(dt[1]), BLACK, 175, 78 + i * 35, 30)
+                show(str(dt[2]), BLACK, 320, 78 + i * 35, 30)
+    else:
+        show('Oops! No Data Available', WHITE, 50, 200, 30)
+    if (button('R', LENGTH - 40, 10, 20, 20, BLACKBROWN, 4, 14, WHITE,
+               LIGHTBROWN)):
+        sortedData = pullingSortedData()
+        print('Refresh clicked')
 
 
 def settings_params():
