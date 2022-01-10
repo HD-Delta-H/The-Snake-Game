@@ -1,5 +1,6 @@
 .vscode
 ddd.py
 userData.dat
-images.py
+images
 Builder.py
+__pycache__

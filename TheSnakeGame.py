@@ -5,6 +5,9 @@ import time
 import random
 import pickle
 import os
+
+
+pic=pygame.image.load('Capture.png')
 pygame.init()
 
 import urllib.request
@@ -331,6 +334,7 @@ def home():
     if user == 'Emulator':
         start = time.time()
     user = 'LeaderBoard' if button('LeaderBoard', 200, 300, 100, 30) else user
+
 
     # if not done:
     #     d = screen_animation()
