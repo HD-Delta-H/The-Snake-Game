@@ -6,7 +6,6 @@ import random
 import pickle
 import os
 
-from pygame.constants import MULTIGESTURE
 pygame.init()
 
 import urllib.request
@@ -437,7 +436,7 @@ def arsenal():
                 SCREEN.blit(s, (x, y))
 
     user = 'Emulator' if button('Start Game', 180, 370, 100, 30) else user
-    user = 'Home' if button('Home', 390, 370, 100, 30) else user
+    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     if user == 'Emulator':
         emulator_params()
 
