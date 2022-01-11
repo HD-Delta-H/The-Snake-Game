@@ -6,18 +6,22 @@ import random
 import pickle
 import os
 
-
-pic=pygame.image.load('Capture.png')
+from pygame.constants import MULTIGESTURE
 pygame.init()
 
 import urllib.request
+
+#image
+def_powerup = pygame.transform.scale(
+    pygame.image.load(r'images\powerups\Default.PNG'),
+    (70, int(70 * 149 / 129)))
 
 
 def connect(host='http://google.com'):
     try:
         urllib.request.urlopen(host)
         # print('Internet is on')
-        return True        
+        return True
     except:
         return False
 
@@ -41,6 +45,7 @@ if internet:
         scheme="https")
 
 ndataset = 10
+
 
 def sortedLeaderboardList(index, collection):
     indexes = client.query(q.paginate(q.match(q.index(index))))
@@ -96,28 +101,30 @@ def sameScoreTimes(data, score):
     return lTimes
 
 
+def pushData(name, score, time, bigGame):
 
-def pushData(name, score, time):
-
-    sortedData1 = sortedLeaderboardList(index = 'testindex', collection = 'testcollection')
+    sortedData1 = sortedLeaderboardList(index='testindex',
+                                        collection='testcollection')
 
     # for i in sortedData1:
     #     print(i)
 
     lScores = []
+    lnames = []
 
     for i in sortedData1:
         lScores.append(i[1])
+        lnames.append(i[0])
 
     # print(lScores)
 
-    count = countDocs(collection = 'testcollection')
+    count = countDocs(collection='testcollection')
 
-    dataDict = {'name':name, 'score':score, 'time':time}
+    dataDict = {'name': name, 'score': score, 'time': time}
 
     sending = False
 
-    lTimes = sameScoreTimes(data = sortedData1, score = min(lScores))
+    lTimes = sameScoreTimes(data=sortedData1, score=min(lScores))
 
     if count < ndataset:
         sending = True
@@ -126,17 +133,33 @@ def pushData(name, score, time):
         if lScores.count(min(lScores)) == 1:
             for i in sortedData1:
                 if i[1] == min(lScores):
-                    deleteDoc(collection = 'testcollection', refid = i[4])
+                    deleteDoc(collection='testcollection', refid=i[4])
     elif score == min(lScores):
         if time < max(lTimes):
             sending = True
             for i in sortedData1:
                 if i[2] == max(lTimes):
-                    deleteDoc(collection = 'testcollection', refid = i[4])
+                    deleteDoc(collection='testcollection', refid=i[4])
 
     if (sending):
-        pushDictData(collection = 'testcollection', data = dataDict)
-        print("Data sent successfully!")
+        if (bigGame):
+            for i in sortedData1:
+                if name == i[0]:
+                    deleteDoc(collection='testcollection', refid=i[4])
+                    pushDictData(collection='testcollection', data=dataDict)
+                    print("Data sent successfully!")
+                    bigGame = True
+        else:
+            if name in lnames:
+                print(
+                    'A player already thrives on the leaderboard with this name. Kindly enter the new name.'
+                )
+                changeName()
+                # send data with changed name
+                pass
+            else:
+                pushDictData(collection='testcollection', data=dataDict)
+                print("Data sent successfully!")
     else:
         print("Data not sent since conditions are not met")
 
@@ -166,45 +189,53 @@ def pullingSortedData():
 
 def saveGameDataForLater(name, score, time):
     try:
-        fileR = open('savedData.dat',"rb")
+        fileR = open('savedData.dat', "rb")
         data = pickle.load(fileR)
         if data['score'] < score:
-            fileW = open('savedData.dat','wb')
+            fileW = open('savedData.dat', 'wb')
             pickle.dump(data, fileW)
         elif data['score'] == score:
             if data['time'] > time:
-                fileW = open('savedData.dat','wb')
+                fileW = open('savedData.dat', 'wb')
                 pickle.dump(data, fileW)
         fileR.close()
     except:
-        file = open('savedData.dat','wb')
-        data = {'name':name, 'score':score, 'time':time}
+        file = open('savedData.dat', 'wb')
+        data = {'name': name, 'score': score, 'time': time}
         pickle.dump(data, file)
         file.close()
+
 
 sortedData = pullingSortedData()
 
 if internet and os.path.exists("savedData.dat"):
     try:
-        fileR = open('savedData.dat',"rb")
+        fileR = open('savedData.dat', "rb")
         data = pickle.load(fileR)
-        pushData(name = data['name'], score = data['score'], time = data['time'])
+        pushData(name=data['name'], score=data['score'], time=data['time'])
         fileR.close()
         os.remove("savedData.dat")
         print('Saved data from previous games sent')
     except:
-        print('Saved data from previous games couldn\'t be sent due to an unexpected error')
+        print(
+            'Saved data from previous games couldn\'t be sent due to an unexpected error'
+        )
 
 # line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
-# rect pygame.draw.rect(SCREEN, BLUE, (400,400,50,25)) #screen, color, (starting_x, starting_y, width,height)
+# rect pygame.draw.rect(SCREEN, BLUE, (390,390,50,25)) #screen, color, (starting_x, starting_y, width,height)
 # circle pygame.draw.circle(SCREEN, BLUE, (150,150), 75) #screen, color, (center_x, center_y), radius)
-# polygon pygame.draw.polygon(SCREEN, BLUE, ((25,75),(76,125),(250,375),(400,25),(60,540))) #screen, color, (coordinates of polygon(consecutive))
+# polygon pygame.draw.polygon(SCREEN, BLUE, ((25,75),(76,125),(250,375),(390,25),(60,540))) #screen, color, (coordinates of polygon(consecutive))
 # image pygame.image.load("space-invaders.png")
+
+
+def changeName():
+    pass
+
 
 #constants
 LENGTH = 454
 PIXEL = 15
-SCREEN = pygame.display.set_mode((LENGTH, LENGTH))
+SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH), pygame.RESIZABLE)
 CLOCK = pygame.time.Clock()
 rate = 8
 #colours
@@ -229,11 +260,10 @@ ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
 
 #user data
 def newUser_init():
-    global Cursor, Text_Ent, Text_Val, iterrr
+    global Cursor, Text_Val, iterrr
     iterrr = 0
     Cursor = False
     Text_Val = ''
-    Text_Ent = False
 
 
 try:
@@ -246,6 +276,7 @@ except pickle.UnpicklingError:
 if non_cheater:
     if data['name'] == '' or data['name'] == None:
         user = 'NewUser'
+        print('Redirecting to New User')
         newUser_init()
     else:
         user = 'Home'
@@ -330,10 +361,9 @@ def home():
     if newUser:
         newUser_init()
         user = 'NewUser'
-    user = 'Emulator' if button('Emulator', 200, 200, 100, 30) else user
-    if user == 'Emulator':
-        start = time.time()
+    user = 'Arsenal' if button('Play Game', 200, 200, 100, 30) else user
     user = 'LeaderBoard' if button('LeaderBoard', 200, 300, 100, 30) else user
+    user = 'MarketPlace' if button('Shop', 200, 400, 100, 30) else user
 
 
     # if not done:
@@ -344,13 +374,84 @@ def home():
     #     done = not d
 
 
-def emulator_params():
-    global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm, teleport
-    global Theme
-    Theme = [BLACK, (210, 190, 210), RED, YELLOW, GREY, GREEN, BLUE, WHITE]
-    # bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col
+selected_items = [False, False, False, False, False, False]
 
-    teleport = True
+
+def arsenal():
+    global user, start, SCREEN, selected_items
+    LENGTH = pygame.display.get_surface().get_width()
+    # LENGTH = 554
+    # SCREEN = pygame.display.set_mode((LENGTH, 454))
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('Your Arsenel for the game', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
+    with open('items.dat', 'rb') as file:
+        list_items = pickle.load(file)
+        mul = (LENGTH - 30) // 3
+        for i, item in enumerate(list_items['Powerups'].items()):
+            if i <= 2:
+                global event_list
+                pos = pygame.mouse.get_pos()
+                x, y, width, height = (20 + i * mul, 100, mul - 20, 130)
+                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                 (x + 5, y + 5, width - 10, height - 10))
+                SCREEN.blit(def_powerup, (45 + i * mul, 110))
+                if i <= 1:
+                    show(''.join(item[0].split()[0:2]), BLACK,
+                         (50 if i == 0 else 40) + i * mul, 195, 16)
+                    show(item[0].split()[2], BLACK, 50 + i * mul, 210, 16)
+                else:
+                    show(item[0], BLACK, 40 + i * mul, 195, 16)
+                s = pygame.Surface((width, height))
+                s.set_colorkey(GREY)
+                s.set_alpha(0)
+                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
+                        1] <= y + height:
+                    if pygame.mouse.get_pressed()[0]:
+                        selected_items[i] = not selected_items[i]
+                    s.set_alpha(60)
+                if selected_items[i]:
+                    s.set_alpha(120)
+                SCREEN.blit(s, (x, y))
+
+            elif i <= 5:
+                x, y, width, height = (20 + (i - 3) * mul, 240, mul - 20, 130)
+                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                 (x + 5, y + 5, width - 10, height - 10))
+                SCREEN.blit(def_powerup, (45 + (i - 3) * mul, 250))
+                show(item[0], BLACK, (25 if i == 4 else 45) + (i - 3) * mul,
+                     335, 16)
+                s = pygame.Surface((width, height))
+                s.set_colorkey(GREY)
+                s.set_alpha(0)
+                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
+                        1] <= y + height:
+                    if pygame.mouse.get_pressed()[0]:
+                        selected_items[i] = not selected_items[i]
+                    s.set_alpha(60)
+                if selected_items[i]:
+                    s.set_alpha(120)
+                SCREEN.blit(s, (x, y))
+
+    user = 'Emulator' if button('Start Game', 180, 370, 100, 30) else user
+    user = 'Home' if button('Home', 390, 370, 100, 30) else user
+    if user == 'Emulator':
+        emulator_params()
+
+
+def emulator_params():
+    global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
+    global Theme, blocks, LENGTH, rate, start, SCREEN
+    LENGTH = 454
+    rate = 4 if selected_items[3] else (12 if selected_items[2] else 8)
+    Theme = [
+        LIGHTBROWN, (210, 190, 210), RED, YELLOW, GREY, GREEN, BLUE, WHITE,
+        DARKBROWN
+    ]
+    # bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col, text_bg
     score = 0
     realm = False
     rnt = [0, 0, 0]
@@ -401,18 +502,21 @@ def emulator_params():
             Y = 2 + (y + 2) * PIXEL
             block = Blocks(X, Y)
             blocks.append(block)
-    return blocks
+    SCREEN = pygame.display.set_mode((LENGTH, LENGTH))
+    start = time.time()
 
 
-def emulator(blocks):
-    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start
-    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, teleport, user, data
+def emulator():
+    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks
+    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data
     gameover = False
     SCREEN.fill(Theme[0])
+    pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
     #Bomb
     if counter[0] == 0:
         bombx, bomby = -1, -1
-        rnt[0] = random.randint(20, 35)
+        rnt[0] = random.randint((150 if selected_items[4] else 20),
+                                (160 if selected_items[4] else 35))
     elif counter[0] == rnt[0]:
         Bomb = True
     elif counter[0] == rnt[0] + 40:
@@ -420,7 +524,8 @@ def emulator(blocks):
     #SpeedUp
     if counter[1] == 0:
         speedupx, speedupy = -1, -1
-        rnt[1] = random.randint(65, 85)
+        rnt[1] = random.randint((20 if selected_items[1] else 65),
+                                (35 if selected_items[1] else 85))
     elif counter[1] == rnt[1]:
         SpeedUp = True
     elif counter[1] == rnt[1] + 60:  # + (rate - 8) * 5:
@@ -428,7 +533,8 @@ def emulator(blocks):
     #SpeedDown
     if counter[2] == 0:
         speeddownx, speeddowny = -1, -1
-        rnt[2] = random.randint(50, 65)
+        rnt[2] = random.randint((20 if selected_items[0] else 65),
+                                (35 if selected_items[0] else 85))
     elif counter[2] == rnt[2]:
         SpeedDown = True
     elif counter[2] == rnt[2] + 60:
@@ -486,10 +592,10 @@ def emulator(blocks):
         score += 150
     if (tuple(snake) in body[1::]):
         gameover = True
-    if not (-10 < snake[0] <
-            450) or not (-10 + 2 * PIXEL < snake[1] < 450) and not teleport:
+    if not (-10 < snake[0] < 450) or not (-10 + 2 * PIXEL < snake[1] <
+                                          450) and not selected_items[5]:
         gameover = True
-    if teleport:
+    if selected_items[5]:
         snake[0] = -13 if snake[0] == 452 else (
             452 if snake[0] == -13 else snake[0])
         snake[1] = 17 if snake[1] == 452 else (
@@ -502,28 +608,35 @@ def emulator(blocks):
 
         if internet:
             try:
-                # pushData(name = data['name'], score = score, time = time)
                 pushData(data['name'], score, data['time'])
             except:
                 print('Data not sent to servers due to an unexpected error')
                 saveGameDataForLater(data['name'], score, data['time'])
         else:
-            print('Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.')
+            print(
+                'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
+            )
             saveGameDataForLater(data['name'], score, data['time'])
 
     #Score
     data['highscore'] = score if score > data['highscore'] else data[
         'highscore']
-    show("Score :" + str(score), Theme[7], 0, 0, 16)
-    show("Speed :" + str(rate if rate < 200 else 0), Theme[7], 100, 0, 16)
-    show("High Score :" + str(data['highscore']), Theme[7], 200, 0, 16)
+    mul = (LENGTH) // 3
+    pygame.draw.rect(SCREEN, DARKBROWN, (mul - 140, 2, 95, 24))
+    show("Score :" + str(score), Theme[7], mul - 140 + 5, 6, 16)
+    pygame.draw.rect(SCREEN, DARKBROWN, (mul * 2 - 140, 2, 90, 24))
+    show("Speed :" + str(rate if rate < 200 else 0), Theme[7],
+         mul * 2 - 140 + 5, 6, 16)
+    pygame.draw.rect(SCREEN, DARKBROWN, (mul * 3 - 145, 2, 140, 24))
+    show("High Score :" + str(data['highscore']), Theme[7], mul * 3 - 145 + 5,
+         6, 16)
     # 0 speed Realm
     if rate == 0:
         realm = True
         t0 = time.time()
         rate = 200
     if realm:
-        teleport = True
+        selected_items[5] = True
         Theme[2], Theme[7] = Theme[7], Theme[2]
         Theme[4] = Theme[0]
         Theme[5], Theme[3], Theme[6], Theme[1] = VOILET, VOILET, VOILET, VOILET
@@ -570,23 +683,13 @@ def emulator(blocks):
         snake[0] += PIXEL
 
 
-def leaderboard_params():
-    # global Variables
-    # var1 = 'abcd'
-    # var2 = 1234
-    # var3 = 'Bruce'
-    # var4 = 'JS'
-    # Variables = [var1, var2, var3, var4]
-    pass
-
-
 def leaderboard():
-    global Variables, sortedData
+    global sortedData
     # fauna
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('LEADERBOARDS', WHITE, 10, 10, 20)
-    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 60, LENGTH - 20, LENGTH - 74))
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     if len(sortedData) > 0:
         for i, dt in enumerate(sortedData):
             if i < 10:
@@ -601,32 +704,96 @@ def leaderboard():
         print('Refresh clicked')
 
 
+def marketplace():
+    global user, start, SCREEN, LENGTH, selected_items
+    LENGTH = pygame.display.get_surface().get_width()
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('MARKET PLACE', WHITE, 10, 10, 20)
+    mul = (LENGTH - 30) // 4
+    pygame.draw.rect(SCREEN, LIGHTBROWN,
+                     (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
+    with open('items.dat', 'rb') as file:
+        list_items = pickle.load(file)
+        for i, item in enumerate(list_items['Powerups'].items()):
+            if i <= 2:
+                global event_list
+                pos = pygame.mouse.get_pos()
+                x, y, width, height = (20 + (i + 1) * mul, 70, mul - 20, 160)
+                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                 (x + 5, y + 5, width - 10, height - 10))
+                s = pygame.Surface((width, height))
+                s.set_colorkey(GREY)
+                s.set_alpha(0)
+                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
+                        1] <= y + height:
+                    if pygame.mouse.get_pressed()[0]:
+                        selected_items[i] = not selected_items[i]
+                    s.set_alpha(60)
+                if selected_items[i]:
+                    s.set_alpha(120)
+                SCREEN.blit(s, (x, y))
+
+            elif i <= 5:
+                x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20, 160)
+                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                 (x + 5, y + 5, width - 10, height - 10))
+                s = pygame.Surface((width, height))
+                s.set_colorkey(GREY)
+                s.set_alpha(0)
+                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
+                        1] <= y + height:
+                    if pygame.mouse.get_pressed()[0]:
+                        selected_items[i] = not selected_items[i]
+                    s.set_alpha(60)
+                if selected_items[i]:
+                    s.set_alpha(120)
+                SCREEN.blit(s, (x, y))
+    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
+
+
 def settings_params():
     pass
 
 
 def settings():
-    SCREEN.fill(BLACK)
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('LEADERBOARDS', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     pass
 
 
 def gameover():
+    global user, selected_items, SCREEN
+    selected_items = [False, False, False, False, False, False]
+    SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
     SCREEN.fill(BLACK)
+    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     show('Game Over', WHITE, 100, 200, 42)
 
 
 def newuser():
-    global user, Text_Val, Text_Ent, iterrr, Cursor, data
-    SCREEN.fill(BLACK)
-    show('Start typing your name :', WHITE, 20, 30, 32)
-    show(Text_Val, WHITE, 20, 100, 32)
-    if iterrr % 8 == 0:
-        Text_Val = Text_Val[:-1] + '|'
-        Cursor = True
-    if iterrr % 8 == 4 and Cursor:
-        Text_Val = Text_Val[:-1] + ' '
-        Cursor = False
-    iterrr += 1
+    LENGTH = pygame.display.get_surface().get_width()
+    global user, Text_Val, iterrr, Cursor, data
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('LEADERBOARDS', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
+    if len(Text_Val) == 0:
+        show("Type your name here.", WHITE, (LENGTH - 200) // 2, 220, 20)
+    else:
+        show(Text_Val, WHITE, (LENGTH - len(Text_Val) * 10) // 2, 220, 20)
+        if iterrr % 8 == 0:
+            Text_Val = Text_Val[:-1] + '|'
+            Cursor = True
+        if iterrr % 8 == 4 and Cursor:
+            Text_Val = Text_Val[:-1] + ' '
+            Cursor = False
+        iterrr += 1
+    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     #
     # if iterrr>10:
     #     Text_Val+='|'
@@ -634,6 +801,15 @@ def newuser():
     #     Text_Val=Text_Val[:-1]
     # iterrr+=1
     # iterrr=0 if iterrr>20 else iterrr
+    pygame.draw.line(SCREEN, DARKBROWN, (50, 250), (LENGTH - 50, 250), 1)
+    Text_Ent = button('Create Account', (LENGTH - 155) // 2,
+                      260,
+                      140,
+                      40,
+                      bg_color=DARKBROWN,
+                      text_col=WHITE,
+                      text_size=14,
+                      hover_width=0)
     for event in event_list:
         if event.type == pygame.KEYDOWN:
             if event.unicode in ALPHA:
@@ -649,9 +825,6 @@ def newuser():
         update_data()
         user = 'Home'
 
-    hScreen = button('Home', 200, 200, 100, 50)
-    if hScreen: user = 'Home'
-
 
 def cheater():
     SCREEN.fill(BLACK)
@@ -663,16 +836,14 @@ def cheater():
 def main():
     global event_list, Text_Val
     SCREEN.fill(BLACK)
-    leaderboard_params()
     settings_params()
-    blocks = emulator_params()
     home_params()
     while True:
         event_list = pygame.event.get()
         if user == 'Home':
             home()
         elif user == 'Emulator':
-            emulator(blocks)
+            emulator()
         elif user == 'LeaderBoard':
             leaderboard()
         elif user == 'Settings':
@@ -683,6 +854,14 @@ def main():
             newuser()
         elif user == 'Cheater':
             cheater()
+        elif user == 'Arsenal':
+            arsenal()
+        elif user == 'MarketPlace':
+            marketplace()
+        elif user == 'Inventory':
+            inventory()
+        elif user == 'Missions':
+            missions()
         for event in event_list:
             if event.type == pygame.QUIT:
                 pygame.quit()
