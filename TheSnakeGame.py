@@ -5,9 +5,16 @@ import time
 import random
 import pickle
 import os
+
+from pygame.constants import MULTIGESTURE
 pygame.init()
 
 import urllib.request
+
+#image
+def_powerup = pygame.transform.scale(
+    pygame.image.load(r'images\powerups\Default.PNG'),
+    (70, int(70 * 149 / 129)))
 
 
 def connect(host='http://google.com'):
@@ -215,9 +222,9 @@ if internet and os.path.exists("savedData.dat"):
         )
 
 # line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
-# rect pygame.draw.rect(SCREEN, BLUE, (400,400,50,25)) #screen, color, (starting_x, starting_y, width,height)
+# rect pygame.draw.rect(SCREEN, BLUE, (390,390,50,25)) #screen, color, (starting_x, starting_y, width,height)
 # circle pygame.draw.circle(SCREEN, BLUE, (150,150), 75) #screen, color, (center_x, center_y), radius)
-# polygon pygame.draw.polygon(SCREEN, BLUE, ((25,75),(76,125),(250,375),(400,25),(60,540))) #screen, color, (coordinates of polygon(consecutive))
+# polygon pygame.draw.polygon(SCREEN, BLUE, ((25,75),(76,125),(250,375),(390,25),(60,540))) #screen, color, (coordinates of polygon(consecutive))
 # image pygame.image.load("space-invaders.png")
 
 
@@ -228,7 +235,7 @@ def changeName():
 #constants
 LENGTH = 454
 PIXEL = 15
-SCREEN = pygame.display.set_mode((LENGTH, LENGTH))
+SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH), pygame.RESIZABLE)
 CLOCK = pygame.time.Clock()
 rate = 8
 #colours
@@ -354,10 +361,9 @@ def home():
     if newUser:
         newUser_init()
         user = 'NewUser'
-    user = 'Emulator' if button('Emulator', 200, 200, 100, 30) else user
-    if user == 'Emulator':
-        start = time.time()
+    user = 'Arsenal' if button('Play Game', 200, 200, 100, 30) else user
     user = 'LeaderBoard' if button('LeaderBoard', 200, 300, 100, 30) else user
+    user = 'MarketPlace' if button('Shop', 200, 400, 100, 30) else user
 
     # if not done:
     #     d = screen_animation()
@@ -365,6 +371,128 @@ def home():
     # if done:
     #     d = screen_animation(True)
     #     done = not d
+
+
+selected_items = [False, False, False, False, False, False]
+
+
+def arsenal():
+    global user, start, SCREEN, LENGTH, selected_items
+    LENGTH = pygame.display.get_surface().get_width()
+    # LENGTH = 554
+    # SCREEN = pygame.display.set_mode((LENGTH, 454))
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('Your Arsenel for the game', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
+    with open('items.dat', 'rb') as file:
+        list_items = pickle.load(file)
+        mul = (LENGTH - 30) // 3
+        for i, item in enumerate(list_items['Powerups'].items()):
+            if i <= 2:
+                global event_list
+                pos = pygame.mouse.get_pos()
+                x, y, width, height = (20 + i * mul, 100, mul - 20, 130)
+                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                 (x + 5, y + 5, width - 10, height - 10))
+                SCREEN.blit(def_powerup, (45 + i * mul, 110))
+                if i <= 1:
+                    show(''.join(item[0].split()[0:2]), BLACK,
+                         (50 if i == 0 else 40) + i * mul, 195, 16)
+                    show(item[0].split()[2], BLACK, 50 + i * mul, 210, 16)
+                else:
+                    show(item[0], BLACK, 40 + i * mul, 195, 16)
+                s = pygame.Surface((width, height))
+                s.set_colorkey(GREY)
+                s.set_alpha(0)
+                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
+                        1] <= y + height:
+                    if pygame.mouse.get_pressed()[0]:
+                        selected_items[i] = not selected_items[i]
+                    s.set_alpha(60)
+                if selected_items[i]:
+                    s.set_alpha(120)
+                SCREEN.blit(s, (x, y))
+
+            elif i <= 5:
+                x, y, width, height = (20 + (i - 3) * mul, 240, mul - 20, 130)
+                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                 (x + 5, y + 5, width - 10, height - 10))
+                SCREEN.blit(def_powerup, (45 + (i - 3) * mul, 250))
+                show(item[0], BLACK, (25 if i == 4 else 45) + (i - 3) * mul,
+                     335, 16)
+                s = pygame.Surface((width, height))
+                s.set_colorkey(GREY)
+                s.set_alpha(0)
+                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
+                        1] <= y + height:
+                    if pygame.mouse.get_pressed()[0]:
+                        selected_items[i] = not selected_items[i]
+                    s.set_alpha(60)
+                if selected_items[i]:
+                    s.set_alpha(120)
+                SCREEN.blit(s, (x, y))
+
+    user = 'Emulator' if button('Start Game', 180, 370, 100, 30) else user
+    user = 'Home' if button('Home', 390, 370, 100, 30) else user
+    if user == 'Emulator':
+        LENGTH = 454
+        start = time.time()
+
+
+def marketplace():
+    global user, start, SCREEN, LENGTH, selected_items
+    LENGTH = pygame.display.get_surface().get_width()
+    # LENGTH = 554
+    # SCREEN = pygame.display.set_mode((LENGTH, 454))
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('MARKET PLACE', WHITE, 10, 10, 20)
+    mul = (LENGTH - 30) // 4
+    pygame.draw.rect(SCREEN, DARKBROWN, (10, 50, mul - 10 - 5, 390))
+    pygame.draw.rect(SCREEN, LIGHTBROWN,
+                     (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
+    with open('items.dat', 'rb') as file:
+        list_items = pickle.load(file)
+        for i, item in enumerate(list_items['Powerups'].items()):
+            if i <= 2:
+                global event_list
+                pos = pygame.mouse.get_pos()
+                x, y, width, height = (20 + (i + 1) * mul, 70, mul - 20, 160)
+                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                 (x + 5, y + 5, width - 10, height - 10))
+                s = pygame.Surface((width, height))
+                s.set_colorkey(GREY)
+                s.set_alpha(0)
+                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
+                        1] <= y + height:
+                    if pygame.mouse.get_pressed()[0]:
+                        selected_items[i] = not selected_items[i]
+                    s.set_alpha(60)
+                if selected_items[i]:
+                    s.set_alpha(120)
+                SCREEN.blit(s, (x, y))
+
+            elif i <= 5:
+                x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20, 160)
+                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                 (x + 5, y + 5, width - 10, height - 10))
+                s = pygame.Surface((width, height))
+                s.set_colorkey(GREY)
+                s.set_alpha(0)
+                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
+                        1] <= y + height:
+                    if pygame.mouse.get_pressed()[0]:
+                        selected_items[i] = not selected_items[i]
+                    s.set_alpha(60)
+                if selected_items[i]:
+                    s.set_alpha(120)
+                SCREEN.blit(s, (x, y))
+    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
 
 
 def emulator_params():
@@ -594,23 +722,14 @@ def emulator(blocks):
         snake[0] += PIXEL
 
 
-def leaderboard_params():
-    # global Variables
-    # var1 = 'abcd'
-    # var2 = 1234
-    # var3 = 'Bruce'
-    # var4 = 'JS'
-    # Variables = [var1, var2, var3, var4]
-    pass
-
-
 def leaderboard():
-    global Variables, sortedData
+    LENGTH = pygame.display.get_surface().get_width()
+    global sortedData
     # fauna
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('LEADERBOARDS', WHITE, 10, 10, 20)
-    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 60, LENGTH - 20, LENGTH - 74))
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     if len(sortedData) > 0:
         for i, dt in enumerate(sortedData):
             if i < 10:
@@ -635,6 +754,7 @@ def settings():
 
 
 def gameover():
+    SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
     SCREEN.fill(BLACK)
     show('Game Over', WHITE, 100, 200, 42)
 
@@ -687,7 +807,6 @@ def cheater():
 def main():
     global event_list, Text_Val
     SCREEN.fill(BLACK)
-    leaderboard_params()
     settings_params()
     blocks = emulator_params()
     home_params()
@@ -707,6 +826,14 @@ def main():
             newuser()
         elif user == 'Cheater':
             cheater()
+        elif user == 'Arsenal':
+            arsenal()
+        elif user == 'MarketPlace':
+            marketplace()
+        elif user == 'Inventory':
+            inventory()
+        elif user == 'Missions':
+            missions()
         for event in event_list:
             if event.type == pygame.QUIT:
                 pygame.quit()
