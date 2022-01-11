@@ -14,7 +14,7 @@ def connect(host='http://google.com'):
     try:
         urllib.request.urlopen(host)
         # print('Internet is on')
-        return True        
+        return True
     except:
         return False
 
@@ -38,6 +38,7 @@ if internet:
         scheme="https")
 
 ndataset = 10
+
 
 def sortedLeaderboardList(index, collection):
     indexes = client.query(q.paginate(q.match(q.index(index))))
@@ -93,28 +94,30 @@ def sameScoreTimes(data, score):
     return lTimes
 
 
+def pushData(name, score, time, bigGame):
 
-def pushData(name, score, time):
-
-    sortedData1 = sortedLeaderboardList(index = 'testindex', collection = 'testcollection')
+    sortedData1 = sortedLeaderboardList(index='testindex',
+                                        collection='testcollection')
 
     # for i in sortedData1:
     #     print(i)
 
     lScores = []
+    lnames = []
 
     for i in sortedData1:
         lScores.append(i[1])
+        lnames.append(i[0])
 
     # print(lScores)
 
-    count = countDocs(collection = 'testcollection')
+    count = countDocs(collection='testcollection')
 
-    dataDict = {'name':name, 'score':score, 'time':time}
+    dataDict = {'name': name, 'score': score, 'time': time}
 
     sending = False
 
-    lTimes = sameScoreTimes(data = sortedData1, score = min(lScores))
+    lTimes = sameScoreTimes(data=sortedData1, score=min(lScores))
 
     if count < ndataset:
         sending = True
@@ -123,17 +126,33 @@ def pushData(name, score, time):
         if lScores.count(min(lScores)) == 1:
             for i in sortedData1:
                 if i[1] == min(lScores):
-                    deleteDoc(collection = 'testcollection', refid = i[4])
+                    deleteDoc(collection='testcollection', refid=i[4])
     elif score == min(lScores):
         if time < max(lTimes):
             sending = True
             for i in sortedData1:
                 if i[2] == max(lTimes):
-                    deleteDoc(collection = 'testcollection', refid = i[4])
+                    deleteDoc(collection='testcollection', refid=i[4])
 
     if (sending):
-        pushDictData(collection = 'testcollection', data = dataDict)
-        print("Data sent successfully!")
+        if (bigGame):
+            for i in sortedData1:
+                if name == i[0]:
+                    deleteDoc(collection='testcollection', refid=i[4])
+                    pushDictData(collection='testcollection', data=dataDict)
+                    print("Data sent successfully!")
+                    bigGame = True
+        else:
+            if name in lnames:
+                print(
+                    'A player already thrives on the leaderboard with this name. Kindly enter the new name.'
+                )
+                changeName()
+                # send data with changed name
+                pass
+            else:
+                pushDictData(collection='testcollection', data=dataDict)
+                print("Data sent successfully!")
     else:
         print("Data not sent since conditions are not met")
 
@@ -163,40 +182,48 @@ def pullingSortedData():
 
 def saveGameDataForLater(name, score, time):
     try:
-        fileR = open('savedData.dat',"rb")
+        fileR = open('savedData.dat', "rb")
         data = pickle.load(fileR)
         if data['score'] < score:
-            fileW = open('savedData.dat','wb')
+            fileW = open('savedData.dat', 'wb')
             pickle.dump(data, fileW)
         elif data['score'] == score:
             if data['time'] > time:
-                fileW = open('savedData.dat','wb')
+                fileW = open('savedData.dat', 'wb')
                 pickle.dump(data, fileW)
         fileR.close()
     except:
-        file = open('savedData.dat','wb')
-        data = {'name':name, 'score':score, 'time':time}
+        file = open('savedData.dat', 'wb')
+        data = {'name': name, 'score': score, 'time': time}
         pickle.dump(data, file)
         file.close()
+
 
 sortedData = pullingSortedData()
 
 if internet and os.path.exists("savedData.dat"):
     try:
-        fileR = open('savedData.dat',"rb")
+        fileR = open('savedData.dat', "rb")
         data = pickle.load(fileR)
-        pushData(name = data['name'], score = data['score'], time = data['time'])
+        pushData(name=data['name'], score=data['score'], time=data['time'])
         fileR.close()
         os.remove("savedData.dat")
         print('Saved data from previous games sent')
     except:
-        print('Saved data from previous games couldn\'t be sent due to an unexpected error')
+        print(
+            'Saved data from previous games couldn\'t be sent due to an unexpected error'
+        )
 
 # line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
 # rect pygame.draw.rect(SCREEN, BLUE, (400,400,50,25)) #screen, color, (starting_x, starting_y, width,height)
 # circle pygame.draw.circle(SCREEN, BLUE, (150,150), 75) #screen, color, (center_x, center_y), radius)
 # polygon pygame.draw.polygon(SCREEN, BLUE, ((25,75),(76,125),(250,375),(400,25),(60,540))) #screen, color, (coordinates of polygon(consecutive))
 # image pygame.image.load("space-invaders.png")
+
+
+def changeName():
+    pass
+
 
 #constants
 LENGTH = 454
@@ -498,13 +525,14 @@ def emulator(blocks):
 
         if internet:
             try:
-                # pushData(name = data['name'], score = score, time = time)
                 pushData(data['name'], score, data['time'])
             except:
                 print('Data not sent to servers due to an unexpected error')
                 saveGameDataForLater(data['name'], score, data['time'])
         else:
-            print('Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.')
+            print(
+                'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
+            )
             saveGameDataForLater(data['name'], score, data['time'])
 
     #Score
