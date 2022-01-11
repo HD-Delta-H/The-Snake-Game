@@ -260,11 +260,10 @@ ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
 
 #user data
 def newUser_init():
-    global Cursor, Text_Ent, Text_Val, iterrr
+    global Cursor, Text_Val, iterrr
     iterrr = 0
     Cursor = False
     Text_Val = ''
-    Text_Ent = False
 
 
 try:
@@ -277,6 +276,7 @@ except pickle.UnpicklingError:
 if non_cheater:
     if data['name'] == '' or data['name'] == None:
         user = 'NewUser'
+        print('Redirecting to New User')
         newUser_init()
     else:
         user = 'Home'
@@ -377,7 +377,7 @@ selected_items = [False, False, False, False, False, False]
 
 
 def arsenal():
-    global user, start, SCREEN, LENGTH, selected_items
+    global user, start, SCREEN, selected_items
     LENGTH = pygame.display.get_surface().get_width()
     # LENGTH = 554
     # SCREEN = pygame.display.set_mode((LENGTH, 454))
@@ -438,70 +438,19 @@ def arsenal():
     user = 'Emulator' if button('Start Game', 180, 370, 100, 30) else user
     user = 'Home' if button('Home', 390, 370, 100, 30) else user
     if user == 'Emulator':
-        LENGTH = 454
-        start = time.time()
-
-
-def marketplace():
-    global user, start, SCREEN, LENGTH, selected_items
-    LENGTH = pygame.display.get_surface().get_width()
-    # LENGTH = 554
-    # SCREEN = pygame.display.set_mode((LENGTH, 454))
-    SCREEN.fill(BLACKBROWN)
-    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-    show('MARKET PLACE', WHITE, 10, 10, 20)
-    mul = (LENGTH - 30) // 4
-    pygame.draw.rect(SCREEN, DARKBROWN, (10, 50, mul - 10 - 5, 390))
-    pygame.draw.rect(SCREEN, LIGHTBROWN,
-                     (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
-    with open('items.dat', 'rb') as file:
-        list_items = pickle.load(file)
-        for i, item in enumerate(list_items['Powerups'].items()):
-            if i <= 2:
-                global event_list
-                pos = pygame.mouse.get_pos()
-                x, y, width, height = (20 + (i + 1) * mul, 70, mul - 20, 160)
-                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
-                pygame.draw.rect(SCREEN, LIGHTBROWN,
-                                 (x + 5, y + 5, width - 10, height - 10))
-                s = pygame.Surface((width, height))
-                s.set_colorkey(GREY)
-                s.set_alpha(0)
-                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
-                        1] <= y + height:
-                    if pygame.mouse.get_pressed()[0]:
-                        selected_items[i] = not selected_items[i]
-                    s.set_alpha(60)
-                if selected_items[i]:
-                    s.set_alpha(120)
-                SCREEN.blit(s, (x, y))
-
-            elif i <= 5:
-                x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20, 160)
-                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
-                pygame.draw.rect(SCREEN, LIGHTBROWN,
-                                 (x + 5, y + 5, width - 10, height - 10))
-                s = pygame.Surface((width, height))
-                s.set_colorkey(GREY)
-                s.set_alpha(0)
-                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
-                        1] <= y + height:
-                    if pygame.mouse.get_pressed()[0]:
-                        selected_items[i] = not selected_items[i]
-                    s.set_alpha(60)
-                if selected_items[i]:
-                    s.set_alpha(120)
-                SCREEN.blit(s, (x, y))
-    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
+        emulator_params()
 
 
 def emulator_params():
-    global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm, teleport
-    global Theme
-    Theme = [BLACK, (210, 190, 210), RED, YELLOW, GREY, GREEN, BLUE, WHITE]
-    # bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col
-
-    teleport = True
+    global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
+    global Theme, blocks, LENGTH, rate, start, SCREEN
+    LENGTH = 454
+    rate = 4 if selected_items[3] else (12 if selected_items[2] else 8)
+    Theme = [
+        LIGHTBROWN, (210, 190, 210), RED, YELLOW, GREY, GREEN, BLUE, WHITE,
+        DARKBROWN
+    ]
+    # bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col, text_bg
     score = 0
     realm = False
     rnt = [0, 0, 0]
@@ -552,18 +501,21 @@ def emulator_params():
             Y = 2 + (y + 2) * PIXEL
             block = Blocks(X, Y)
             blocks.append(block)
-    return blocks
+    SCREEN = pygame.display.set_mode((LENGTH, LENGTH))
+    start = time.time()
 
 
-def emulator(blocks):
-    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start
-    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, teleport, user, data
+def emulator():
+    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks
+    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data
     gameover = False
     SCREEN.fill(Theme[0])
+    pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
     #Bomb
     if counter[0] == 0:
         bombx, bomby = -1, -1
-        rnt[0] = random.randint(20, 35)
+        rnt[0] = random.randint((150 if selected_items[4] else 20),
+                                (160 if selected_items[4] else 35))
     elif counter[0] == rnt[0]:
         Bomb = True
     elif counter[0] == rnt[0] + 40:
@@ -571,7 +523,8 @@ def emulator(blocks):
     #SpeedUp
     if counter[1] == 0:
         speedupx, speedupy = -1, -1
-        rnt[1] = random.randint(65, 85)
+        rnt[1] = random.randint((20 if selected_items[1] else 65),
+                                (35 if selected_items[1] else 85))
     elif counter[1] == rnt[1]:
         SpeedUp = True
     elif counter[1] == rnt[1] + 60:  # + (rate - 8) * 5:
@@ -579,7 +532,8 @@ def emulator(blocks):
     #SpeedDown
     if counter[2] == 0:
         speeddownx, speeddowny = -1, -1
-        rnt[2] = random.randint(50, 65)
+        rnt[2] = random.randint((20 if selected_items[0] else 65),
+                                (35 if selected_items[0] else 85))
     elif counter[2] == rnt[2]:
         SpeedDown = True
     elif counter[2] == rnt[2] + 60:
@@ -637,10 +591,10 @@ def emulator(blocks):
         score += 150
     if (tuple(snake) in body[1::]):
         gameover = True
-    if not (-10 < snake[0] <
-            450) or not (-10 + 2 * PIXEL < snake[1] < 450) and not teleport:
+    if not (-10 < snake[0] < 450) or not (-10 + 2 * PIXEL < snake[1] <
+                                          450) and not selected_items[5]:
         gameover = True
-    if teleport:
+    if selected_items[5]:
         snake[0] = -13 if snake[0] == 452 else (
             452 if snake[0] == -13 else snake[0])
         snake[1] = 17 if snake[1] == 452 else (
@@ -666,16 +620,22 @@ def emulator(blocks):
     #Score
     data['highscore'] = score if score > data['highscore'] else data[
         'highscore']
-    show("Score :" + str(score), Theme[7], 0, 0, 16)
-    show("Speed :" + str(rate if rate < 200 else 0), Theme[7], 100, 0, 16)
-    show("High Score :" + str(data['highscore']), Theme[7], 200, 0, 16)
+    mul = (LENGTH) // 3
+    pygame.draw.rect(SCREEN, DARKBROWN, (mul - 140, 2, 95, 24))
+    show("Score :" + str(score), Theme[7], mul - 140 + 5, 6, 16)
+    pygame.draw.rect(SCREEN, DARKBROWN, (mul * 2 - 140, 2, 90, 24))
+    show("Speed :" + str(rate if rate < 200 else 0), Theme[7],
+         mul * 2 - 140 + 5, 6, 16)
+    pygame.draw.rect(SCREEN, DARKBROWN, (mul * 3 - 145, 2, 140, 24))
+    show("High Score :" + str(data['highscore']), Theme[7], mul * 3 - 145 + 5,
+         6, 16)
     # 0 speed Realm
     if rate == 0:
         realm = True
         t0 = time.time()
         rate = 200
     if realm:
-        teleport = True
+        selected_items[5] = True
         Theme[2], Theme[7] = Theme[7], Theme[2]
         Theme[4] = Theme[0]
         Theme[5], Theme[3], Theme[6], Theme[1] = VOILET, VOILET, VOILET, VOILET
@@ -723,7 +683,6 @@ def emulator(blocks):
 
 
 def leaderboard():
-    LENGTH = pygame.display.get_surface().get_width()
     global sortedData
     # fauna
     SCREEN.fill(BLACKBROWN)
@@ -744,33 +703,96 @@ def leaderboard():
         print('Refresh clicked')
 
 
+def marketplace():
+    global user, start, SCREEN, LENGTH, selected_items
+    LENGTH = pygame.display.get_surface().get_width()
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('MARKET PLACE', WHITE, 10, 10, 20)
+    mul = (LENGTH - 30) // 4
+    pygame.draw.rect(SCREEN, LIGHTBROWN,
+                     (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
+    with open('items.dat', 'rb') as file:
+        list_items = pickle.load(file)
+        for i, item in enumerate(list_items['Powerups'].items()):
+            if i <= 2:
+                global event_list
+                pos = pygame.mouse.get_pos()
+                x, y, width, height = (20 + (i + 1) * mul, 70, mul - 20, 160)
+                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                 (x + 5, y + 5, width - 10, height - 10))
+                s = pygame.Surface((width, height))
+                s.set_colorkey(GREY)
+                s.set_alpha(0)
+                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
+                        1] <= y + height:
+                    if pygame.mouse.get_pressed()[0]:
+                        selected_items[i] = not selected_items[i]
+                    s.set_alpha(60)
+                if selected_items[i]:
+                    s.set_alpha(120)
+                SCREEN.blit(s, (x, y))
+
+            elif i <= 5:
+                x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20, 160)
+                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                 (x + 5, y + 5, width - 10, height - 10))
+                s = pygame.Surface((width, height))
+                s.set_colorkey(GREY)
+                s.set_alpha(0)
+                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
+                        1] <= y + height:
+                    if pygame.mouse.get_pressed()[0]:
+                        selected_items[i] = not selected_items[i]
+                    s.set_alpha(60)
+                if selected_items[i]:
+                    s.set_alpha(120)
+                SCREEN.blit(s, (x, y))
+    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
+
+
 def settings_params():
     pass
 
 
 def settings():
-    SCREEN.fill(BLACK)
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('LEADERBOARDS', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     pass
 
 
 def gameover():
+    global user, selected_items, SCREEN
+    selected_items = [False, False, False, False, False, False]
     SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
     SCREEN.fill(BLACK)
+    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     show('Game Over', WHITE, 100, 200, 42)
 
 
 def newuser():
-    global user, Text_Val, Text_Ent, iterrr, Cursor, data
-    SCREEN.fill(BLACK)
-    show('Start typing your name :', WHITE, 20, 30, 32)
-    show(Text_Val, WHITE, 20, 100, 32)
-    if iterrr % 8 == 0:
-        Text_Val = Text_Val[:-1] + '|'
-        Cursor = True
-    if iterrr % 8 == 4 and Cursor:
-        Text_Val = Text_Val[:-1] + ' '
-        Cursor = False
-    iterrr += 1
+    LENGTH = pygame.display.get_surface().get_width()
+    global user, Text_Val, iterrr, Cursor, data
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('LEADERBOARDS', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
+    if len(Text_Val) == 0:
+        show("Type your name here.", WHITE, (LENGTH - 200) // 2, 220, 20)
+    else:
+        show(Text_Val, WHITE, (LENGTH - len(Text_Val) * 10) // 2, 220, 20)
+        if iterrr % 8 == 0:
+            Text_Val = Text_Val[:-1] + '|'
+            Cursor = True
+        if iterrr % 8 == 4 and Cursor:
+            Text_Val = Text_Val[:-1] + ' '
+            Cursor = False
+        iterrr += 1
+    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     #
     # if iterrr>10:
     #     Text_Val+='|'
@@ -778,6 +800,15 @@ def newuser():
     #     Text_Val=Text_Val[:-1]
     # iterrr+=1
     # iterrr=0 if iterrr>20 else iterrr
+    pygame.draw.line(SCREEN, DARKBROWN, (50, 250), (LENGTH - 50, 250), 1)
+    Text_Ent = button('Create Account', (LENGTH - 155) // 2,
+                      260,
+                      140,
+                      40,
+                      bg_color=DARKBROWN,
+                      text_col=WHITE,
+                      text_size=14,
+                      hover_width=0)
     for event in event_list:
         if event.type == pygame.KEYDOWN:
             if event.unicode in ALPHA:
@@ -793,9 +824,6 @@ def newuser():
         update_data()
         user = 'Home'
 
-    hScreen = button('Home', 200, 200, 100, 50)
-    if hScreen: user = 'Home'
-
 
 def cheater():
     SCREEN.fill(BLACK)
@@ -808,14 +836,13 @@ def main():
     global event_list, Text_Val
     SCREEN.fill(BLACK)
     settings_params()
-    blocks = emulator_params()
     home_params()
     while True:
         event_list = pygame.event.get()
         if user == 'Home':
             home()
         elif user == 'Emulator':
-            emulator(blocks)
+            emulator()
         elif user == 'LeaderBoard':
             leaderboard()
         elif user == 'Settings':
