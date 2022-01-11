@@ -287,6 +287,7 @@ def show(msg, color, x, y, size):
                                   size).render(msg, True, color)
     SCREEN.blit(score_show, (x, y))
 
+selected_items = [False, False, False, False, False, False]
 
 I = 0
 iterr = 0
@@ -362,6 +363,7 @@ def home():
         user = 'NewUser'
     user = 'Arsenal' if button('Play Game', 200, 200, 100, 30) else user
     user = 'LeaderBoard' if button('LeaderBoard', 200, 300, 100, 30) else user
+    user = 'Missions' if button('Missions', 200, 350, 100, 30) else user
     user = 'MarketPlace' if button('Shop', 200, 400, 100, 30) else user
 
 
@@ -371,9 +373,6 @@ def home():
     # if done:
     #     d = screen_animation(True)
     #     done = not d
-
-
-selected_items = [False, False, False, False, False, False]
 
 
 def arsenal():
@@ -443,7 +442,7 @@ def arsenal():
 
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
-    global Theme, blocks, LENGTH, rate, start, SCREEN
+    global Theme, blocks, LENGTH, rate, start, SCREEN,popup,applex,appley
     LENGTH = 454
     rate = 4 if selected_items[3] else (12 if selected_items[2] else 8)
     Theme = [
@@ -455,6 +454,7 @@ def emulator_params():
     realm = False
     rnt = [0, 0, 0]
     ee_dec = False
+    popup=False
     ee_done = False
     counter = [0, 0, 0]  #bomb,speedup,speeddown
     Apple = True
@@ -503,56 +503,155 @@ def emulator_params():
             blocks.append(block)
     SCREEN = pygame.display.set_mode((LENGTH, LENGTH))
     start = time.time()
+    applex, appley = random_cord(blocks)
 
 
 def emulator():
-    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks
+    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks,popup
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
-    #Bomb
-    if counter[0] == 0:
-        bombx, bomby = -1, -1
-        rnt[0] = random.randint((150 if selected_items[4] else 20),
-                                (160 if selected_items[4] else 35))
-    elif counter[0] == rnt[0]:
-        Bomb = True
-    elif counter[0] == rnt[0] + 40:
-        counter[0] = -1
-    #SpeedUp
-    if counter[1] == 0:
-        speedupx, speedupy = -1, -1
-        rnt[1] = random.randint((20 if selected_items[1] else 65),
-                                (35 if selected_items[1] else 85))
-    elif counter[1] == rnt[1]:
-        SpeedUp = True
-    elif counter[1] == rnt[1] + 60:  # + (rate - 8) * 5:
-        counter[1] = -1
-    #SpeedDown
-    if counter[2] == 0:
-        speeddownx, speeddowny = -1, -1
-        rnt[2] = random.randint((20 if selected_items[0] else 65),
-                                (35 if selected_items[0] else 85))
-    elif counter[2] == rnt[2]:
-        SpeedDown = True
-    elif counter[2] == rnt[2] + 60:
-        counter[2] = -1
 
-    counter = [x + 1 for x in counter]
-    #Spawner
-    if Apple == True:
-        applex, appley = random_cord(blocks)
-        Apple = False
-    if Bomb == True:
-        bombx, bomby = random_cord(blocks)
-        Bomb = False
-    if SpeedUp == True:
-        speedupx, speedupy = random_cord(blocks)
-        SpeedUp = False
-    if SpeedDown == True:
-        speeddownx, speeddowny = random_cord(blocks)
-        SpeedDown = False
+    body.insert(0, tuple(snake))
+    body.pop(-1)
+    #Collision Logics
+    if not popup:
+        #Bomb
+        if counter[0] == 0:
+            bombx, bomby = -1, -1
+            rnt[0] = random.randint((150 if selected_items[4] else 20),
+                                    (160 if selected_items[4] else 35))
+        elif counter[0] == rnt[0]:
+            Bomb = True
+        elif counter[0] == rnt[0] + 40:
+            counter[0] = -1
+        #SpeedUp
+        if counter[1] == 0:
+            speedupx, speedupy = -1, -1
+            rnt[1] = random.randint((20 if selected_items[1] else 65),
+                                    (35 if selected_items[1] else 85))
+        elif counter[1] == rnt[1]:
+            SpeedUp = True
+        elif counter[1] == rnt[1] + 60:  # + (rate - 8) * 5:
+            counter[1] = -1
+        #SpeedDown
+        if counter[2] == 0:
+            speeddownx, speeddowny = -1, -1
+            rnt[2] = random.randint((20 if selected_items[0] else 65),
+                                    (35 if selected_items[0] else 85))
+        elif counter[2] == rnt[2]:
+            SpeedDown = True
+        elif counter[2] == rnt[2] + 60:
+            counter[2] = -1
+
+        counter = [x + 1 for x in counter]
+        #Spawner
+        if Bomb == True:
+            bombx, bomby = random_cord(blocks)
+            Bomb = False
+        if SpeedUp == True:
+            speedupx, speedupy = random_cord(blocks)
+            SpeedUp = False
+        if SpeedDown == True:
+            speeddownx, speeddowny = random_cord(blocks)
+            SpeedDown = False
+        if tuple(snake) == (applex, appley):
+            body.append(body[-1])
+            Apple = True
+            score += 50
+        elif tuple(snake) == (bombx, bomby):
+            bombx, bomby = -1, -1
+            score -= 100
+        elif tuple(snake) == (speedupx, speedupy):
+            speedupx, speedupy = -1, -1
+            rate += 2
+            score += 150
+        elif tuple(snake) == (speeddownx, speeddowny):
+            speeddownx, speeddowny = -1, -1
+            rate -= 2
+            score += 150
+        if Apple == True:
+            applex, appley = random_cord(blocks)
+            Apple = False
+        if (tuple(snake) in body[1::]):
+            gameover = True
+        if not (-10 < snake[0] < 450) or not (-10 + 2 * PIXEL < snake[1] <
+                                            450) and not selected_items[5]:
+            gameover = True
+        if selected_items[5]:
+            snake[0] = -13 if snake[0] == 452 else (
+                452 if snake[0] == -13 else snake[0])
+            snake[1] = 17 if snake[1] == 452 else (
+                452 if snake[1] == 17 else snake[1])
+        # 0 speed Realm
+        if rate == 0:
+            realm = True
+            t0 = time.time()
+            rate = 200
+        if realm:
+            selected_items[5] = True
+            Theme[2], Theme[7] = Theme[7], Theme[2]
+            Theme[4] = Theme[0]
+            Theme[5], Theme[3], Theme[6], Theme[1] = VOILET, VOILET, VOILET, VOILET
+            if counter[0] % 5 == 0:
+                body.append(body[-1])
+            if counter[0] % 2 == 0:
+                direction = 'up' if snake[1] > 250 else 'down'
+            else:
+                direction = 'left' if snake[0] > 250 else 'right'
+
+            if time.time() - t0 > 3:
+                SCREEN.fill((0, 0, 0))
+                show('The laws of Physics tends to bend when', (200, 200, 200), 20,
+                    210, 22)
+                show('someone enters the speed 0 realm', (200, 200, 200), 45, 240,
+                    22)
+            else:
+                if not ee_done:
+                    ee_dec = screen_animation(False, 5, Theme[7], 0.001)
+                    ee_done = ee_dec
+                if ee_done:
+                    ee_dec = screen_animation(True, 5, Theme[7], 0.0001)
+                    ee_done = not ee_dec
+        #event loop
+
+        for event in event_list:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP and not direction == "down":
+                    direction = "up"
+                if event.key == pygame.K_DOWN and not direction == "up":
+                    direction = "down"
+                if event.key == pygame.K_LEFT and not direction == "right":
+                    direction = "left"
+                if event.key == pygame.K_RIGHT and not direction == "left":
+                    direction = "right"
+        #Movement
+        if direction == 'up':
+            snake[1] -= PIXEL
+        elif direction == 'down':
+            snake[1] += PIXEL
+        elif direction == 'left':
+            snake[0] -= PIXEL
+        elif direction == 'right':
+            snake[0] += PIXEL
+        #GameOver
+        if gameover :    
+            popup = True
+            data['time'] = f'{(time.time() - start):.2f}'
+            update_data()
+
+            if internet:
+                try:
+                    pushData(data['name'], score, data['time'])
+                except:
+                    print('Data not sent to servers due to an unexpected error')
+                    saveGameDataForLater(data['name'], score, data['time'])
+            else:
+                print(
+                    'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
+                )
+                saveGameDataForLater(data['name'], score, data['time'])
     #block loop
     for block in blocks:
         block.block_type = None
@@ -570,56 +669,8 @@ def emulator():
         elif (block.x, block.y) == (speeddownx, speeddowny):
             block.block_type = 'speeddown'
         block.draw()
-
-    body.insert(0, tuple(snake))
-    body.pop(-1)
-    #Collision Logics
-    if tuple(snake) == (applex, appley):
-        body.append(body[-1])
-        Apple = True
-        score += 50
-    elif tuple(snake) == (bombx, bomby):
-        bombx, bomby = -1, -1
-        score -= 100
-    elif tuple(snake) == (speedupx, speedupy):
-        speedupx, speedupy = -1, -1
-        rate += 2
-        score += 150
-    elif tuple(snake) == (speeddownx, speeddowny):
-        speeddownx, speeddowny = -1, -1
-        rate -= 2
-        score += 150
-    if (tuple(snake) in body[1::]):
-        gameover = True
-    if not (-10 < snake[0] < 450) or not (-10 + 2 * PIXEL < snake[1] <
-                                          450) and not selected_items[5]:
-        gameover = True
-    if selected_items[5]:
-        snake[0] = -13 if snake[0] == 452 else (
-            452 if snake[0] == -13 else snake[0])
-        snake[1] = 17 if snake[1] == 452 else (
-            452 if snake[1] == 17 else snake[1])
-    #GameOver
-    if gameover:
-        user = 'GameOver'
-        data['time'] = f'{(time.time() - start):.2f}'
-        update_data()
-
-        if internet:
-            try:
-                pushData(data['name'], score, data['time'])
-            except:
-                print('Data not sent to servers due to an unexpected error')
-                saveGameDataForLater(data['name'], score, data['time'])
-        else:
-            print(
-                'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
-            )
-            saveGameDataForLater(data['name'], score, data['time'])
-
     #Score
-    data['highscore'] = score if score > data['highscore'] else data[
-        'highscore']
+    data['highscore'] = score if score > data['highscore'] else data['highscore']
     mul = (LENGTH) // 3
     pygame.draw.rect(SCREEN, DARKBROWN, (mul - 140, 2, 95, 24))
     show("Score :" + str(score), Theme[7], mul - 140 + 5, 6, 16)
@@ -629,57 +680,16 @@ def emulator():
     pygame.draw.rect(SCREEN, DARKBROWN, (mul * 3 - 145, 2, 140, 24))
     show("High Score :" + str(data['highscore']), Theme[7], mul * 3 - 145 + 5,
          6, 16)
-    # 0 speed Realm
-    if rate == 0:
-        realm = True
-        t0 = time.time()
-        rate = 200
-    if realm:
-        selected_items[5] = True
-        Theme[2], Theme[7] = Theme[7], Theme[2]
-        Theme[4] = Theme[0]
-        Theme[5], Theme[3], Theme[6], Theme[1] = VOILET, VOILET, VOILET, VOILET
-        if counter[0] % 5 == 0:
-            body.append(body[-1])
-        if counter[0] % 2 == 0:
-            direction = 'up' if snake[1] > 250 else 'down'
-        else:
-            direction = 'left' if snake[0] > 250 else 'right'
-
-        if time.time() - t0 > 3:
-            SCREEN.fill((0, 0, 0))
-            show('The laws of Physics tends to bend when', (200, 200, 200), 20,
-                 210, 22)
-            show('someone enters the speed 0 realm', (200, 200, 200), 45, 240,
-                 22)
-        else:
-            if not ee_done:
-                ee_dec = screen_animation(False, 5, Theme[7], 0.001)
-                ee_done = ee_dec
-            if ee_done:
-                ee_dec = screen_animation(True, 5, Theme[7], 0.0001)
-                ee_done = not ee_dec
-    #event loop
-
-    for event in event_list:
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and not direction == "down":
-                direction = "up"
-            if event.key == pygame.K_DOWN and not direction == "up":
-                direction = "down"
-            if event.key == pygame.K_LEFT and not direction == "right":
-                direction = "left"
-            if event.key == pygame.K_RIGHT and not direction == "left":
-                direction = "right"
-    #Movement
-    if direction == 'up':
-        snake[1] -= PIXEL
-    elif direction == 'down':
-        snake[1] += PIXEL
-    elif direction == 'left':
-        snake[0] -= PIXEL
-    elif direction == 'right':
-        snake[0] += PIXEL
+    if popup:
+        s = pygame.Surface((LENGTH, LENGTH))
+        s.set_colorkey(GREY)
+        s.set_alpha(200)
+        SCREEN.blit(s, (0, 0))
+        pygame.draw.rect(SCREEN, DARKBROWN, (LENGTH//2-180, LENGTH//2-150, 360, 300),0,1)
+        pygame.draw.rect(SCREEN, LIGHTBROWN, (LENGTH//2-180+5, LENGTH//2-150+5, 350, 290),0,1)
+        show('Game Over',DARKBROWN,LENGTH//2-120, LENGTH//2-130,40)
+        show("Score :" + str(score),WHITE,LENGTH//2-100, LENGTH//2-80,20)
+        show("High Score :" + str(data['highscore']),WHITE,LENGTH//2-100, LENGTH//2-50,20)
 
 
 def leaderboard():
@@ -701,6 +711,22 @@ def leaderboard():
                LIGHTBROWN)):
         sortedData = pullingSortedData()
         print('Refresh clicked')
+
+
+def missions():
+    global user
+    LENGTH = pygame.display.get_surface().get_width()
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('MISSIONS', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 50, LENGTH - 40, 40),0,8)
+    show("Today's Special Mission :", WHITE, 30, 54, 16)
+    show("Mission Text", WHITE, 35, 74, 14)
+    pygame.draw.line(SCREEN, WHITE, (100, 100), (LENGTH - 20, 100), 3)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 110, LENGTH - 40, 40),0,8)
+    show("Mission 1 :", WHITE, 30, 114, 16)
+    show("Mission Text", WHITE, 35, 134, 14)
+    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
 
 
 def marketplace():
@@ -760,7 +786,7 @@ def settings_params():
 def settings():
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-    show('LEADERBOARDS', WHITE, 10, 10, 20)
+    show('SETTINGS', WHITE, 10, 10, 20)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     pass
 
@@ -779,7 +805,7 @@ def newuser():
     global user, Text_Val, iterrr, Cursor, data
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-    show('LEADERBOARDS', WHITE, 10, 10, 20)
+    show('SIGN UP', WHITE, 10, 10, 20)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     if len(Text_Val) == 0:
         show("Type your name here.", WHITE, (LENGTH - 200) // 2, 220, 20)
