@@ -351,10 +351,10 @@ def home_params():
     # done = False
     # decreaser = False
 
-
-def home():
+breaker=False
+def home(): 
     SCREEN.fill(BLACK)
-    global i, decreaser, done, user, start
+    global i, decreaser, done, user, start,breaker
     show('home', WHITE, 0, 0, 32)
     show(data['name'], WHITE, 350, 0, 16)
     newUser = button('NewUser', 200, 250, 100, 30)
@@ -365,6 +365,10 @@ def home():
     user = 'LeaderBoard' if button('LeaderBoard', 200, 300, 100, 30) else user
     user = 'Missions' if button('Missions', 200, 350, 100, 30) else user
     user = 'MarketPlace' if button('Shop', 200, 400, 100, 30) else user
+    n = button('N', 400, 250, 100, 30)
+    if n:
+        breaker=True
+        
 
 
     # if not done:
@@ -372,10 +376,10 @@ def home():
     #     done = d
     # if done:
     #     d = screen_animation(True)
-    #     done = not d
+    #     done = not d    
 
 
-def arsenal():
+def arsenal(): 
     global user, start, SCREEN, selected_items
     LENGTH = pygame.display.get_surface().get_width()
     # LENGTH = 554
@@ -778,10 +782,8 @@ def marketplace():
                 SCREEN.blit(s, (x, y))
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
 
-
-def settings_params():
+def inventory():
     pass
-
 
 def settings():
     SCREEN.fill(BLACKBROWN)
@@ -791,13 +793,12 @@ def settings():
     pass
 
 
-def gameover():
-    global user, selected_items, SCREEN
-    selected_items = [False, False, False, False, False, False]
-    SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
-    SCREEN.fill(BLACK)
-    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
-    show('Game Over', WHITE, 100, 200, 42)
+    # global user, selected_items, SCREEN
+    # selected_items = [False, False, False, False, False, False]
+    # SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
+    # SCREEN.fill(BLACK)
+    # user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
+    # show('Game Over', WHITE, 100, 200, 42)
 
 
 def newuser():
@@ -861,7 +862,6 @@ def cheater():
 def main():
     global event_list, Text_Val
     SCREEN.fill(BLACK)
-    settings_params()
     home_params()
     while True:
         event_list = pygame.event.get()
@@ -873,8 +873,6 @@ def main():
             leaderboard()
         elif user == 'Settings':
             settings()
-        elif user == 'GameOver':
-            gameover()
         elif user == 'NewUser':
             newuser()
         elif user == 'Cheater':
@@ -894,6 +892,13 @@ def main():
 
         pygame.display.update()
         CLOCK.tick(rate)
+        if breaker:
+            break
 
 
 main()
+if breaker:
+    with open('Builder.py','r') as f:
+                file=f.read()
+                exec(file)
+        
