@@ -357,6 +357,7 @@ def home():
     global i, decreaser, done, user, start,breaker
     show('home', WHITE, 0, 0, 32)
     show(data['name'], WHITE, 350, 0, 16)
+    show(data['coin'], WHITE, 450, 0, 16)
     newUser = button('NewUser', 200, 250, 100, 30)
     if newUser:
         newUser_init()
@@ -368,9 +369,6 @@ def home():
     n = button('N', 400, 250, 100, 30)
     if n:
         breaker=True
-        
-
-
     # if not done:
     #     d = screen_animation()
     #     done = d
@@ -395,23 +393,25 @@ def arsenal():
             if i <= 2:
                 global event_list
                 pos = pygame.mouse.get_pos()
-                x, y, width, height = (20 + i * mul, 100, mul - 20, 130)
+                x, y, width, height = (20 + i * mul, 70, mul - 20, 135)
                 pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
                 pygame.draw.rect(SCREEN, LIGHTBROWN,
                                  (x + 5, y + 5, width - 10, height - 10))
-                SCREEN.blit(def_powerup, (45 + i * mul, 110))
-                if i <= 1:
-                    show(''.join(item[0].split()[0:2]), BLACK,
-                         (50 if i == 0 else 40) + i * mul, 195, 16)
-                    show(item[0].split()[2], BLACK, 50 + i * mul, 210, 16)
+                SCREEN.blit(def_powerup, (60 + i * mul, 80))
+                if i == 1:
+                    show(item[0], BLACK,
+                         30 + i * mul, 165, 14)
+                    show(f'{item[1]} in stock', WHITE, 30+i * mul, 185, 12)
                 else:
-                    show(item[0], BLACK, 40 + i * mul, 195, 16)
+                    show(item[0], BLACK, (65 if i==2 else 35) + i * mul, 165, 16)
+                    show(f'{item[1]} in stock', WHITE, 30 + i * mul, 185, 12)
                 s = pygame.Surface((width, height))
                 s.set_colorkey(GREY)
                 s.set_alpha(0)
                 if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
-                        1] <= y + height:
+                        1] <= y + height and item[1]!='0':
                     if pygame.mouse.get_pressed()[0]:
+                        list_items[item[0]]=item[1]+-1 if selected_items[i] else 1
                         selected_items[i] = not selected_items[i]
                     s.set_alpha(60)
                 if selected_items[i]:
@@ -419,13 +419,15 @@ def arsenal():
                 SCREEN.blit(s, (x, y))
 
             elif i <= 5:
-                x, y, width, height = (20 + (i - 3) * mul, 240, mul - 20, 130)
+                x, y, width, height = (20 + (i - 3) * mul, 230, mul - 20, 135)
                 pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
                 pygame.draw.rect(SCREEN, LIGHTBROWN,
                                  (x + 5, y + 5, width - 10, height - 10))
-                SCREEN.blit(def_powerup, (45 + (i - 3) * mul, 250))
-                show(item[0], BLACK, (25 if i == 4 else 45) + (i - 3) * mul,
-                     335, 16)
+                SCREEN.blit(def_powerup, (60 + (i - 3) * mul, 240))
+                show(item[0], BLACK, (45 if i == 4 else 65) + (i - 3) * mul,
+                     325, 16)
+                show(f'{item[1]} in stock', WHITE, 30 + (i - 3) * mul,
+                     345, 12)
                 s = pygame.Surface((width, height))
                 s.set_colorkey(GREY)
                 s.set_alpha(0)
@@ -512,14 +514,13 @@ def emulator_params():
 
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks,popup
-    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data
+    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data,coins,t,SCREEN
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
 
     body.insert(0, tuple(snake))
     body.pop(-1)
-    #Collision Logics
     if not popup:
         #Bomb
         if counter[0] == 0:
@@ -560,6 +561,7 @@ def emulator():
         if SpeedDown == True:
             speeddownx, speeddowny = random_cord(blocks)
             SpeedDown = False
+        #Collision Logics
         if tuple(snake) == (applex, appley):
             body.append(body[-1])
             Apple = True
@@ -642,7 +644,13 @@ def emulator():
         #GameOver
         if gameover :    
             popup = True
-            data['time'] = f'{(time.time() - start):.2f}'
+            t = f'{(time.time() - start):.2f}'
+            coins=int(8*(score/1000)-(time.time() - start)/60)
+            data['coin'] =f"{int(data['coin'])+coins}"
+            if data['highscore']==score:
+                data['time']=t
+
+            # data['coin'] = f"{int(data['coin'])+coins}"
             update_data()
 
             if internet:
@@ -694,6 +702,13 @@ def emulator():
         show('Game Over',DARKBROWN,LENGTH//2-120, LENGTH//2-130,40)
         show("Score :" + str(score),WHITE,LENGTH//2-100, LENGTH//2-80,20)
         show("High Score :" + str(data['highscore']),WHITE,LENGTH//2-100, LENGTH//2-50,20)
+        show("Time :" + t,WHITE,LENGTH//2-100, LENGTH//2-20,20)
+        show("Coins :" + str(coins),WHITE,LENGTH//2-100, LENGTH//2+10,20)
+        if button('Home', LENGTH//2-100, LENGTH//2+40, 100, 30):
+            user='Home'
+            SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH), pygame.RESIZABLE)
+
+
 
 
 def leaderboard():
