@@ -1168,19 +1168,15 @@ def inventory():
                                      (x + 5, y + 5, width - 10, height - 10))
                     SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
                     if i == 1:
-                        show(item[1][1], BLACK, 30 + (i + 1) * mul, 165, 16)
-                        show(item[0], BLACK, 25 + (i + 1) * mul, 185, 11)
-                        show(f'{item[1][0]} in stock', WHITE,
-                             30 + (i + 1) * mul, 210, 10)
+                        show(item[0], BLACK, 25 + (i + 1) * mul, 200, 11)
+                        show(f'{item[1][0]} ', WHITE,
+                             55 + (i + 1) * mul, 165, 24)
                     else:
-                        show(item[1][1], BLACK,
-                             (85 if
-                              (i + 1) == 2 else 30) + (i + 1) * mul, 165, 16)
                         show(item[0], BLACK,
                              (85 if
-                              (i + 1) == 2 else 30) + (i + 1) * mul, 185, 12)
-                        show(f'{item[1][0]} in stock', WHITE,
-                             30 + (i + 1) * mul, 210, 10)
+                              (i + 1) == 2 else 30) + (i + 1) * mul, 200, 12)
+                        show(f'{item[1][0]}', WHITE,
+                             55 + (i + 1) * mul, 165, 24)
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
@@ -1200,21 +1196,16 @@ def inventory():
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
-                    show(item[1][1], BLACK, 30 + (i - 2) * mul, 355, 16)
-                    show(item[0], BLACK, 30 + (i - 2) * mul, 375, 12)
-                    show(f'{item[1][0]} in stock', WHITE, 30 + (i - 2) * mul,
-                         400, 10)
+                    show(item[0], BLACK, 30 + (i - 2) * mul, 390, 12)
+                    show(f'{item[1][0]}', WHITE, 55 + (i - 2) * mul,
+                         355, 24)
                     SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
-                            selected_items[i] = not selected_items[i]
                         s.set_alpha(60)
-                    if selected_items[i]:
-                        s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
         else:
             for i, item in enumerate(list_items['Themes'].items()):
@@ -1235,16 +1226,19 @@ def inventory():
                          170, 16)
                     show(
                         'Purchased' if D[0 if opened[0] else 1] else
-                        'Not Purchased', BLACK, 32 + (i + 1) * mul, 215, 10)
+                        'Not Purchased', WHITE, 32 + (i + 1) * mul, 215, 10)
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
                         if pygame.mouse.get_pressed()[0]:
-                            selected_items[i] = not selected_items[i]
+                            with open('items.dat', 'wb') as f:
+                                list_items['Offers']['pseudo']['background' if opened[0] else 'snake']=item[0]
+                                pickle.dump(list_items,f)
                         s.set_alpha(60)
-                    if selected_items[i]:
+                    if item[0] ==list_items['Offers']['pseudo']['background' if opened[0] else 'snake']:
+                        show('In Use',BLACK, 40 + (i + 1) * mul, 190, 16)
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
 
@@ -1269,15 +1263,18 @@ def inventory():
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
                         if pygame.mouse.get_pressed()[0]:
-                            selected_items[i] = not selected_items[i]
+                            with open('items.dat', 'wb') as f:
+                                list_items['Offers']['pseudo']['background' if opened[0] else 'snake']=item[0]
+                                pickle.dump(list_items,f)
                         s.set_alpha(60)
-                    if selected_items[i]:
+                    if item[0] ==list_items['Offers']['pseudo']['background' if opened[0] else 'snake']:
+                        show('In Use',BLACK, 40 + (i -2) * mul, 380, 16)
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
 
-    with open('items.dat', 'rb') as file:
-        list_items = pickle.load(file)
-        if opened[3]:
+    if opened[3]:
+        with open('Missions.dat', 'rb') as file:
+            list_items = pickle.load(file)
             for i, item in enumerate(list_items['Offers'].items()):
                 if i <= 2:
                     global event_list
