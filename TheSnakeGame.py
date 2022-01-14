@@ -696,7 +696,7 @@ def emulator():
 
             if internet:
                 try:
-                    pushData(data['name'], score, t)
+                    pushData(data['name'], score, t, bigGame)
                 except:
                     print(
                         'Data not sent to servers due to an unexpected error')
