@@ -783,10 +783,42 @@ def missions():
     pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 50, LENGTH - 40, 40), 0, 8)
     show("Today's Special Mission :", WHITE, 30, 54, 16)
     show("Mission Text", WHITE, 35, 74, 14)
-    pygame.draw.line(SCREEN, WHITE, (100, 100), (LENGTH - 20, 100), 3)
-    pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 110, LENGTH - 40, 40), 0, 8)
-    show("Mission 1 :", WHITE, 30, 114, 16)
-    show("Mission Text", WHITE, 35, 134, 14)
+    pygame.draw.line(SCREEN, WHITE, (10, 100), (LENGTH - 20, 100), 3)
+    with open('missions.dat', 'rb') as file:
+        miss = pickle.load(file)
+        for i, m in enumerate(miss['missions']):
+            pygame.draw.rect(SCREEN, LIGHTBROWN,
+                             (20, 110 + i * 50, LENGTH - 40, 40), 0, 8)
+            show(f"Mission {i+1} :", WHITE, 30, 114 + i * 50, 16)
+            txt = ''
+            if m[0] == 'points':
+                txt = f'Reach {m[1]} points.'
+            elif m[0] == 'speed':
+                txt = f'Reach {m[1]} speed.'
+            elif m[0] == 'st':
+                txt = f'Reach {m[1][0]} points under {m[1][1]} seconds.'
+            elif m[0] == 'leaderboard':
+                txt = 'Get on the leaderboards.'
+            elif m[0] == 'rank':
+                txt = 'Beat your curren Rank' if m[
+                    1] == 'prev' else f'Reach {m[1]} rank or below.'
+            elif m[0] == 'up':
+                txt = f'Collect {m[1]} green apples in total.'
+            elif m[0] == 'down':
+                txt = f'Collect {m[1]} ice apples in total.'
+            elif m[0] == 'apples':
+                txt = f'Collect {m[1]} normal apples in total.'
+            show(txt, WHITE, 35, 134 + i * 50, 14)
+            show('Rewards', WHITE, LENGTH - 200, 115 + i * 50, 13)
+            if m[1] in ('up', 'down', 'apples'):
+                show('Status : ' + m[3], WHITE, LENGTH - 350, 115 + i * 50, 13)
+            else:
+                show('Status : ' + ('Completed' if m[3] else 'Pending'), WHITE,
+                     LENGTH - 350, 115 + i * 50, 13)
+            show(f'{m[2][1]} coins', WHITE, LENGTH - 110, 115 + i * 50, 13)
+            M = m[2][0].replace('-', ' min 2x ')
+            M += 'oins' if M[-1] == 'C' else 'oints'
+            show(f'{M} ', WHITE, LENGTH - 140, 135 + i * 50, 13)
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
 
 
@@ -1169,14 +1201,14 @@ def inventory():
                     SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
                     if i == 1:
                         show(item[0], BLACK, 25 + (i + 1) * mul, 200, 11)
-                        show(f'{item[1][0]} ', WHITE,
-                             55 + (i + 1) * mul, 165, 24)
+                        show(f'{item[1][0]} ', WHITE, 55 + (i + 1) * mul, 165,
+                             24)
                     else:
                         show(item[0], BLACK,
                              (85 if
                               (i + 1) == 2 else 30) + (i + 1) * mul, 200, 12)
-                        show(f'{item[1][0]}', WHITE,
-                             55 + (i + 1) * mul, 165, 24)
+                        show(f'{item[1][0]}', WHITE, 55 + (i + 1) * mul, 165,
+                             24)
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
@@ -1197,8 +1229,7 @@ def inventory():
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
                     show(item[0], BLACK, 30 + (i - 2) * mul, 390, 12)
-                    show(f'{item[1][0]}', WHITE, 55 + (i - 2) * mul,
-                         355, 24)
+                    show(f'{item[1][0]}', WHITE, 55 + (i - 2) * mul, 355, 24)
                     SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
@@ -1234,11 +1265,14 @@ def inventory():
                             1] >= y and pos[1] <= y + height:
                         if pygame.mouse.get_pressed()[0]:
                             with open('items.dat', 'wb') as f:
-                                list_items['Offers']['pseudo']['background' if opened[0] else 'snake']=item[0]
-                                pickle.dump(list_items,f)
+                                list_items['Offers']['pseudo'][
+                                    'background'
+                                    if opened[0] else 'snake'] = item[0]
+                                pickle.dump(list_items, f)
                         s.set_alpha(60)
-                    if item[0] ==list_items['Offers']['pseudo']['background' if opened[0] else 'snake']:
-                        show('In Use',BLACK, 40 + (i + 1) * mul, 190, 16)
+                    if item[0] == list_items['Offers']['pseudo'][
+                            'background' if opened[0] else 'snake']:
+                        show('In Use', BLACK, 40 + (i + 1) * mul, 190, 16)
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
 
@@ -1264,11 +1298,14 @@ def inventory():
                             1] >= y and pos[1] <= y + height:
                         if pygame.mouse.get_pressed()[0]:
                             with open('items.dat', 'wb') as f:
-                                list_items['Offers']['pseudo']['background' if opened[0] else 'snake']=item[0]
-                                pickle.dump(list_items,f)
+                                list_items['Offers']['pseudo'][
+                                    'background'
+                                    if opened[0] else 'snake'] = item[0]
+                                pickle.dump(list_items, f)
                         s.set_alpha(60)
-                    if item[0] ==list_items['Offers']['pseudo']['background' if opened[0] else 'snake']:
-                        show('In Use',BLACK, 40 + (i -2) * mul, 380, 16)
+                    if item[0] == list_items['Offers']['pseudo'][
+                            'background' if opened[0] else 'snake']:
+                        show('In Use', BLACK, 40 + (i - 2) * mul, 380, 16)
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
 

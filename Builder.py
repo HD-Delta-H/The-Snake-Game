@@ -36,9 +36,45 @@
 # exec(''.join(splitted))
 
 import pickle
-with open('items.dat', 'rb') as file:
-    list_items = pickle.load(file)
-    for i, item in enumerate(list_items['Powerups'].items()):
-        list_items['Powerups'][item[0]] = ['5', '0']
-    with open('items.dat', 'wb') as f:
-        pickle.dump(list_items, f)
+
+# with open('items.dat', 'wb') as file:
+#     obj = {
+#         "Themes": {
+#             "Theme1": {'BLACK':False,'RED':False},
+#             "Theme2": {'RED':False,'BLUE':False},
+#             "Theme3": {'BLUE':False,'GREEN':False},
+#             "Theme4": {'GREEN':False,'PINK':False},
+#             "Theme5": {'RED':False,'YELLOW':False},
+#             "Theme6": {'YELLOW':False,'BLUE':False}
+#         },
+#         "Powerups": {
+#             "More Ice Apples": ('6','12'),
+#             "More Green Apples": ('8','12'),
+#             "High Vel": ('4','8'),
+#             "Low Vel": ('3','8'),
+#             "Fewer Bombs": ('2','15'),
+#             "Teleport": ("8",'40'),
+#         },
+#         "Offers":{
+#             "pseudo":{},
+#             "2x Coins": {'5 min':'4','10 min':'4','30 min':'3'},
+#             "2x Points": {'5 min':'4','10 min':'4','30 min':'3'},
+#             "Small Box":{'0':'2','1':'2','2':'3','3':'3'},
+#             "Large Box":{'0':'2','1':'2','2':'2','3':'2','4':'1','5':'1'},
+#             "Lucky Box":{}
+#         }
+#     }
+#     pickle.dump(obj, file)
+
+with open('missions.dat', 'wb') as file:
+    obj = {
+        "missions": [['points', 1000, ('5-C', 3), False],
+                     ['up', 20, ('5-P', 3), '0/20'],
+                     ['down', 40, ('10-P', 6), '0/40'],
+                     ['apple', 100, ('30-C', 10), '0/100'],
+                     ['leaderboard', None, ('30-P', 10), False],
+                     ['rank', 'prev', ('30-C', 12), False],
+                     ['speed', 0, ('10-P', 7), False],
+                     ['st', (1800, 60), ('30-P', 10), False]]
+    }
+    pickle.dump(obj, file)
