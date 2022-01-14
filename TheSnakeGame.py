@@ -236,6 +236,7 @@ def changeName():
 LENGTH = 454
 PIXEL = 15
 SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH), pygame.RESIZABLE)
+
 CLOCK = pygame.time.Clock()
 rate = 8
 coin_2, point_2 = False, False
@@ -422,8 +423,9 @@ def arsenal():
                         1] <= y + height and item[1][0] != '0':
                     if pygame.mouse.get_pressed()[0]:
                         with open('items.dat', 'wb') as f:
-                            list_items['Powerups'][item[0]] = int(
-                                item[1][0]) + (1 if selected_items[i] else -1)
+                            list_items['Powerups'][item[0]] = (str(
+                                int(item[1][0]) +
+                                (1 if selected_items[i] else -1)), item[1])
                             pickle.dump(list_items, f)
                         selected_items[i] = not selected_items[i]
                     s.set_alpha(60)
@@ -790,15 +792,48 @@ def missions():
 
 opened = [True, False, False, False]
 
+pop = False
+
 
 def marketplace():
-    global user, start, SCREEN, LENGTH, selected_items, opened
+    global user, start, SCREEN, LENGTH, opened, pop, q
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('MARKET PLACE', WHITE, 10, 10, 20)
     mul = (LENGTH - 30) // 4
     pygame.draw.rect(SCREEN, DARKBROWN, (10, 50, mul - 10, 390))
+
+    def popup():
+        global pop
+        s = pygame.Surface((LENGTH, LENGTH))
+        s.set_colorkey(GREY)
+        s.set_alpha(200)
+        SCREEN.blit(s, (0, 0))
+        pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 180, 450, 90), 0, 1)
+        show('Are you sure you wanna purchase this item ?', BLACK, 70, 200, 18)
+        pop = False if button('no',
+                              410,
+                              240,
+                              70,
+                              30,
+                              DARKBROWN,
+                              text_size=18,
+                              text_col=WHITE,
+                              hover_col=DARKBROWN,
+                              hover_width=0) else True
+
+        return True if button('yes',
+                              70,
+                              240,
+                              70,
+                              30,
+                              DARKBROWN,
+                              text_size=18,
+                              text_col=WHITE,
+                              hover_col=DARKBROWN,
+                              hover_width=0) else False
+
     if button("Background",
               10,
               50,
@@ -845,7 +880,6 @@ def marketplace():
         opened = [False, False, False, True]
     pygame.draw.rect(SCREEN, LIGHTBROWN,
                      (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
-
     with open('items.dat', 'rb') as file:
         list_items = pickle.load(file)
         if opened[2]:
@@ -877,13 +911,13 @@ def marketplace():
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[
-                            1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
-                            selected_items[i] = not selected_items[i]
-                        s.set_alpha(60)
-                    if selected_items[i]:
-                        s.set_alpha(120)
+                    if not pop:
+                        if pos[0] >= x and pos[0] <= x + width and pos[
+                                1] >= y and pos[1] <= y + height:
+                            if pygame.mouse.get_pressed()[0]:
+                                pop = True
+                                q = i
+                            s.set_alpha(60)
                     SCREEN.blit(s, (x, y))
 
                 elif i <= 5:
@@ -901,14 +935,27 @@ def marketplace():
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[
-                            1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
-                            selected_items[i] = not selected_items[i]
-                        s.set_alpha(60)
-                    if selected_items[i]:
-                        s.set_alpha(120)
+                    if not pop:
+                        if pos[0] >= x and pos[0] <= x + width and pos[
+                                1] >= y and pos[1] <= y + height:
+                            if pygame.mouse.get_pressed()[0]:
+                                pop = True
+                                q = i
+                            s.set_alpha(60)
                     SCREEN.blit(s, (x, y))
+                if pop:
+                    cont = popup()
+                    if cont:
+                        t = list_items['Powerups'][list(
+                            list_items['Powerups'].keys())[q]]
+                        data['coin'] = str(int(data['coin']) - int(t[1]))
+                        update_data()
+                        with open('items.dat', 'wb') as f:
+                            list_items['Powerups'][list(
+                                list_items['Powerups'].keys())[q]] = (
+                                    str(int(t[0]) + 1), t[1])
+                            pickle.dump(list_items, f)
+                            pop = False
         elif opened[3]:
             for i, item in enumerate(list_items['Offers'].items()):
                 if i <= 2:
@@ -920,12 +967,12 @@ def marketplace():
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
                     SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
-                    if i <=1:
+                    if i <= 1:
                         show('', BLACK, 30 + (i + 1) * mul, 165, 18)
                         show('', BLACK, 25 + (i + 1) * mul, 185, 14)
                     else:
-                        show('40', BLACK,30 + (i + 1) * mul, 165, 18)
-                        show('2x Box', BLACK,30 + (i + 1) * mul, 185, 14)
+                        show('40', BLACK, 30 + (i + 1) * mul, 165, 18)
+                        show('2x Box', BLACK, 30 + (i + 1) * mul, 185, 14)
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
@@ -939,7 +986,10 @@ def marketplace():
                     SCREEN.blit(s, (x, y))
 
                 elif i <= 5:
-                    k=sum([(40 if x=='5' else (15 if x=='4' else (12 if int(x)<=1 else 8)) )*int(y) for x,y in item[1].items()])
+                    k = sum([(40 if x == '5' else
+                              (15 if x == '4' else
+                               (12 if int(x) <= 1 else 8))) * int(y)
+                             for x, y in item[1].items()])
                     x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20,
                                            160)
                     pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
@@ -947,13 +997,16 @@ def marketplace():
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
                     SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
-                    if i==5:
+                    if i == 5:
                         show('15', BLACK, 30 + (i - 2) * mul, 355, 18)
                         show('Lucky Box', BLACK, 30 + (i - 2) * mul, 375, 14)
                     else:
-                        show(str(int(k*0.8)), BLACK, 30 + (i - 2) * mul, 355, 18)
+                        show(str(int(k * 0.8)), BLACK, 30 + (i - 2) * mul, 355,
+                             18)
                         show(str(k), BLACK, 30 + (i - 2) * mul, 375, 14)
-                        pygame.draw.line(SCREEN, BLACK, (60 + (i - 2) * mul, 382), (65 + (i - 2) * mul - 50, 382), 1)
+                        pygame.draw.line(SCREEN, BLACK,
+                                         (60 + (i - 2) * mul, 382),
+                                         (65 + (i - 2) * mul - 50, 382), 1)
                         show(item[0], BLACK, 30 + (i - 2) * mul, 400, 14)
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
@@ -968,7 +1021,8 @@ def marketplace():
                     SCREEN.blit(s, (x, y))
         else:
             for i, item in enumerate(list_items['Themes'].items()):
-                Dic=list(item[1].keys())
+                Dic = list(item[1].keys())
+                D = list(item[1].values())
                 if i <= 2:
                     global event_list
                     pos = pygame.mouse.get_pos()
@@ -977,18 +1031,24 @@ def marketplace():
                     pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
-                    pygame.draw.rect(SCREEN, globals()[Dic[0 if opened[0] else 1]], (x+15, y+15, width-30, 65))
-                    show(('25' if opened[0] else '15'), BLACK, 30 + (i + 1) * mul, 165, 18)
-                    show(Dic[0 if opened[0] else 1], BLACK, 32 + (i + 1) * mul, 185, 14)
+                    pygame.draw.rect(SCREEN,
+                                     globals()[Dic[0 if opened[0] else 1]],
+                                     (x + 15, y + 15, width - 30, 65))
+                    show(('25' if opened[0] else '15'), BLACK,
+                         30 + (i + 1) * mul, 165, 18)
+                    show(Dic[0 if opened[0] else 1], BLACK, 32 + (i + 1) * mul,
+                         185, 14)
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
-                            selected_items[i] = not selected_items[i]
+                        if pygame.mouse.get_pressed(
+                        )[0] and not D[0 if opened[0] else 1]:
+                            pop = True
+                            q = i
                         s.set_alpha(60)
-                    if selected_items[i]:
+                    if D[0 if opened[0] else 1]:
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
 
@@ -999,27 +1059,47 @@ def marketplace():
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
-                    show(('25' if opened[0] else '15'), BLACK, 30 + (i - 2) * mul, 355, 18)
-                    show(Dic[0 if opened[0] else 1], BLACK, 32 + (i - 2) * mul, 375, 14)
-                    pygame.draw.rect(SCREEN, globals()[Dic[0 if opened[0] else 1]], (x+15, y+15, width-30, 65))
+                    show(('25' if opened[0] else '15'), BLACK,
+                         30 + (i - 2) * mul, 355, 18)
+                    show(Dic[0 if opened[0] else 1], BLACK, 32 + (i - 2) * mul,
+                         375, 14)
+                    pygame.draw.rect(SCREEN,
+                                     globals()[Dic[0 if opened[0] else 1]],
+                                     (x + 15, y + 15, width - 30, 65))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
-                            selected_items[i] = not selected_items[i]
+                        if pygame.mouse.get_pressed(
+                        )[0] and not D[0 if opened[0] else 1]:
+                            pop = True
+                            q = i
                         s.set_alpha(60)
-                    if selected_items[i]:
+                    if D[0 if opened[0] else 1]:
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
+                if pop:
+                    cont = popup()
+                    if cont:
+                        t = list_items['Themes'][list(
+                            list_items['Themes'].keys())[q]]
+                        data['coin'] = str(
+                            int(data['coin']) - (25 if opened[0] else 15))
+                        update_data()
+                        with open('items.dat', 'wb') as f:
+                            t[list(t.keys())[0 if opened[0] else 1]] = True
+                            list_items['Themes'][list(
+                                list_items['Themes'].keys())[q]] = t
+                            pickle.dump(list_items, f)
+                            pop = False
 
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
-
+    show(data['coin'], LIGHTBROWN, LENGTH - 130, 10, 16)
 
 
 def inventory():
-    global user, start, SCREEN, LENGTH, selected_items, opened
+    global user, start, SCREEN, LENGTH, opened
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -1138,8 +1218,8 @@ def inventory():
                     SCREEN.blit(s, (x, y))
         else:
             for i, item in enumerate(list_items['Themes'].items()):
-                Dic=list(item[1].keys())
-                D=list(item[1].values())
+                Dic = list(item[1].keys())
+                D = list(item[1].values())
                 if i <= 2:
                     global event_list
                     pos = pygame.mouse.get_pos()
@@ -1148,9 +1228,14 @@ def inventory():
                     pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
-                    pygame.draw.rect(SCREEN, globals()[Dic[0 if opened[0] else 1]], (x+15, y+15, width-30, 65))
-                    show(Dic[0 if opened[0] else 1], BLACK, 32 + (i + 1) * mul, 170, 16)
-                    show('Purchased' if D[0 if opened[0] else 1] else 'Not Purchased', BLACK, 32 + (i + 1) * mul, 215, 10)
+                    pygame.draw.rect(SCREEN,
+                                     globals()[Dic[0 if opened[0] else 1]],
+                                     (x + 15, y + 15, width - 30, 65))
+                    show(Dic[0 if opened[0] else 1], BLACK, 32 + (i + 1) * mul,
+                         170, 16)
+                    show(
+                        'Purchased' if D[0 if opened[0] else 1] else
+                        'Not Purchased', BLACK, 32 + (i + 1) * mul, 215, 10)
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
@@ -1170,9 +1255,14 @@ def inventory():
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
-                    show(Dic[0 if opened[0] else 1], BLACK, 32 + (i - 2) * mul, 360, 16)
-                    show('Purchased' if D[0 if opened[0] else 1] else 'Not Purchased', BLACK, 32 + (i -2) * mul, 405, 10)
-                    pygame.draw.rect(SCREEN, globals()[Dic[0 if opened[0] else 1]], (x+15, y+15, width-30, 65))
+                    show(Dic[0 if opened[0] else 1], BLACK, 32 + (i - 2) * mul,
+                         360, 16)
+                    show(
+                        'Purchased' if D[0 if opened[0] else 1] else
+                        'Not Purchased', BLACK, 32 + (i - 2) * mul, 405, 10)
+                    pygame.draw.rect(SCREEN,
+                                     globals()[Dic[0 if opened[0] else 1]],
+                                     (x + 15, y + 15, width - 30, 65))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
@@ -1184,7 +1274,7 @@ def inventory():
                     if selected_items[i]:
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
-    
+
     with open('items.dat', 'rb') as file:
         list_items = pickle.load(file)
         if opened[3]:
@@ -1247,7 +1337,6 @@ def inventory():
                     if selected_items[i]:
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
-        
 
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
 
