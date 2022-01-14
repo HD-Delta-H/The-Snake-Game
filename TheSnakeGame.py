@@ -262,6 +262,7 @@ GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
+cheaterImage = pygame.image.load(r'images\cheater.png')
 
 #[[name,score,timeplayed,1_time,ref_id]]
 
@@ -281,6 +282,8 @@ try:
 except pickle.UnpicklingError:
     user = 'Cheater'
     non_cheater = False
+    dictData = {'name':data['name']}
+    pushDictData(collection = 'cheaterlist', data = dictData)
 if non_cheater:
     if data['name'] == '' or data['name'] == None:
         user = 'NewUser'
@@ -1407,10 +1410,17 @@ def newuser():
         update_data()
         user = 'Home'
 
-
 def cheater():
-    SCREEN.fill(BLACK)
-    show('Cheater Cheater Compulsive Eater', WHITE, 20, 30, 24)
+    LENGTH = pygame.display.get_surface().get_width()
+    # fauna
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 90))
+    show('CHEATER CHEATER,', WHITE, 10, 16, 30)
+    show('COMPULSIVE EATER', WHITE, 10, 51, 30)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 100, LENGTH - 20, 345))
+    SCREEN.blit(cheaterImage, (30, 135))
+    show('YOU CAN\'T CHEAT YOUR WAY TO THE TOP', RED, 30, 380, 23)
+
     with open('userData.dat', 'wb') as file:
         pickle.dump({'name': '', 'highscore': 0, 'coins': 0, 'time': ''}, file)
 
@@ -1419,6 +1429,7 @@ def main():
     global event_list, Text_Val
     SCREEN.fill(BLACK)
     home_params()
+    # user = 'Cheater'
     while True:
         event_list = pygame.event.get()
         if user == 'Home':
