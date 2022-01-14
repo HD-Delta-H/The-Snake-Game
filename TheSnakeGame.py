@@ -100,6 +100,14 @@ def sameScoreTimes(data, score):
 
     return lTimes
 
+def bigGameVar():
+    if os.path.exists("bigGame.dat"):
+        with open('bigGame.dat', 'wb') as file:
+            bigData = pickle.load(file)
+        bigGame1 = bigData['bigGame']
+    else:
+        bigGame = False
+    return bigGame
 
 def pushData(name, score, time, bigGame):
 
@@ -163,7 +171,6 @@ def pushData(name, score, time, bigGame):
     else:
         print("Data not sent since conditions are not met")
 
-
 # pulling data
 def pullingSortedData():
     try:
@@ -210,16 +217,15 @@ sortedData = pullingSortedData()
 
 if internet and os.path.exists("savedData.dat"):
     try:
-        fileR = open('savedData.dat', "rb")
+        fileR = open('savedData.dat',"rb")
         data = pickle.load(fileR)
-        pushData(name=data['name'], score=data['score'], time=data['time'])
+        bigGame = bigGameVar()
+        pushData(name = data['name'], score = data['score'], time = data['time'], bigGame = bigGame)
         fileR.close()
         os.remove("savedData.dat")
         print('Saved data from previous games sent')
     except:
-        print(
-            'Saved data from previous games couldn\'t be sent due to an unexpected error'
-        )
+        print("Saved data from previous games couldn't be sent due to an unexpected error")
 
 # line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
 # rect pygame.draw.rect(SCREEN, BLUE, (390,390,50,25)) #screen, color, (starting_x, starting_y, width,height)
@@ -364,7 +370,7 @@ def home():
     global i, decreaser, done, user, start, breaker
     show('home', WHITE, 0, 0, 32)
     show(data['name'], WHITE, 350, 0, 16)
-    show(data['coin'], WHITE, 450, 0, 16)
+    # show(data['coin'], WHITE, 450, 0, 16)
     newUser = button('NewUser', 200, 250, 100, 30)
     if newUser:
         newUser_init()
@@ -686,18 +692,20 @@ def emulator():
             # data['coin'] = f"{int(data['coin'])+coins}"
             update_data()
 
+            bigGame = bigGameVar()
+
             if internet:
                 try:
-                    pushData(data['name'], score, data['time'])
+                    pushData(data['name'], score, t)
                 except:
                     print(
                         'Data not sent to servers due to an unexpected error')
-                    saveGameDataForLater(data['name'], score, data['time'])
+                    saveGameDataForLater(data['name'], score, t)
             else:
                 print(
                     'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
                 )
-                saveGameDataForLater(data['name'], score, data['time'])
+                saveGameDataForLater(data['name'], score, t)
     #block loop
     for block in blocks:
         block.block_type = None
