@@ -844,11 +844,12 @@ def marketplace():
         opened = [False, False, False, True]
     pygame.draw.rect(SCREEN, LIGHTBROWN,
                      (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
-                     
+
     with open('items.dat', 'rb') as file:
         list_items = pickle.load(file)
         if opened[2]:
             for i, item in enumerate(list_items['Powerups'].items()):
+
                 if i <= 2:
                     global event_list
                     pos = pygame.mouse.get_pos()
@@ -891,11 +892,11 @@ def marketplace():
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
-                    SCREEN.blit(def_powerup, (37 + (i + 2) * mul, 265))
-                    show(item[1][1], BLACK, 30 + (i - 2) * mul, 330, 16)
-                    show(item[0], BLACK, 30 + (i - 2) * mul, 350, 12)
+                    show(item[1][1], BLACK, 30 + (i - 2) * mul, 355, 16)
+                    show(item[0], BLACK, 30 + (i - 2) * mul, 375, 12)
                     show(f'{item[1][0]} in stock', WHITE, 30 + (i - 2) * mul,
-                         375, 10)
+                         400, 10)
+                    SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
@@ -907,6 +908,129 @@ def marketplace():
                     if selected_items[i]:
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
+        if opened[3]:
+            for i, item in enumerate(list_items['Powerups'].items()):
+
+                if i <= 2:
+                    global event_list
+                    pos = pygame.mouse.get_pos()
+                    x, y, width, height = (20 + (i + 1) * mul, 70, mul - 20,
+                                           160)
+                    pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                    pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                     (x + 5, y + 5, width - 10, height - 10))
+                    SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
+                    if i == 1:
+                        show(item[1][1], BLACK, 30 + (i + 1) * mul, 165, 16)
+                        show(item[0], BLACK, 25 + (i + 1) * mul, 185, 11)
+                        show(f'{item[1][0]} in stock', WHITE,
+                             30 + (i + 1) * mul, 210, 10)
+                    else:
+                        show(item[1][1], BLACK,
+                             (85 if
+                              (i + 1) == 2 else 30) + (i + 1) * mul, 165, 16)
+                        show(item[0], BLACK,
+                             (85 if
+                              (i + 1) == 2 else 30) + (i + 1) * mul, 185, 12)
+                        show(f'{item[1][0]} in stock', WHITE,
+                             30 + (i + 1) * mul, 210, 10)
+                    s = pygame.Surface((width, height))
+                    s.set_colorkey(GREY)
+                    s.set_alpha(0)
+                    if pos[0] >= x and pos[0] <= x + width and pos[
+                            1] >= y and pos[1] <= y + height:
+                        if pygame.mouse.get_pressed()[0]:
+                            selected_items[i] = not selected_items[i]
+                        s.set_alpha(60)
+                    if selected_items[i]:
+                        s.set_alpha(120)
+                    SCREEN.blit(s, (x, y))
+
+                elif i <= 5:
+                    x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20,
+                                           160)
+                    pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                    pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                     (x + 5, y + 5, width - 10, height - 10))
+                    pos = pygame.mouse.get_pos()
+                    show(item[1][1], BLACK, 30 + (i - 2) * mul, 355, 16)
+                    show(item[0], BLACK, 30 + (i - 2) * mul, 375, 12)
+                    show(f'{item[1][0]} in stock', WHITE, 30 + (i - 2) * mul,
+                         400, 10)
+                    SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
+                    s = pygame.Surface((width, height))
+                    s.set_colorkey(GREY)
+                    s.set_alpha(0)
+                    if pos[0] >= x and pos[0] <= x + width and pos[
+                            1] >= y and pos[1] <= y + height:
+                        if pygame.mouse.get_pressed()[0]:
+                            selected_items[i] = not selected_items[i]
+                        s.set_alpha(60)
+                    if selected_items[i]:
+                        s.set_alpha(120)
+                    SCREEN.blit(s, (x, y))
+        else:
+            for i, item in enumerate(list_items['Powerups'].items()):
+
+                if i <= 2:
+                    global event_list
+                    pos = pygame.mouse.get_pos()
+                    x, y, width, height = (20 + (i + 1) * mul, 70, mul - 20,
+                                           160)
+                    pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                    pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                     (x + 5, y + 5, width - 10, height - 10))
+                    SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
+                    if i == 1:
+                        show(item[1][1], BLACK, 30 + (i + 1) * mul, 165, 16)
+                        show(item[0], BLACK, 25 + (i + 1) * mul, 185, 11)
+                        show(f'{item[1][0]} in stock', WHITE,
+                             30 + (i + 1) * mul, 210, 10)
+                    else:
+                        show(item[1][1], BLACK,
+                             (85 if
+                              (i + 1) == 2 else 30) + (i + 1) * mul, 165, 16)
+                        show(item[0], BLACK,
+                             (85 if
+                              (i + 1) == 2 else 30) + (i + 1) * mul, 185, 12)
+                        show(f'{item[1][0]} in stock', WHITE,
+                             30 + (i + 1) * mul, 210, 10)
+                    s = pygame.Surface((width, height))
+                    s.set_colorkey(GREY)
+                    s.set_alpha(0)
+                    if pos[0] >= x and pos[0] <= x + width and pos[
+                            1] >= y and pos[1] <= y + height:
+                        if pygame.mouse.get_pressed()[0]:
+                            selected_items[i] = not selected_items[i]
+                        s.set_alpha(60)
+                    if selected_items[i]:
+                        s.set_alpha(120)
+                    SCREEN.blit(s, (x, y))
+
+                elif i <= 5:
+                    x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20,
+                                           160)
+                    pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                    pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                     (x + 5, y + 5, width - 10, height - 10))
+                    pos = pygame.mouse.get_pos()
+                    show(item[1][1], BLACK, 30 + (i - 2) * mul, 355, 16)
+                    show(item[0], BLACK, 30 + (i - 2) * mul, 375, 12)
+                    show(f'{item[1][0]} in stock', WHITE, 30 + (i - 2) * mul,
+                         400, 10)
+                    SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
+                    s = pygame.Surface((width, height))
+                    s.set_colorkey(GREY)
+                    s.set_alpha(0)
+                    if pos[0] >= x and pos[0] <= x + width and pos[
+                            1] >= y and pos[1] <= y + height:
+                        if pygame.mouse.get_pressed()[0]:
+                            selected_items[i] = not selected_items[i]
+                        s.set_alpha(60)
+                    if selected_items[i]:
+                        s.set_alpha(120)
+                    SCREEN.blit(s, (x, y))
+
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
 
 
