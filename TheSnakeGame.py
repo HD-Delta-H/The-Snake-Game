@@ -479,7 +479,7 @@ def arsenal():
 
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
-    global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley
+    global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley, m_counter, st, speed_checker
     LENGTH = 454
     rate = 4 if selected_items[3] else (12 if selected_items[2] else 8)
     Theme = [
@@ -525,6 +525,19 @@ def emulator_params():
                              (self.x + 1, self.y + 1, PIXEL - 2, PIXEL - 2))
 
     blocks = []
+    # missions initialize
+    with open('missions.dat', 'rb') as file:
+        miss = pickle.load(file)
+        m_counter = {'apple': [], 'up': [], 'down': []}
+        speed_checker = []
+        st = []
+        for i, m in enumerate(miss['missions']):
+            if m[0] in ('apple', 'up', 'down'):
+                m_counter[m[0]].append(m[3])
+            if m[0] == 'speed':
+                speed_checker.append(m[1])
+            if m[0] == 'st':
+                st.append(m[1])
 
     #Spawner Function
     def random_cord(lis):
@@ -596,18 +609,81 @@ def emulator():
         if tuple(snake) == (applex, appley):
             body.append(body[-1])
             Apple = True
+            for i, c in enumerate(m_counter['apple']):
+                C = c.split('/')
+                m_counter['apple'][i] = str(
+                    int(C[0]) +
+                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
             score += 100 if point_2 else 50
+            for pair in st:
+                if int(f'{(time.time() - start):.2f}'
+                       ) <= pair[1] and score == pair[0]:
+                    with open('missions.dat', 'rb') as file:
+                        miss = pickle.load(file)
+                        for i, m in enumerate(miss['missions']):
+                            if m[0] == 'st' and pair == m[1]:
+                                with open('missions.dat', 'wb') as f:
+                                    miss['missions'][i][3] = True
+                                    pickle.dump(miss, f)
         elif tuple(snake) == (bombx, bomby):
             bombx, bomby = -1, -1
             score -= 100
         elif tuple(snake) == (speedupx, speedupy):
             speedupx, speedupy = -1, -1
             rate += 2
+            for i, c in enumerate(m_counter['up']):
+                C = c.split('/')
+                m_counter['up'][i] = str(
+                    int(C[0]) +
+                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
             score += 300 if point_2 else 150
+            for pair in st:
+                if int(f'{(time.time() - start):.2f}'
+                       ) <= pair[1] and score == pair[0]:
+                    with open('missions.dat', 'rb') as file:
+                        miss = pickle.load(file)
+                        for i, m in enumerate(miss['missions']):
+                            if m[0] == 'st' and pair == m[1]:
+                                with open('missions.dat', 'wb') as f:
+                                    miss['missions'][i][3] = True
+                                    pickle.dump(miss, f)
+            for v in speed_checker:
+                if rate == v:
+                    with open('missions.dat', 'rb') as file:
+                        miss = pickle.load(file)
+                        for i, m in enumerate(miss['missions']):
+                            if m[0] == 'speed' and m[1] == v:
+                                with open('missions.dat', 'wb') as f:
+                                    miss['missions'][i][3] = True
+                                    pickle.dump(miss, f)
         elif tuple(snake) == (speeddownx, speeddowny):
             speeddownx, speeddowny = -1, -1
+            for i, c in enumerate(m_counter['down']):
+                C = c.split('/')
+                m_counter['down'][i] = str(
+                    int(C[0]) +
+                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
             rate -= 2
             score += 300 if point_2 else 150
+            for pair in st:
+                if int(f'{(time.time() - start):.2f}'
+                       ) <= pair[1] and score == pair[0]:
+                    with open('missions.dat', 'rb') as file:
+                        miss = pickle.load(file)
+                        for i, m in enumerate(miss['missions']):
+                            if m[0] == 'st' and pair == m[1]:
+                                with open('missions.dat', 'wb') as f:
+                                    miss['missions'][i][3] = True
+                                    pickle.dump(miss, f)
+            for v in speed_checker:
+                if rate == v:
+                    with open('missions.dat', 'wb') as file:
+                        miss = pickle.load(file)
+                        for i, m in enumerate(miss['missions']):
+                            with open('missions.dat', 'wb') as f:
+                                if m[0] == 'speed' and m[1] == v:
+                                    miss['missions'][i][3] = True
+                                    pickle.dump(miss, f)
         if Apple == True:
             applex, appley = random_cord(blocks)
             Apple = False
@@ -616,6 +692,7 @@ def emulator():
         if not (-10 < snake[0] < 450) or not (-10 + 2 * PIXEL < snake[1] <
                                               450) and not selected_items[5]:
             gameover = True
+        # Teleportation
         if selected_items[5]:
             snake[0] = -13 if snake[0] == 452 else (
                 452 if snake[0] == -13 else snake[0])
@@ -682,6 +759,13 @@ def emulator():
             data['coin'] = f"{int(data['coin'])+coins}"
             if data['highscore'] == score:
                 data['time'] = t
+            with open('missions.dat', 'rb') as file:
+                miss = pickle.load(file)
+                for i, m in enumerate(miss['missions']):
+                    if m[0] == 'points' and m[1] <= score:
+                        with open('missions.dat', 'wb') as f:
+                            miss['missions'][i][3] = True
+                            pickle.dump(miss, f)
 
             # data['coin'] = f"{int(data['coin'])+coins}"
             update_data()
@@ -789,7 +873,7 @@ def missions():
         for i, m in enumerate(miss['missions']):
             pygame.draw.rect(SCREEN, LIGHTBROWN,
                              (20, 110 + i * 50, LENGTH - 40, 40), 0, 8)
-            show(f"Mission {i+1} :", WHITE, 30, 114 + i * 50, 16)
+            show(f"Mission {i+1} :", BLACK, 30, 114 + i * 50, 16)
             txt = ''
             if m[0] == 'points':
                 txt = f'Reach {m[1]} points.'
@@ -806,19 +890,27 @@ def missions():
                 txt = f'Collect {m[1]} green apples in total.'
             elif m[0] == 'down':
                 txt = f'Collect {m[1]} ice apples in total.'
-            elif m[0] == 'apples':
+            elif m[0] == 'apple':
                 txt = f'Collect {m[1]} normal apples in total.'
             show(txt, WHITE, 35, 134 + i * 50, 14)
-            show('Rewards', WHITE, LENGTH - 200, 115 + i * 50, 13)
-            if m[1] in ('up', 'down', 'apples'):
-                show('Status : ' + m[3], WHITE, LENGTH - 350, 115 + i * 50, 13)
+            show('Rewards :', DARKBROWN, LENGTH - 150, 115 + i * 50, 13)
+            if m[1] in ('up', 'down', 'apple'):
+                show('Status : ' + m[3], DARKBROWN, LENGTH - 300, 115 + i * 50,
+                     13)
             else:
-                show('Status : ' + ('Completed' if m[3] else 'Pending'), WHITE,
-                     LENGTH - 350, 115 + i * 50, 13)
-            show(f'{m[2][1]} coins', WHITE, LENGTH - 110, 115 + i * 50, 13)
+                show('Status : ' + ('Completed' if m[3] else 'Pending'),
+                     DARKBROWN, LENGTH - 300, 115 + i * 50, 13)
+            if m[3] and not m[4]:
+                with open('missions.dat', 'wb') as file:
+                    miss['missions'][i][4] = True if button(
+                        'Claim', LENGTH - 300, 135 + i * 50, 40, 17, DARKBROWN,
+                        10, 13, WHITE, DARKBROWN, 0) else False
+            if m[4]:
+                show('Claimed', BLACK, LENGTH - 300, 135 + i * 50, 13)
+            show(f'{m[2][1]} coins', DARKBROWN, LENGTH - 80, 115 + i * 50, 13)
             M = m[2][0].replace('-', ' min 2x ')
             M += 'oins' if M[-1] == 'C' else 'oints'
-            show(f'{M} ', WHITE, LENGTH - 140, 135 + i * 50, 13)
+            show(f'{M} ', DARKBROWN, LENGTH - 150, 135 + i * 50, 13)
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
 
 
@@ -1429,7 +1521,7 @@ def newuser():
                 Text_Ent = True
 
     if Text_Ent:
-        data = {'name': Text_Val[:-1], 'highscore': 0, 'coins': 0, 'time': ''}
+        data = {'name': Text_Val[:-1], 'highscore': 0, 'coin': 0, 'time': ''}
         update_data()
         user = 'Home'
 

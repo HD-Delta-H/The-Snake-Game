@@ -68,13 +68,13 @@ import pickle
 
 with open('missions.dat', 'wb') as file:
     obj = {
-        "missions": [['points', 1000, ('5-C', 3), False],
-                     ['up', 20, ('5-P', 3), '0/20'],
-                     ['down', 40, ('10-P', 6), '0/40'],
-                     ['apple', 100, ('30-C', 10), '0/100'],
-                     ['leaderboard', None, ('30-P', 10), False],
-                     ['rank', 'prev', ('30-C', 12), False],
-                     ['speed', 0, ('10-P', 7), False],
-                     ['st', (1800, 60), ('30-P', 10), False]]
+        "missions": [['points', 1000, ('5-C', 3), False, False],
+                     ['up', 20, ('5-P', 3), '0/20', False],
+                     ['down', 40, ('10-P', 6), '0/40', False],
+                     ['apple', 100, ('30-C', 10), '0/100', False],
+                     ['leaderboard', None, ('30-P', 10), False, False],
+                     ['rank', 'prev', ('30-C', 12), False, False],
+                     ['speed', 0, ('10-P', 7), False, False],
+                     ['st', (1800, 60), ('30-P', 10), False, False]]
     }
     pickle.dump(obj, file)
