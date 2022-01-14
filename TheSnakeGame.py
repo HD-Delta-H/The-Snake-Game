@@ -1,3 +1,4 @@
+from multiprocessing.dummy.connection import families
 from faunadb.errors import ErrorData
 import pygame
 import sys
@@ -237,6 +238,7 @@ PIXEL = 15
 SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH), pygame.RESIZABLE)
 CLOCK = pygame.time.Clock()
 rate = 8
+coin_2, point_2 = False, False
 #colours
 LIGHTBROWN = '#AD9157'
 DARKBROWN = '#4F3119'
@@ -286,6 +288,7 @@ def show(msg, color, x, y, size):
     score_show = pygame.font.Font("freesansbold.ttf",
                                   size).render(msg, True, color)
     SCREEN.blit(score_show, (x, y))
+
 
 selected_items = [False, False, False, False, False, False]
 
@@ -351,10 +354,13 @@ def home_params():
     # done = False
     # decreaser = False
 
-breaker=False
-def home(): 
+
+breaker = False
+
+
+def home():
     SCREEN.fill(BLACK)
-    global i, decreaser, done, user, start,breaker
+    global i, decreaser, done, user, start, breaker
     show('home', WHITE, 0, 0, 32)
     show(data['name'], WHITE, 350, 0, 16)
     show(data['coin'], WHITE, 450, 0, 16)
@@ -368,16 +374,16 @@ def home():
     user = 'MarketPlace' if button('Shop', 200, 400, 100, 30) else user
     n = button('N', 400, 250, 100, 30)
     if n:
-        breaker=True
+        breaker = True
     # if not done:
     #     d = screen_animation()
     #     done = d
     # if done:
     #     d = screen_animation(True)
-    #     done = not d    
+    #     done = not d
 
 
-def arsenal(): 
+def arsenal():
     global user, start, SCREEN, selected_items
     LENGTH = pygame.display.get_surface().get_width()
     # LENGTH = 554
@@ -388,6 +394,7 @@ def arsenal():
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     with open('items.dat', 'rb') as file:
         list_items = pickle.load(file)
+
         mul = (LENGTH - 30) // 3
         for i, item in enumerate(list_items['Powerups'].items()):
             if i <= 2:
@@ -399,19 +406,24 @@ def arsenal():
                                  (x + 5, y + 5, width - 10, height - 10))
                 SCREEN.blit(def_powerup, (60 + i * mul, 80))
                 if i == 1:
-                    show(item[0], BLACK,
-                         30 + i * mul, 165, 14)
-                    show(f'{item[1]} in stock', WHITE, 30+i * mul, 185, 12)
+                    show(item[0], BLACK, 30 + i * mul, 165, 14)
+                    show(f'{item[1][0]} in stock', WHITE, 30 + i * mul, 185,
+                         12)
                 else:
-                    show(item[0], BLACK, (65 if i==2 else 35) + i * mul, 165, 16)
-                    show(f'{item[1]} in stock', WHITE, 30 + i * mul, 185, 12)
+                    show(item[0], BLACK, (65 if i == 2 else 35) + i * mul, 165,
+                         16)
+                    show(f'{item[1][0]} in stock', WHITE, 30 + i * mul, 185,
+                         12)
                 s = pygame.Surface((width, height))
                 s.set_colorkey(GREY)
                 s.set_alpha(0)
                 if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
-                        1] <= y + height and item[1]!='0':
+                        1] <= y + height and item[1][0] != '0':
                     if pygame.mouse.get_pressed()[0]:
-                        list_items[item[0]]=item[1]+-1 if selected_items[i] else 1
+                        with open('items.dat', 'wb') as f:
+                            list_items['Powerups'][item[0]] = int(
+                                item[1][0]) + (1 if selected_items[i] else -1)
+                            pickle.dump(list_items, f)
                         selected_items[i] = not selected_items[i]
                     s.set_alpha(60)
                 if selected_items[i]:
@@ -426,21 +438,37 @@ def arsenal():
                 SCREEN.blit(def_powerup, (60 + (i - 3) * mul, 240))
                 show(item[0], BLACK, (45 if i == 4 else 65) + (i - 3) * mul,
                      325, 16)
-                show(f'{item[1]} in stock', WHITE, 30 + (i - 3) * mul,
-                     345, 12)
+                show(f'{item[1][0]} in stock', WHITE, 30 + (i - 3) * mul, 345,
+                     12)
                 s = pygame.Surface((width, height))
+                pos = pygame.mouse.get_pos()
                 s.set_colorkey(GREY)
                 s.set_alpha(0)
                 if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
-                        1] <= y + height:
+                        1] <= y + height and item[1][0] != '0':
                     if pygame.mouse.get_pressed()[0]:
+                        with open('items.dat', 'wb') as f:
+                            list_items['Powerups'][item[0]] = int(
+                                item[1][0]) + (1 if selected_items[i] else -1)
+                            pickle.dump(list_items, f)
                         selected_items[i] = not selected_items[i]
                     s.set_alpha(60)
                 if selected_items[i]:
                     s.set_alpha(120)
                 SCREEN.blit(s, (x, y))
-
-    user = 'Emulator' if button('Start Game', 180, 370, 100, 30) else user
+    show('2x Coins :' + ('Activated' if coin_2 else 'Not Activated'), WHITE,
+         25, 375, 18)
+    show('2x Points :' + ('Activated' if point_2 else 'Not Activated'), WHITE,
+         305, 375, 18)
+    user = 'Emulator' if button('Start Game',
+                                LENGTH // 2 - 55,
+                                410,
+                                110,
+                                32,
+                                DARKBROWN,
+                                text_col=WHITE,
+                                text_size=16,
+                                hover_width=0) else user
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     if user == 'Emulator':
         emulator_params()
@@ -448,7 +476,7 @@ def arsenal():
 
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
-    global Theme, blocks, LENGTH, rate, start, SCREEN,popup,applex,appley
+    global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley
     LENGTH = 454
     rate = 4 if selected_items[3] else (12 if selected_items[2] else 8)
     Theme = [
@@ -460,7 +488,7 @@ def emulator_params():
     realm = False
     rnt = [0, 0, 0]
     ee_dec = False
-    popup=False
+    popup = False
     ee_done = False
     counter = [0, 0, 0]  #bomb,speedup,speeddown
     Apple = True
@@ -513,8 +541,8 @@ def emulator_params():
 
 
 def emulator():
-    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks,popup
-    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data,coins,t,SCREEN
+    global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
+    global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
@@ -565,25 +593,25 @@ def emulator():
         if tuple(snake) == (applex, appley):
             body.append(body[-1])
             Apple = True
-            score += 50
+            score += 100 if point_2 else 50
         elif tuple(snake) == (bombx, bomby):
             bombx, bomby = -1, -1
             score -= 100
         elif tuple(snake) == (speedupx, speedupy):
             speedupx, speedupy = -1, -1
             rate += 2
-            score += 150
+            score += 300 if point_2 else 150
         elif tuple(snake) == (speeddownx, speeddowny):
             speeddownx, speeddowny = -1, -1
             rate -= 2
-            score += 150
+            score += 300 if point_2 else 150
         if Apple == True:
             applex, appley = random_cord(blocks)
             Apple = False
         if (tuple(snake) in body[1::]):
             gameover = True
         if not (-10 < snake[0] < 450) or not (-10 + 2 * PIXEL < snake[1] <
-                                            450) and not selected_items[5]:
+                                              450) and not selected_items[5]:
             gameover = True
         if selected_items[5]:
             snake[0] = -13 if snake[0] == 452 else (
@@ -599,7 +627,8 @@ def emulator():
             selected_items[5] = True
             Theme[2], Theme[7] = Theme[7], Theme[2]
             Theme[4] = Theme[0]
-            Theme[5], Theme[3], Theme[6], Theme[1] = VOILET, VOILET, VOILET, VOILET
+            Theme[5], Theme[3], Theme[6], Theme[
+                1] = VOILET, VOILET, VOILET, VOILET
             if counter[0] % 5 == 0:
                 body.append(body[-1])
             if counter[0] % 2 == 0:
@@ -609,10 +638,10 @@ def emulator():
 
             if time.time() - t0 > 3:
                 SCREEN.fill((0, 0, 0))
-                show('The laws of Physics tends to bend when', (200, 200, 200), 20,
-                    210, 22)
-                show('someone enters the speed 0 realm', (200, 200, 200), 45, 240,
-                    22)
+                show('The laws of Physics tends to bend when', (200, 200, 200),
+                     20, 210, 22)
+                show('someone enters the speed 0 realm', (200, 200, 200), 45,
+                     240, 22)
             else:
                 if not ee_done:
                     ee_dec = screen_animation(False, 5, Theme[7], 0.001)
@@ -642,13 +671,14 @@ def emulator():
         elif direction == 'right':
             snake[0] += PIXEL
         #GameOver
-        if gameover :    
+        if gameover:
             popup = True
             t = f'{(time.time() - start):.2f}'
-            coins=int(8*(score/1000)-(time.time() - start)/60)
-            data['coin'] =f"{int(data['coin'])+coins}"
-            if data['highscore']==score:
-                data['time']=t
+            coins = int(8 * (score / 1000) -
+                        (time.time() - start) / 60) * (2 if coin_2 else 1)
+            data['coin'] = f"{int(data['coin'])+coins}"
+            if data['highscore'] == score:
+                data['time'] = t
 
             # data['coin'] = f"{int(data['coin'])+coins}"
             update_data()
@@ -657,7 +687,8 @@ def emulator():
                 try:
                     pushData(data['name'], score, data['time'])
                 except:
-                    print('Data not sent to servers due to an unexpected error')
+                    print(
+                        'Data not sent to servers due to an unexpected error')
                     saveGameDataForLater(data['name'], score, data['time'])
             else:
                 print(
@@ -682,7 +713,8 @@ def emulator():
             block.block_type = 'speeddown'
         block.draw()
     #Score
-    data['highscore'] = score if score > data['highscore'] else data['highscore']
+    data['highscore'] = score if score > data['highscore'] else data[
+        'highscore']
     mul = (LENGTH) // 3
     pygame.draw.rect(SCREEN, DARKBROWN, (mul - 140, 2, 95, 24))
     show("Score :" + str(score), Theme[7], mul - 140 + 5, 6, 16)
@@ -697,18 +729,25 @@ def emulator():
         s.set_colorkey(GREY)
         s.set_alpha(200)
         SCREEN.blit(s, (0, 0))
-        pygame.draw.rect(SCREEN, DARKBROWN, (LENGTH//2-180, LENGTH//2-150, 360, 300),0,1)
-        pygame.draw.rect(SCREEN, LIGHTBROWN, (LENGTH//2-180+5, LENGTH//2-150+5, 350, 290),0,1)
-        show('Game Over',DARKBROWN,LENGTH//2-120, LENGTH//2-130,40)
-        show("Score :" + str(score),WHITE,LENGTH//2-100, LENGTH//2-80,20)
-        show("High Score :" + str(data['highscore']),WHITE,LENGTH//2-100, LENGTH//2-50,20)
-        show("Time :" + t,WHITE,LENGTH//2-100, LENGTH//2-20,20)
-        show("Coins :" + str(coins),WHITE,LENGTH//2-100, LENGTH//2+10,20)
-        if button('Home', LENGTH//2-100, LENGTH//2+40, 100, 30):
-            user='Home'
-            SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH), pygame.RESIZABLE)
-
-
+        pygame.draw.rect(SCREEN, DARKBROWN,
+                         (LENGTH // 2 - 180, LENGTH // 2 - 150, 360, 300), 0,
+                         1)
+        pygame.draw.rect(
+            SCREEN, LIGHTBROWN,
+            (LENGTH // 2 - 180 + 5, LENGTH // 2 - 150 + 5, 350, 290), 0, 1)
+        show('Game Over', DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 - 130, 40)
+        show("Score :" + str(score), WHITE, LENGTH // 2 - 100,
+             LENGTH // 2 - 80, 20)
+        show("High Score :" + str(data['highscore']), WHITE, LENGTH // 2 - 100,
+             LENGTH // 2 - 50, 20)
+        show("Time :" + t, WHITE, LENGTH // 2 - 100, LENGTH // 2 - 20, 20)
+        show("Coins :" + str(coins), WHITE, LENGTH // 2 - 100,
+             LENGTH // 2 + 10, 20)
+        if button('Home', LENGTH // 2 - 100, LENGTH // 2 + 40, 100, 30):
+            user = 'Home'
+            selected_items = [False, False, False, False, False, False]
+            SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH),
+                                             pygame.RESIZABLE)
 
 
 def leaderboard():
@@ -738,67 +777,142 @@ def missions():
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('MISSIONS', WHITE, 10, 10, 20)
-    pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 50, LENGTH - 40, 40),0,8)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 50, LENGTH - 40, 40), 0, 8)
     show("Today's Special Mission :", WHITE, 30, 54, 16)
     show("Mission Text", WHITE, 35, 74, 14)
     pygame.draw.line(SCREEN, WHITE, (100, 100), (LENGTH - 20, 100), 3)
-    pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 110, LENGTH - 40, 40),0,8)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 110, LENGTH - 40, 40), 0, 8)
     show("Mission 1 :", WHITE, 30, 114, 16)
     show("Mission Text", WHITE, 35, 134, 14)
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
 
 
+opened = [True, False, False, False]
+
+
 def marketplace():
-    global user, start, SCREEN, LENGTH, selected_items
+    global user, start, SCREEN, LENGTH, selected_items, opened
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('MARKET PLACE', WHITE, 10, 10, 20)
     mul = (LENGTH - 30) // 4
+    pygame.draw.rect(SCREEN, DARKBROWN, (10, 50, mul - 10, 390))
+    if button("Background",
+              10,
+              50,
+              mul - 10,
+              30, (LIGHTBROWN if opened[0] else DARKBROWN),
+              3,
+              20,
+              WHITE,
+              hover_width=0,
+              hover_col=LIGHTBROWN):
+        opened = [True, False, False, False]
+    if button("Snake",
+              10,
+              80,
+              mul - 10,
+              30, (LIGHTBROWN if opened[1] else DARKBROWN),
+              3,
+              20,
+              WHITE,
+              hover_width=0,
+              hover_col=LIGHTBROWN):
+        opened = [False, True, False, False]
+    if button("Powerups",
+              10,
+              110,
+              mul - 10,
+              30, (LIGHTBROWN if opened[2] else DARKBROWN),
+              3,
+              20,
+              WHITE,
+              hover_col=LIGHTBROWN,
+              hover_width=0):
+        opened = [False, False, True, False]
+    if button("Offers",
+              10,
+              140,
+              mul - 10,
+              30, (LIGHTBROWN if opened[3] else DARKBROWN),
+              3,
+              20,
+              WHITE,
+              hover_col=LIGHTBROWN,
+              hover_width=0):
+        opened = [False, False, False, True]
     pygame.draw.rect(SCREEN, LIGHTBROWN,
                      (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
+                     
     with open('items.dat', 'rb') as file:
         list_items = pickle.load(file)
-        for i, item in enumerate(list_items['Powerups'].items()):
-            if i <= 2:
-                global event_list
-                pos = pygame.mouse.get_pos()
-                x, y, width, height = (20 + (i + 1) * mul, 70, mul - 20, 160)
-                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
-                pygame.draw.rect(SCREEN, LIGHTBROWN,
-                                 (x + 5, y + 5, width - 10, height - 10))
-                s = pygame.Surface((width, height))
-                s.set_colorkey(GREY)
-                s.set_alpha(0)
-                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
-                        1] <= y + height:
-                    if pygame.mouse.get_pressed()[0]:
-                        selected_items[i] = not selected_items[i]
-                    s.set_alpha(60)
-                if selected_items[i]:
-                    s.set_alpha(120)
-                SCREEN.blit(s, (x, y))
+        if opened[2]:
+            for i, item in enumerate(list_items['Powerups'].items()):
+                if i <= 2:
+                    global event_list
+                    pos = pygame.mouse.get_pos()
+                    x, y, width, height = (20 + (i + 1) * mul, 70, mul - 20,
+                                           160)
+                    pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                    pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                     (x + 5, y + 5, width - 10, height - 10))
+                    SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
+                    if i == 1:
+                        show(item[1][1], BLACK, 30 + (i + 1) * mul, 165, 16)
+                        show(item[0], BLACK, 25 + (i + 1) * mul, 185, 11)
+                        show(f'{item[1][0]} in stock', WHITE,
+                             30 + (i + 1) * mul, 210, 10)
+                    else:
+                        show(item[1][1], BLACK,
+                             (85 if
+                              (i + 1) == 2 else 30) + (i + 1) * mul, 165, 16)
+                        show(item[0], BLACK,
+                             (85 if
+                              (i + 1) == 2 else 30) + (i + 1) * mul, 185, 12)
+                        show(f'{item[1][0]} in stock', WHITE,
+                             30 + (i + 1) * mul, 210, 10)
+                    s = pygame.Surface((width, height))
+                    s.set_colorkey(GREY)
+                    s.set_alpha(0)
+                    if pos[0] >= x and pos[0] <= x + width and pos[
+                            1] >= y and pos[1] <= y + height:
+                        if pygame.mouse.get_pressed()[0]:
+                            selected_items[i] = not selected_items[i]
+                        s.set_alpha(60)
+                    if selected_items[i]:
+                        s.set_alpha(120)
+                    SCREEN.blit(s, (x, y))
 
-            elif i <= 5:
-                x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20, 160)
-                pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
-                pygame.draw.rect(SCREEN, LIGHTBROWN,
-                                 (x + 5, y + 5, width - 10, height - 10))
-                s = pygame.Surface((width, height))
-                s.set_colorkey(GREY)
-                s.set_alpha(0)
-                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
-                        1] <= y + height:
-                    if pygame.mouse.get_pressed()[0]:
-                        selected_items[i] = not selected_items[i]
-                    s.set_alpha(60)
-                if selected_items[i]:
-                    s.set_alpha(120)
-                SCREEN.blit(s, (x, y))
+                elif i <= 5:
+                    x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20,
+                                           160)
+                    pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
+                    pygame.draw.rect(SCREEN, LIGHTBROWN,
+                                     (x + 5, y + 5, width - 10, height - 10))
+                    pos = pygame.mouse.get_pos()
+                    SCREEN.blit(def_powerup, (37 + (i + 2) * mul, 265))
+                    show(item[1][1], BLACK, 30 + (i - 2) * mul, 330, 16)
+                    show(item[0], BLACK, 30 + (i - 2) * mul, 350, 12)
+                    show(f'{item[1][0]} in stock', WHITE, 30 + (i - 2) * mul,
+                         375, 10)
+                    s = pygame.Surface((width, height))
+                    s.set_colorkey(GREY)
+                    s.set_alpha(0)
+                    if pos[0] >= x and pos[0] <= x + width and pos[
+                            1] >= y and pos[1] <= y + height:
+                        if pygame.mouse.get_pressed()[0]:
+                            selected_items[i] = not selected_items[i]
+                        s.set_alpha(60)
+                    if selected_items[i]:
+                        s.set_alpha(120)
+                    SCREEN.blit(s, (x, y))
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
+
 
 def inventory():
     pass
+
 
 def settings():
     SCREEN.fill(BLACKBROWN)
@@ -806,14 +920,6 @@ def settings():
     show('SETTINGS', WHITE, 10, 10, 20)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     pass
-
-
-    # global user, selected_items, SCREEN
-    # selected_items = [False, False, False, False, False, False]
-    # SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
-    # SCREEN.fill(BLACK)
-    # user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
-    # show('Game Over', WHITE, 100, 200, 42)
 
 
 def newuser():
@@ -913,7 +1019,6 @@ def main():
 
 main()
 if breaker:
-    with open('Builder.py','r') as f:
-                file=f.read()
-                exec(file)
-        
+    with open('Builder.py', 'r') as f:
+        file = f.read()
+        exec(file)
