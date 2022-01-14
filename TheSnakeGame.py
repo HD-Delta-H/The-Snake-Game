@@ -100,13 +100,31 @@ def sameScoreTimes(data, score):
 
     return lTimes
 
+def writeBigGame(bigGame):
+    bigData = {'bigGame':bigGame}
+    with open('bigGame.dat', 'wb') as file:
+        pickle.dump(bigData, file)
+
 def bigGameVar():
+    global data, sortedData
+    names = []
+    for i in sortedData:
+        names.append(i[0])
+
     if os.path.exists("bigGame.dat"):
-        with open('bigGame.dat', 'wb') as file:
+        print('file exists')
+        with open('bigGame.dat', 'rb') as file:
             bigData = pickle.load(file)
-        bigGame1 = bigData['bigGame']
-    else:
+        bigGame = bigData['bigGame']
+        print(f"In file, bigGame: {bigGame}")
+    
+    if data['name'] not in names:
         bigGame = False
+        print('Name not on leaderboard, bigGame: False')
+    elif not(os.path.exists("bigGame.dat")):
+        bigGame = False
+
+    writeBigGame(bigGame)
     return bigGame
 
 def pushData(name, score, time, bigGame):
@@ -156,7 +174,7 @@ def pushData(name, score, time, bigGame):
                     deleteDoc(collection='testcollection', refid=i[4])
                     pushDictData(collection='testcollection', data=dataDict)
                     print("Data sent successfully!")
-                    bigGame = True
+                    writeBigGame(True)
         else:
             if name in lnames:
                 print(
@@ -165,9 +183,11 @@ def pushData(name, score, time, bigGame):
                 changeName()
                 # send data with changed name
                 pass
+                writeBigGame(True)
             else:
                 pushDictData(collection='testcollection', data=dataDict)
                 print("Data sent successfully!")
+                writeBigGame(True)
     else:
         print("Data not sent since conditions are not met")
 
@@ -215,6 +235,7 @@ def saveGameDataForLater(name, score, time):
 
 sortedData = pullingSortedData()
 
+
 if internet and os.path.exists("savedData.dat"):
     try:
         fileR = open('savedData.dat',"rb")
@@ -236,6 +257,7 @@ if internet and os.path.exists("savedData.dat"):
 
 def changeName():
     pass
+
 
 
 #constants
@@ -1406,7 +1428,7 @@ def newuser():
                 Text_Ent = True
 
     if Text_Ent:
-        data = {'name': Text_Val[:-1], 'highscore': 0, 'coins': 0, 'time': ''}
+        data = {'name': Text_Val[:-1], 'highscore': 0, 'coin': 0, 'time': ''}
         update_data()
         user = 'Home'
 
@@ -1462,8 +1484,8 @@ def main():
         if breaker:
             break
 
-
 main()
+
 if breaker:
     with open('Builder.py', 'r') as f:
         file = f.read()
