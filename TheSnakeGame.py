@@ -425,7 +425,7 @@ def arsenal():
                         with open('items.dat', 'wb') as f:
                             list_items['Powerups'][item[0]] = (str(
                                 int(item[1][0]) +
-                                (1 if selected_items[i] else -1)), item[1])
+                                (1 if selected_items[i] else -1)), item[1][1])
                             pickle.dump(list_items, f)
                         selected_items[i] = not selected_items[i]
                     s.set_alpha(60)
@@ -451,8 +451,9 @@ def arsenal():
                         1] <= y + height and item[1][0] != '0':
                     if pygame.mouse.get_pressed()[0]:
                         with open('items.dat', 'wb') as f:
-                            list_items['Powerups'][item[0]] = int(
-                                item[1][0]) + (1 if selected_items[i] else -1)
+                            list_items['Powerups'][item[0]] = (str(
+                                int(item[1][0]) +
+                                (1 if selected_items[i] else -1)), item[1][1])
                             pickle.dump(list_items, f)
                         selected_items[i] = not selected_items[i]
                     s.set_alpha(60)
@@ -616,8 +617,7 @@ def emulator():
                     (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
             score += 100 if point_2 else 50
             for pair in st:
-                if int(f'{(time.time() - start):.2f}'
-                       ) <= pair[1] and score == pair[0]:
+                if (time.time() - start) <= pair[1] and score == pair[0]:
                     with open('missions.dat', 'rb') as file:
                         miss = pickle.load(file)
                         for i, m in enumerate(miss['missions']):
@@ -638,8 +638,7 @@ def emulator():
                     (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
             score += 300 if point_2 else 150
             for pair in st:
-                if int(f'{(time.time() - start):.2f}'
-                       ) <= pair[1] and score == pair[0]:
+                if (time.time() - start) <= pair[1] and score == pair[0]:
                     with open('missions.dat', 'rb') as file:
                         miss = pickle.load(file)
                         for i, m in enumerate(miss['missions']):
@@ -666,8 +665,7 @@ def emulator():
             rate -= 2
             score += 300 if point_2 else 150
             for pair in st:
-                if int(f'{(time.time() - start):.2f}'
-                       ) <= pair[1] and score == pair[0]:
+                if (time.time() - start) <= pair[1] and score == pair[0]:
                     with open('missions.dat', 'rb') as file:
                         miss = pickle.load(file)
                         for i, m in enumerate(miss['missions']):
@@ -677,13 +675,14 @@ def emulator():
                                     pickle.dump(miss, f)
             for v in speed_checker:
                 if rate == v:
-                    with open('missions.dat', 'wb') as file:
+                    with open('missions.dat', 'rb') as file:
                         miss = pickle.load(file)
                         for i, m in enumerate(miss['missions']):
-                            with open('missions.dat', 'wb') as f:
-                                if m[0] == 'speed' and m[1] == v:
+                            if m[0] == 'speed' and m[1] == v:
+                                with open('missions.dat', 'wb') as f:
                                     miss['missions'][i][3] = True
                                     pickle.dump(miss, f)
+                                    
         if Apple == True:
             applex, appley = random_cord(blocks)
             Apple = False
@@ -766,6 +765,14 @@ def emulator():
                         with open('missions.dat', 'wb') as f:
                             miss['missions'][i][3] = True
                             pickle.dump(miss, f)
+                    if m[0] in ('apple', 'up', 'down'):
+                        for k in m_counter[m[0]]:
+                            if m[3].split('/')[1]==k.split('/')[1]:
+                                with open('missions.dat', 'wb') as f:
+                                    miss['missions'][i][3]=k
+                                    pickle.dump(miss,f)
+
+
 
             # data['coin'] = f"{int(data['coin'])+coins}"
             update_data()
@@ -894,17 +901,22 @@ def missions():
                 txt = f'Collect {m[1]} normal apples in total.'
             show(txt, WHITE, 35, 134 + i * 50, 14)
             show('Rewards :', DARKBROWN, LENGTH - 150, 115 + i * 50, 13)
-            if m[1] in ('up', 'down', 'apple'):
+            if m[0] in ('up', 'down', 'apple'):
                 show('Status : ' + m[3], DARKBROWN, LENGTH - 300, 115 + i * 50,
                      13)
             else:
                 show('Status : ' + ('Completed' if m[3] else 'Pending'),
                      DARKBROWN, LENGTH - 300, 115 + i * 50, 13)
-            if m[3] and not m[4]:
-                with open('missions.dat', 'wb') as file:
-                    miss['missions'][i][4] = True if button(
-                        'Claim', LENGTH - 300, 135 + i * 50, 40, 17, DARKBROWN,
-                        10, 13, WHITE, DARKBROWN, 0) else False
+            
+            if ((m[3]==True) if str(type(m[3]))=="<class 'bool'>" else (m[3].split('/')[0]==m[3].split('/')[1])) and not m[4]:
+                if button(
+                    'Claim', LENGTH - 300, 130 + i * 50, 70, 17, DARKBROWN,
+                    10, 13, WHITE, DARKBROWN, 0):
+                    with open('missions.dat', 'wb') as f:
+                        miss['missions'][i][4] = True 
+                        pickle.dump(miss,f)
+                        data['coin']=str(int(data['coin'])+m[2][1])
+                        update_data()
             if m[4]:
                 show('Claimed', BLACK, LENGTH - 300, 135 + i * 50, 13)
             show(f'{m[2][1]} coins', DARKBROWN, LENGTH - 80, 115 + i * 50, 13)
@@ -1019,12 +1031,12 @@ def marketplace():
                                      (x + 5, y + 5, width - 10, height - 10))
                     SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
                     if i == 1:
-                        show(item[1][1], BLACK, 30 + (i + 1) * mul, 165, 18)
+                        show(str(item[1][1]), BLACK, 30 + (i + 1) * mul, 165, 18)
                         show(item[0], BLACK, 25 + (i + 1) * mul, 185, 11)
                         show(f'{item[1][0]} in stock', WHITE,
                              30 + (i + 1) * mul, 210, 10)
                     else:
-                        show(item[1][1], BLACK,
+                        show(str(item[1][1]), BLACK,
                              (85 if
                               (i + 1) == 2 else 30) + (i + 1) * mul, 165, 18)
                         show(item[0], BLACK,
@@ -1051,7 +1063,7 @@ def marketplace():
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
-                    show(item[1][1], BLACK, 30 + (i - 2) * mul, 355, 18)
+                    show(str(item[1][1]), BLACK, 30 + (i - 2) * mul, 355, 18)
                     show(item[0], BLACK, 30 + (i - 2) * mul, 375, 12)
                     show(f'{item[1][0]} in stock', WHITE, 30 + (i - 2) * mul,
                          400, 10)
@@ -1072,14 +1084,18 @@ def marketplace():
                     if cont:
                         t = list_items['Powerups'][list(
                             list_items['Powerups'].keys())[q]]
+                        print(t)
                         data['coin'] = str(int(data['coin']) - int(t[1]))
-                        update_data()
-                        with open('items.dat', 'wb') as f:
-                            list_items['Powerups'][list(
-                                list_items['Powerups'].keys())[q]] = (
-                                    str(int(t[0]) + 1), t[1])
-                            pickle.dump(list_items, f)
-                            pop = False
+                        if data['coin']>=0:
+                            update_data()
+                            with open('items.dat', 'wb') as f:
+                                list_items['Powerups'][list(
+                                    list_items['Powerups'].keys())[q]] = (
+                                        str(int(t[0]) + 1), t[1])
+                                pickle.dump(list_items, f)
+                        else:
+                            data['coin'] = str(int(data['coin']) + int(t[1]))
+                        pop = False
         elif opened[3]:
             for i, item in enumerate(list_items['Offers'].items()):
                 if i <= 2:
@@ -1210,13 +1226,17 @@ def marketplace():
                             list_items['Themes'].keys())[q]]
                         data['coin'] = str(
                             int(data['coin']) - (25 if opened[0] else 15))
-                        update_data()
-                        with open('items.dat', 'wb') as f:
-                            t[list(t.keys())[0 if opened[0] else 1]] = True
-                            list_items['Themes'][list(
-                                list_items['Themes'].keys())[q]] = t
-                            pickle.dump(list_items, f)
-                            pop = False
+                        if data['coin']>=0:
+                            update_data()
+                            with open('items.dat', 'wb') as f:
+                                t[list(t.keys())[0 if opened[0] else 1]] = True
+                                list_items['Themes'][list(
+                                    list_items['Themes'].keys())[q]] = t
+                                pickle.dump(list_items, f)
+                        else:
+                            data['coin'] = str(
+                                int(data['coin']) + (25 if opened[0] else 15))
+                        pop = False
 
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     show(data['coin'], LIGHTBROWN, LENGTH - 130, 10, 16)
