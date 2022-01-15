@@ -1,4 +1,3 @@
-from multiprocessing.dummy.connection import families
 from faunadb.errors import ErrorData
 import pygame
 import sys
@@ -292,7 +291,7 @@ WHITE = (255, 255, 255)
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
 
-# cheaterImage = pygame.image.load(r'images\cheater.png')
+cheaterImage = def_powerup
 
 #[[name,score,timeplayed,1_time,ref_id]]
 
@@ -522,11 +521,18 @@ def emulator_params():
     global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley, m_counter, st, speed_checker
     LENGTH = 454
     rate = 4 if selected_items[3] else (12 if selected_items[2] else 8)
+
     Theme = [
         LIGHTBROWN, (210, 190, 210), RED, YELLOW, GREY, GREEN, BLUE, WHITE,
         DARKBROWN
     ]
     # bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col, text_bg
+    with open('items.dat', 'rb') as file:
+        l = pickle.load(file)
+        Theme[4] = globals()[list(
+            l['Themes'][l['Offers']['pseudo']['background']].keys())[0]]
+        Theme[2] = globals()[list(
+            l['Themes'][l['Offers']['pseudo']['snake']].keys())[1]]
     score = 0
     realm = False
     rnt = [0, 0, 0]
