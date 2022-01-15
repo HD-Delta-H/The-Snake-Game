@@ -1,3 +1,4 @@
+from operator import itemgetter
 from faunadb.errors import ErrorData
 import pygame
 import sys
@@ -424,7 +425,7 @@ def home():
 
 
 def arsenal():
-    global user, start, SCREEN, selected_items
+    global user, start, SCREEN, selected_items,coin_2,point_2
     LENGTH = pygame.display.get_surface().get_width()
     # LENGTH = 554
     # SCREEN = pygame.display.set_mode((LENGTH, 454))
@@ -498,6 +499,23 @@ def arsenal():
                 if selected_items[i]:
                     s.set_alpha(120)
                 SCREEN.blit(s, (x, y))
+    with open('missions.dat','rb') as file:
+        list_items=pickle.load(file)
+        coin_2=list_items['coins']['coins']
+        point_2=list_items['coins']['points']
+        for i,item in enumerate(list_items['coins'].items()):
+            if i<=5:
+                if item[1][1]:
+                    t=float(f"{(time.time()-item[1][2]):.2f}")
+                    if t>=(float(item[0].split()[2])*60):
+                        with open('missions.dat','wb') as f:
+                            list_items['coins'][item[0]][1]=False
+                            if i<=2:
+                                list_items['coins']['coins']=False
+                            elif i<=5:
+                                list_items['coins']['points']=False
+                            pickle.dump(list_items,f)
+
     show('2x Coins :' + ('Activated' if coin_2 else 'Not Activated'), WHITE,
          25, 375, 18)
     show('2x Points :' + ('Activated' if point_2 else 'Not Activated'), WHITE,
@@ -960,6 +978,8 @@ def missions():
                           DARKBROWN, 10, 13, WHITE, DARKBROWN, 0):
                     with open('missions.dat', 'wb') as f:
                         miss['missions'][i][4] = True
+                        x=m[2][0].split('-')
+                        miss['coins']["2x "+('Coins ' if x[1]=='C' else 'Points ')+x[0]+' min'][0]=str(int(miss['coins']["2x "+('Coins ' if x[1]=='C' else 'Points ')+x[0]+' min'][0])+1)
                         pickle.dump(miss, f)
                         data['coin'] = str(int(data['coin']) + m[2][1])
                         update_data()
@@ -1360,13 +1380,13 @@ def inventory():
                     SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
                     if i == 1:
                         show(item[0], BLACK, 25 + (i + 1) * mul, 200, 11)
-                        show(f'{item[1][0]} ', WHITE, 55 + (i + 1) * mul, 165,
+                        show(f'{item[1][0] } left ', WHITE, 50 + (i + 1) * mul, 165,
                              24)
                     else:
                         show(item[0], BLACK,
                              (85 if
                               (i + 1) == 2 else 30) + (i + 1) * mul, 200, 12)
-                        show(f'{item[1][0]}', WHITE, 55 + (i + 1) * mul, 165,
+                        show(f'{item[1][0] } left', WHITE, 50 + (i + 1) * mul, 165,
                              24)
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
@@ -1388,7 +1408,7 @@ def inventory():
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
                     show(item[0], BLACK, 30 + (i - 2) * mul, 390, 12)
-                    show(f'{item[1][0]}', WHITE, 55 + (i - 2) * mul, 355, 24)
+                    show(f'{item[1][0] } left', WHITE, 50 + (i - 2) * mul, 355, 24)
                     SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
@@ -1469,9 +1489,9 @@ def inventory():
                     SCREEN.blit(s, (x, y))
 
     if opened[3]:
-        with open('Missions.dat', 'rb') as file:
+        with open('missions.dat', 'rb') as file:
             list_items = pickle.load(file)
-            for i, item in enumerate(list_items['Offers'].items()):
+            for i, item in enumerate(list_items['coins'].items()):
                 if i <= 2:
                     global event_list
                     pos = pygame.mouse.get_pos()
@@ -1482,28 +1502,44 @@ def inventory():
                                      (x + 5, y + 5, width - 10, height - 10))
                     SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
                     if i == 1:
-                        show(item[1][1], BLACK, 30 + (i + 1) * mul, 165, 16)
-                        show(item[0], BLACK, 25 + (i + 1) * mul, 185, 11)
-                        show(f'{item[1][0]} in stock', WHITE,
-                             30 + (i + 1) * mul, 210, 10)
+                        show(item[0], BLACK, 25 + (i + 1) * mul, 210, 12)
+                        show(f'{item[1][0]} left', WHITE, 55 + (i + 1) * mul, 165,
+                             20)
                     else:
-                        show(item[1][1], BLACK,
-                             (85 if
-                              (i + 1) == 2 else 30) + (i + 1) * mul, 165, 16)
                         show(item[0], BLACK,
                              (85 if
-                              (i + 1) == 2 else 30) + (i + 1) * mul, 185, 12)
-                        show(f'{item[1][0]} in stock', WHITE,
-                             30 + (i + 1) * mul, 210, 10)
+                              (i + 1) == 2 else 30) + (i + 1) * mul, 210, 12)
+                        show(f'{item[1][0]} left', WHITE, 50 + (i + 1) * mul, 165,
+                             20)
+                    if item[1][1]:
+                        t=float(f"{(time.time()-item[1][2]):.2f}")
+                        T=float(item[0].split()[2])*60-t
+                        ss='0' if int(T%60)//10==0 else ''
+                        show(f"{int(T//60)}:{ss}{int(T%60)}",WHITE, 50 + (i + 1) * mul, 187,
+                             20)
+                        if t>=(float(item[0].split()[2])*60):
+                            with open('missions.dat','wb') as f:
+                                list_items['coins'][item[0]][1]=False
+                                list_items['coins']['coins']=False
+                                pickle.dump(list_items,f)
+                    elif item[1][0]!='0' and not list_items['coins']['coins']:
+                        if button('Activate',35 + (i + 1) * mul, 187,80,22,DARKBROWN,10,13,WHITE,DARKBROWN,0):
+                            with open('missions.dat','wb') as f:
+                                list_items['coins'][item[0]][0]=str(int(item[1][0])-1)
+                                list_items['coins'][item[0]][1]=True
+                                list_items['coins'][item[0]][2]=time.time()
+                                list_items['coins']['coins']=True
+                                pickle.dump(list_items,f)
+
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
-                            selected_items[i] = not selected_items[i]
                         s.set_alpha(60)
                     if selected_items[i]:
+                        s.set_alpha(120)
+                    if list_items['coins']['coins'] and not item[1][1]:
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
 
@@ -1514,23 +1550,38 @@ def inventory():
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
-                    show(item[1][1], BLACK, 30 + (i - 2) * mul, 355, 16)
-                    show(item[0], BLACK, 30 + (i - 2) * mul, 375, 12)
-                    show(f'{item[1][0]} in stock', WHITE, 30 + (i - 2) * mul,
-                         400, 10)
+                    show(item[0], BLACK, 30 + (i - 2) * mul, 400, 12)
+                    show(f'{item[1][0]} left', WHITE, 55 + (i - 2) * mul, 355, 24)
                     SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
+                    if item[1][1]:
+                        t=float(f"{(time.time()-item[1][2]):.2f}")
+                        T=float(item[0].split()[2])*60-t
+                        ss='0' if int(T%60)//10==0 else ''
+                        show(f"{int(T//60)}:{ss}{int(T%60)}",WHITE, 50 + (i - 2) * mul, 377,
+                             20)
+                        if t>=(float(item[0].split()[2])*60):
+                            with open('missions.dat','wb') as f:
+                                list_items['coins'][item[0]][1]=False
+                                list_items['coins']['points']=False
+                                pickle.dump(list_items,f)
+                    elif item[1][0]!='0' and not list_items['coins']['points']:
+                        if button('Activate',35 + (i - 2) * mul, 377,80,22,DARKBROWN,10,13,WHITE,DARKBROWN,0):
+                            with open('missions.dat','wb') as f:
+                                list_items['coins'][item[0]][0]=str(int(item[1][0])-1)
+                                list_items['coins'][item[0]][1]=True
+                                list_items['coins'][item[0]][2]=time.time()
+                                list_items['coins']['points']=True
+                                pickle.dump(list_items,f)
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
-                            selected_items[i] = not selected_items[i]
                         s.set_alpha(60)
-                    if selected_items[i]:
+                    if list_items['coins']['points'] and not item[1][1]:
                         s.set_alpha(120)
-                    SCREEN.blit(s, (x, y))
 
+                    SCREEN.blit(s, (x, y))
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
 
 
