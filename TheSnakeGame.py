@@ -100,6 +100,32 @@ def sameScoreTimes(data, score):
 
     return lTimes
 
+def writeBigGame(bigGame):
+    bigData = {'bigGame':bigGame}
+    with open('bigGame.dat', 'wb') as file:
+        pickle.dump(bigData, file)
+
+def bigGameVar():
+    global data, sortedData
+    names = []
+    for i in sortedData:
+        names.append(i[0])
+
+    if os.path.exists("bigGame.dat"):
+        print('file exists')
+        with open('bigGame.dat', 'rb') as file:
+            bigData = pickle.load(file)
+        bigGame = bigData['bigGame']
+        print(f"In file, bigGame: {bigGame}")
+    
+    if data['name'] not in names:
+        bigGame = False
+        print('Name not on leaderboard, bigGame: False')
+    elif not(os.path.exists("bigGame.dat")):
+        bigGame = False
+
+    writeBigGame(bigGame)
+    return bigGame
 
 def pushData(name, score, time, bigGame):
 
@@ -148,7 +174,7 @@ def pushData(name, score, time, bigGame):
                     deleteDoc(collection='testcollection', refid=i[4])
                     pushDictData(collection='testcollection', data=dataDict)
                     print("Data sent successfully!")
-                    bigGame = True
+                    writeBigGame(True)
         else:
             if name in lnames:
                 print(
@@ -157,12 +183,13 @@ def pushData(name, score, time, bigGame):
                 changeName()
                 # send data with changed name
                 pass
+                writeBigGame(True)
             else:
                 pushDictData(collection='testcollection', data=dataDict)
                 print("Data sent successfully!")
+                writeBigGame(True)
     else:
         print("Data not sent since conditions are not met")
-
 
 # pulling data
 def pullingSortedData():
@@ -208,18 +235,18 @@ def saveGameDataForLater(name, score, time):
 
 sortedData = pullingSortedData()
 
+
 if internet and os.path.exists("savedData.dat"):
     try:
-        fileR = open('savedData.dat', "rb")
+        fileR = open('savedData.dat',"rb")
         data = pickle.load(fileR)
-        pushData(name=data['name'], score=data['score'], time=data['time'])
+        bigGame = bigGameVar()
+        pushData(name = data['name'], score = data['score'], time = data['time'], bigGame = bigGame)
         fileR.close()
         os.remove("savedData.dat")
         print('Saved data from previous games sent')
     except:
-        print(
-            'Saved data from previous games couldn\'t be sent due to an unexpected error'
-        )
+        print("Saved data from previous games couldn't be sent due to an unexpected error")
 
 # line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
 # rect pygame.draw.rect(SCREEN, BLUE, (390,390,50,25)) #screen, color, (starting_x, starting_y, width,height)
@@ -230,6 +257,7 @@ if internet and os.path.exists("savedData.dat"):
 
 def changeName():
     pass
+
 
 
 #constants
@@ -256,6 +284,7 @@ GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
+cheaterImage = pygame.image.load(r'images\cheater.png')
 
 #[[name,score,timeplayed,1_time,ref_id]]
 
@@ -275,6 +304,8 @@ try:
 except pickle.UnpicklingError:
     user = 'Cheater'
     non_cheater = False
+    dictData = {'name':data['name']}
+    pushDictData(collection = 'cheaterlist', data = dictData)
 if non_cheater:
     if data['name'] == '' or data['name'] == None:
         user = 'NewUser'
@@ -364,7 +395,7 @@ def home():
     global i, decreaser, done, user, start, breaker
     show('home', WHITE, 0, 0, 32)
     show(data['name'], WHITE, 350, 0, 16)
-    show(data['coin'], WHITE, 450, 0, 16)
+    # show(data['coin'], WHITE, 450, 0, 16)
     newUser = button('NewUser', 200, 250, 100, 30)
     if newUser:
         newUser_init()
@@ -777,18 +808,20 @@ def emulator():
             # data['coin'] = f"{int(data['coin'])+coins}"
             update_data()
 
+            bigGame = bigGameVar()
+
             if internet:
                 try:
-                    pushData(data['name'], score, data['time'])
+                    pushData(data['name'], score, t, bigGame)
                 except:
                     print(
                         'Data not sent to servers due to an unexpected error')
-                    saveGameDataForLater(data['name'], score, data['time'])
+                    saveGameDataForLater(data['name'], score, t)
             else:
                 print(
                     'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
                 )
-                saveGameDataForLater(data['name'], score, data['time'])
+                saveGameDataForLater(data['name'], score, t)
     #block loop
     for block in blocks:
         block.block_type = None
@@ -1545,10 +1578,17 @@ def newuser():
         update_data()
         user = 'Home'
 
-
 def cheater():
-    SCREEN.fill(BLACK)
-    show('Cheater Cheater Compulsive Eater', WHITE, 20, 30, 24)
+    LENGTH = pygame.display.get_surface().get_width()
+    # fauna
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 90))
+    show('CHEATER CHEATER,', WHITE, 10, 16, 30)
+    show('COMPULSIVE EATER', WHITE, 10, 51, 30)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 100, LENGTH - 20, 345))
+    SCREEN.blit(cheaterImage, (30, 135))
+    show('YOU CAN\'T CHEAT YOUR WAY TO THE TOP', RED, 30, 380, 23)
+
     with open('userData.dat', 'wb') as file:
         pickle.dump({'name': '', 'highscore': 0, 'coins': 0, 'time': ''}, file)
 
@@ -1557,6 +1597,7 @@ def main():
     global event_list, Text_Val
     SCREEN.fill(BLACK)
     home_params()
+    # user = 'Cheater'
     while True:
         event_list = pygame.event.get()
         if user == 'Home':
@@ -1589,8 +1630,8 @@ def main():
         if breaker:
             break
 
-
 main()
+
 if breaker:
     with open('Builder.py', 'r') as f:
         file = f.read()
