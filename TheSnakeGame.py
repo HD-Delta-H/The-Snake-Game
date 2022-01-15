@@ -284,7 +284,7 @@ GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
-cheaterImage = pygame.image.load(r'images\cheater.png')
+# cheaterImage = pygame.image.load(r'images\cheater.png')
 
 #[[name,score,timeplayed,1_time,ref_id]]
 
