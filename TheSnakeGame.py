@@ -100,10 +100,12 @@ def sameScoreTimes(data, score):
 
     return lTimes
 
+
 def writeBigGame(bigGame):
-    bigData = {'bigGame':bigGame}
+    bigData = {'bigGame': bigGame}
     with open('bigGame.dat', 'wb') as file:
         pickle.dump(bigData, file)
+
 
 def bigGameVar():
     global data, sortedData
@@ -117,15 +119,16 @@ def bigGameVar():
             bigData = pickle.load(file)
         bigGame = bigData['bigGame']
         print(f"In file, bigGame: {bigGame}")
-    
+
     if data['name'] not in names:
         bigGame = False
         print('Name not on leaderboard, bigGame: False')
-    elif not(os.path.exists("bigGame.dat")):
+    elif not (os.path.exists("bigGame.dat")):
         bigGame = False
 
     writeBigGame(bigGame)
     return bigGame
+
 
 def pushData(name, score, time, bigGame):
 
@@ -191,6 +194,7 @@ def pushData(name, score, time, bigGame):
     else:
         print("Data not sent since conditions are not met")
 
+
 # pulling data
 def pullingSortedData():
     try:
@@ -235,18 +239,22 @@ def saveGameDataForLater(name, score, time):
 
 sortedData = pullingSortedData()
 
-
 if internet and os.path.exists("savedData.dat"):
     try:
-        fileR = open('savedData.dat',"rb")
+        fileR = open('savedData.dat', "rb")
         data = pickle.load(fileR)
         bigGame = bigGameVar()
-        pushData(name = data['name'], score = data['score'], time = data['time'], bigGame = bigGame)
+        pushData(name=data['name'],
+                 score=data['score'],
+                 time=data['time'],
+                 bigGame=bigGame)
         fileR.close()
         os.remove("savedData.dat")
         print('Saved data from previous games sent')
     except:
-        print("Saved data from previous games couldn't be sent due to an unexpected error")
+        print(
+            "Saved data from previous games couldn't be sent due to an unexpected error"
+        )
 
 # line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
 # rect pygame.draw.rect(SCREEN, BLUE, (390,390,50,25)) #screen, color, (starting_x, starting_y, width,height)
@@ -257,7 +265,6 @@ if internet and os.path.exists("savedData.dat"):
 
 def changeName():
     pass
-
 
 
 #constants
@@ -284,6 +291,7 @@ GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
+
 # cheaterImage = pygame.image.load(r'images\cheater.png')
 
 #[[name,score,timeplayed,1_time,ref_id]]
@@ -304,8 +312,8 @@ try:
 except pickle.UnpicklingError:
     user = 'Cheater'
     non_cheater = False
-    dictData = {'name':data['name']}
-    pushDictData(collection = 'cheaterlist', data = dictData)
+    dictData = {'name': data['name']}
+    pushDictData(collection='cheaterlist', data=dictData)
 if non_cheater:
     if data['name'] == '' or data['name'] == None:
         user = 'NewUser'
@@ -713,7 +721,7 @@ def emulator():
                                 with open('missions.dat', 'wb') as f:
                                     miss['missions'][i][3] = True
                                     pickle.dump(miss, f)
-                                    
+
         if Apple == True:
             applex, appley = random_cord(blocks)
             Apple = False
@@ -798,12 +806,10 @@ def emulator():
                             pickle.dump(miss, f)
                     if m[0] in ('apple', 'up', 'down'):
                         for k in m_counter[m[0]]:
-                            if m[3].split('/')[1]==k.split('/')[1]:
+                            if m[3].split('/')[1] == k.split('/')[1]:
                                 with open('missions.dat', 'wb') as f:
-                                    miss['missions'][i][3]=k
-                                    pickle.dump(miss,f)
-
-
+                                    miss['missions'][i][3] = k
+                                    pickle.dump(miss, f)
 
             # data['coin'] = f"{int(data['coin'])+coins}"
             update_data()
@@ -878,9 +884,10 @@ def emulator():
 
 
 def leaderboard():
-    global sortedData
+    global sortedData, user
     # fauna
     SCREEN.fill(BLACKBROWN)
+    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('LEADERBOARDS', WHITE, 10, 10, 20)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
@@ -940,15 +947,15 @@ def missions():
             else:
                 show('Status : ' + ('Completed' if m[3] else 'Pending'),
                      DARKBROWN, LENGTH - 300, 115 + i * 50, 13)
-            
-            if ((m[3]==True) if str(type(m[3]))=="<class 'bool'>" else (m[3].split('/')[0]==m[3].split('/')[1])) and not m[4]:
-                if button(
-                    'Claim', LENGTH - 300, 130 + i * 50, 70, 17, DARKBROWN,
-                    10, 13, WHITE, DARKBROWN, 0):
+
+            if ((m[3] == True) if str(type(m[3])) == "<class 'bool'>" else
+                (m[3].split('/')[0] == m[3].split('/')[1])) and not m[4]:
+                if button('Claim', LENGTH - 300, 130 + i * 50, 70, 17,
+                          DARKBROWN, 10, 13, WHITE, DARKBROWN, 0):
                     with open('missions.dat', 'wb') as f:
-                        miss['missions'][i][4] = True 
-                        pickle.dump(miss,f)
-                        data['coin']=str(int(data['coin'])+m[2][1])
+                        miss['missions'][i][4] = True
+                        pickle.dump(miss, f)
+                        data['coin'] = str(int(data['coin']) + m[2][1])
                         update_data()
             if m[4]:
                 show('Claimed', BLACK, LENGTH - 300, 135 + i * 50, 13)
@@ -1064,7 +1071,8 @@ def marketplace():
                                      (x + 5, y + 5, width - 10, height - 10))
                     SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
                     if i == 1:
-                        show(str(item[1][1]), BLACK, 30 + (i + 1) * mul, 165, 18)
+                        show(str(item[1][1]), BLACK, 30 + (i + 1) * mul, 165,
+                             18)
                         show(item[0], BLACK, 25 + (i + 1) * mul, 185, 11)
                         show(f'{item[1][0]} in stock', WHITE,
                              30 + (i + 1) * mul, 210, 10)
@@ -1119,7 +1127,7 @@ def marketplace():
                             list_items['Powerups'].keys())[q]]
                         print(t)
                         data['coin'] = str(int(data['coin']) - int(t[1]))
-                        if data['coin']>=0:
+                        if int(data['coin']) >= 0:
                             update_data()
                             with open('items.dat', 'wb') as f:
                                 list_items['Powerups'][list(
@@ -1259,7 +1267,7 @@ def marketplace():
                             list_items['Themes'].keys())[q]]
                         data['coin'] = str(
                             int(data['coin']) - (25 if opened[0] else 15))
-                        if data['coin']>=0:
+                        if int(data['coin']) >= 0:
                             update_data()
                             with open('items.dat', 'wb') as f:
                                 t[list(t.keys())[0 if opened[0] else 1]] = True
@@ -1574,9 +1582,10 @@ def newuser():
                 Text_Ent = True
 
     if Text_Ent:
-        data = {'name': Text_Val[:-1], 'highscore': 0, 'coin': 0, 'time': ''}
+        data = {'name': Text_Val[:-1], 'highscore': 0, 'coin': '0', 'time': ''}
         update_data()
         user = 'Home'
+
 
 def cheater():
     LENGTH = pygame.display.get_surface().get_width()
@@ -1590,7 +1599,12 @@ def cheater():
     show('YOU CAN\'T CHEAT YOUR WAY TO THE TOP', RED, 30, 380, 23)
 
     with open('userData.dat', 'wb') as file:
-        pickle.dump({'name': '', 'highscore': 0, 'coins': 0, 'time': ''}, file)
+        pickle.dump({
+            'name': '',
+            'highscore': 0,
+            'coin': '0',
+            'time': ''
+        }, file)
 
 
 def main():
@@ -1629,6 +1643,7 @@ def main():
         CLOCK.tick(rate)
         if breaker:
             break
+
 
 main()
 
