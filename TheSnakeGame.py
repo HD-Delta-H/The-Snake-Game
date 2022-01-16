@@ -313,6 +313,8 @@ WHITE = (255, 255, 255)
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
 cheaterImage = pygame.image.load(r'images\cheater.png')
+sideSnake = pygame.image.load(r'images\side-snake.png')
+frontSnake = pygame.image.load(r'images\front-snake.png')
 
 #[[name,score,timeplayed,1_time,ref_id]]
 
@@ -419,24 +421,34 @@ breaker = False
 
 
 def home():
-    SCREEN.fill(BLACK)
+    LENGTH = pygame.display.get_surface().get_width()
+    HEIGHT = pygame.display.get_surface().get_height()
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('HOME', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, HEIGHT - 60))
     global i, decreaser, done, user, start, breaker
-    show('home', WHITE, 0, 0, 32)
     show(data['name'], WHITE, 350, 0, 16)
-    # show(data['coin'], WHITE, 450, 0, 16)
-    newUser = button('NewUser', 200, 250, 100, 30)
+    show(data['coin'], WHITE, 450, 0, 16)
+    usualWidth = 120
+    margin = 65
+    newUser = button('New User', margin, 380*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 20 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1)
     if newUser:
         newUser_init()
         user = 'NewUser'
-    user = 'Arsenal' if button('Play Game', 200, 200, 100, 30) else user
-    user = 'LeaderBoard' if button('LeaderBoard', 200, 300, 100, 30) else user
-    user = 'Missions' if button('Missions', 200, 350, 100, 30) else user
-    user = 'MarketPlace' if button('Shop', 200, 400, 100, 30) else user
-    user = 'Inventory' if button('Inventory', 400, 400, 100, 30) else user
+    # button(text,x,y,width,height,bg_color=WHITE,x_offset=10,text_size=10,text_col=BLACK,hover_col=BLUE,hover_width=2)
+    user = 'Arsenal' if button('Play Game', (LENGTH - (170*LENGTH/554))/2, 250*HEIGHT/454, 170*LENGTH/554, 60*HEIGHT/454, DARKBROWN, x_offset = 30 + (10**(LENGTH/554))/5, text_col=WHITE, text_size=int(24*LENGTH/700),hover_col=BLACKBROWN, hover_width=1) else user
+    user = 'LeaderBoard' if button('LeaderBoard', margin, 300*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 7 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
+    user = 'Missions' if button('Missions', margin, 340*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 20 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
+    user = 'MarketPlace' if button('Shop', LENGTH - (margin+usualWidth*LENGTH/554), 300*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 35 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
+    user = 'Inventory' if button('Inventory', LENGTH - (margin+usualWidth*LENGTH/554), 340*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 20 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
+    user = 'Cheaterlist' if button('Cheaters\' list', LENGTH - (margin+usualWidth*LENGTH/554), 380*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 7 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
+    user = 'Licenses' if button('SEE LEGAL INFO', (LENGTH - (140*LENGTH/554))/2, 380*HEIGHT/454, 140*LENGTH/554, 30*HEIGHT/454, LIGHTBROWN, x_offset = (10**(LENGTH/554))/3, text_col=DARKBROWN, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
+
     # user = 'Settings' if button('Settings', 500, 500, 100, 30) else user
-    n = button('N', 400, 250, 100, 30)
-    if n:
-        breaker = True
+    # n = button('N', 400, 250, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1)
+    # if n:
+    #     breaker = True
     # if not done:
     #     d = screen_animation()
     #     done = d
