@@ -421,34 +421,46 @@ breaker = False
 
 
 def home():
+    global i, decreaser, done, user, start, breaker, frontSnake
     LENGTH = pygame.display.get_surface().get_width()
     HEIGHT = pygame.display.get_surface().get_height()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-    show('HOME', WHITE, 10, 10, 20)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, HEIGHT - 60))
-    global i, decreaser, done, user, start, breaker
-    show(data['name'], WHITE, 350, 0, 16)
-    show(data['coin'], WHITE, 450, 0, 16)
-    usualWidth = 120
-    margin = 65
+    usualWidth, margin = 120, 65
+    
+    show('playing as ', LIGHTBROWN, 20, 16, 16)    
+    show(data['name'].upper()+'.', WHITE, 110, 9, 24)
+    show(data['coin']+' coins', WHITE, 210, 9, 24)
+    user = 'Settings' if button('Settings', LENGTH - 154, 5, 100, 30, LIGHTBROWN, x_offset = 10, text_col=DARKBROWN, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
+        
+    scaledFrontSnake = pygame.transform.scale(frontSnake, (int(250*HEIGHT/400), int(250*HEIGHT/400)))
+    frontSnakeSize = scaledFrontSnake.get_size()
+    
+    scaledSideSnake = pygame.transform.scale(sideSnake, (int(250*HEIGHT/454), int(250*HEIGHT/454)))
+    sideSnakeSize = scaledSideSnake.get_size()
+
+    flippedScaledSideSnake = pygame.transform.flip(scaledSideSnake, True, False)
+    scaledSideSnake.set_alpha(55), flippedScaledSideSnake.set_alpha(55)
+
+    SCREEN.blit(scaledSideSnake, (margin + (usualWidth*LENGTH/554 - sideSnakeSize[0])/2, 40 +(265*HEIGHT/454 - frontSnakeSize[1])/2 + frontSnakeSize[1]/4))
+    SCREEN.blit(flippedScaledSideSnake, (LENGTH - (margin + (usualWidth*LENGTH/554)/2 + sideSnakeSize[0]/2 + 15), 40 +(265*HEIGHT/454 - frontSnakeSize[1])/2 + frontSnakeSize[1]/4))
+
+    user = 'Arsenal' if button('Play Game', (LENGTH - (170*LENGTH/554))/2, 265*HEIGHT/454, 170*LENGTH/554, 55*HEIGHT/454, DARKBROWN, x_offset = 30 + (10**(LENGTH/554))/5, text_col=WHITE, text_size=int(24*LENGTH/700),hover_col=BLACKBROWN, hover_width=1) else user
+    SCREEN.blit(scaledFrontSnake, ((LENGTH - frontSnakeSize[0])/2, 30 +(265*HEIGHT/454 - frontSnakeSize[1])/2))    
+    
     newUser = button('New User', margin, 380*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 20 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1)
     if newUser:
         newUser_init()
         user = 'NewUser'
-    # button(text,x,y,width,height,bg_color=WHITE,x_offset=10,text_size=10,text_col=BLACK,hover_col=BLUE,hover_width=2)
-    user = 'Arsenal' if button('Play Game', (LENGTH - (170*LENGTH/554))/2, 250*HEIGHT/454, 170*LENGTH/554, 60*HEIGHT/454, DARKBROWN, x_offset = 30 + (10**(LENGTH/554))/5, text_col=WHITE, text_size=int(24*LENGTH/700),hover_col=BLACKBROWN, hover_width=1) else user
+
     user = 'LeaderBoard' if button('LeaderBoard', margin, 300*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 7 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
     user = 'Missions' if button('Missions', margin, 340*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 20 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
     user = 'MarketPlace' if button('Shop', LENGTH - (margin+usualWidth*LENGTH/554), 300*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 35 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
     user = 'Inventory' if button('Inventory', LENGTH - (margin+usualWidth*LENGTH/554), 340*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 20 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
     user = 'Cheaterlist' if button('Cheaters\' list', LENGTH - (margin+usualWidth*LENGTH/554), 380*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 7 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
     user = 'Licenses' if button('SEE LEGAL INFO', (LENGTH - (140*LENGTH/554))/2, 380*HEIGHT/454, 140*LENGTH/554, 30*HEIGHT/454, LIGHTBROWN, x_offset = (10**(LENGTH/554))/3, text_col=DARKBROWN, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
-
-    # user = 'Settings' if button('Settings', 500, 500, 100, 30) else user
-    # n = button('N', 400, 250, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1)
-    # if n:
-    #     breaker = True
+    
     # if not done:
     #     d = screen_animation()
     #     done = d
@@ -1414,14 +1426,6 @@ def inventory():
                     SCREEN.blit(s, (x, y))
 
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
-
-
-# def settings():
-#     SCREEN.fill(BLACKBROWN)
-#     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-#     show('SETTINGS', WHITE, 10, 10, 20)
-#     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
-#     pass
 
 def settings():
     global user, start, SCREEN, LENGTH, opened, pop, q
