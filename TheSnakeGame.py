@@ -162,8 +162,8 @@ def pushData(name, score, time, bigGame):
         sending = True
     elif score > min(lScores):
         sending = True
-        print(
-            'Sending data to leaderboard as you beat player(s) to deserve it')
+        if bigGame == False:
+            print('Sending data to leaderboard as you beat player(s) to deserve it')
         if lScores.count(min(lScores)) == 1:
             for i in sortedData1:
                 if i[1] == min(lScores):
@@ -186,10 +186,17 @@ def pushData(name, score, time, bigGame):
         if (bigGame):
             for i in sortedData1:
                 if name == i[0]:
-                    deleteDoc(collection='testcollection', refid=i[4])
-                    pushDictData(collection='testcollection', data=dataDict)
-                    print("Your data on Leaderboard updated successfully!")
-                    writeBigGame(data['name'], True)
+                    if score > i[1]:
+                        deleteDoc(collection='testcollection', refid=i[4])
+                        pushDictData(collection='testcollection', data=dataDict)
+                        print("Your data on Leaderboard updated successfully!")
+                        writeBigGame(data['name'], True)
+                    elif score == i[1]:
+                        if time < i[2]:
+                            deleteDoc(collection='testcollection', refid=i[4])
+                            pushDictData(collection='testcollection', data=dataDict)
+                            print("Your data on Leaderboard updated successfully!")
+                            writeBigGame(data['name'], True)
         else:
             if name in lnames:
                 print(
@@ -461,6 +468,10 @@ cheaterImage = pygame.image.load(r'images\cheater.png')
 sideSnake = pygame.image.load(r'images\side-snake.png')
 frontSnake = pygame.image.load(r'images\front-snake.png')
 bgMusic = pygame.mixer.music.load(r'audios\bgmusic.mp3')
+speedupMusic = pygame.mixer.Sound(r'audios\speedup.wav')
+appleMusic = pygame.mixer.Sound(r'audios\apple.wav')
+bombMusic = pygame.mixer.Sound(r'audios\bomb.wav')
+speeddownMusic = pygame.mixer.Sound(r'audios\speeddown.wav')
 
 #[[name,score,timeplayed,1_time,ref_id]]
 
@@ -728,7 +739,7 @@ def home():
 
 
 def arsenal():
-    global user, start, SCREEN, selected_items, coin_2, point_2, Pop
+    global user, start, SCREEN, selected_items, coin_2, point_2, Pop, userSettings
     LENGTH = pygame.display.get_surface().get_width()
     # LENGTH = 554
     # SCREEN = pygame.display.set_mode((LENGTH, 454))
@@ -834,7 +845,9 @@ def arsenal():
     show('2x Points :' + ('Activated' if point_2 else 'Not Activated'), WHITE,
          305, 375, 18)
     if button('Start Game', LENGTH // 2 - 55, 410, 110, 32, DARKBROWN, text_col=WHITE, text_size=16, hover_width=0):
-        pygame.mixer.music.play(loops = -1)
+        if userSettings['music']:
+            pygame.mixer.music.set_volume(userSettings['volume']/100)
+            pygame.mixer.music.play(loops = -1)
         user = 'Emulator' 
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     if user == 'Emulator':
@@ -979,6 +992,8 @@ def emulator():
             SpeedDown = False
         #Collision Logics
         if tuple(snake) == (applex, appley):
+            if userSettings['sound']:
+                appleMusic.play(loops=0)
             body.append(body[-1])
             Apple = True
             for i, c in enumerate(m_counter['apple']):
@@ -997,9 +1012,13 @@ def emulator():
                                     miss['missions'][i][3] = True
                                     pickle.dump(miss, f)
         elif tuple(snake) == (bombx, bomby):
+            if userSettings['sound']:
+                bombMusic.play(loops=0)
             bombx, bomby = -1, -1
             score -= 100
         elif tuple(snake) == (speedupx, speedupy):
+            if userSettings['sound']:
+                speedupMusic.play(loops=0)
             speedupx, speedupy = -1, -1
             rate += 2
             for i, c in enumerate(m_counter['up']):
@@ -1027,6 +1046,8 @@ def emulator():
                                     miss['missions'][i][3] = True
                                     pickle.dump(miss, f)
         elif tuple(snake) == (speeddownx, speeddowny):
+            if userSettings['sound']:
+                speeddownMusic.play(loops=0)
             speeddownx, speeddowny = -1, -1
             for i, c in enumerate(m_counter['down']):
                 C = c.split('/')
@@ -2027,7 +2048,8 @@ def settings():
         pygame.draw.rect(SCREEN, WHITE, (mul + 235, 170, 40, 25))
         show(str(userSettings['volume']), DARKBROWN, mul + 240, 175, 19)
         if (button('+', mul + 280, 170, 30, 25, DARKBROWN, 10, 19, WHITE, BLACK)):
-            userSettings['volume'] +=5
+            if userSettings['volume'] < 100:
+                userSettings['volume'] +=5
 
         pygame.draw.line(SCREEN, DARKBROWN, (mul + 20, 210), (LENGTH - 30, 210), width = 3)
         
@@ -2043,6 +2065,7 @@ def settings():
         
         if (button('ACCEPT', 340, 360, 100, 30, DARKBROWN, 15, 17, WHITE, BLACK)):
             updateSettings(userSettings)
+            user = 'Home'
         if (button('CANCEL', 210, 360, 100, 30, WHITE, 15, 17, DARKBROWN, GREY)):
             user = 'Home'
     elif openedSettings[1]:
