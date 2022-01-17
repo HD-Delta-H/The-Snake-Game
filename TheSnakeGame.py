@@ -369,6 +369,7 @@ ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
 cheaterImage = pygame.image.load(r'images\cheater.png')
 sideSnake = pygame.image.load(r'images\side-snake.png')
 frontSnake = pygame.image.load(r'images\front-snake.png')
+bgMusic = pygame.mixer.music.load(r'audios\bgmusic.mp3')
 
 #[[name,score,timeplayed,1_time,ref_id]]
 
@@ -741,19 +742,14 @@ def arsenal():
          25, 375, 18)
     show('2x Points :' + ('Activated' if point_2 else 'Not Activated'), WHITE,
          305, 375, 18)
-    user = 'Emulator' if button('Start Game',
-                                LENGTH // 2 - 55,
-                                410,
-                                110,
-                                32,
-                                DARKBROWN,
-                                text_col=WHITE,
-                                text_size=16,
-                                hover_width=0) else user
+    if button('Start Game', LENGTH // 2 - 55, 410, 110, 32, DARKBROWN, text_col=WHITE, text_size=16, hover_width=0):
+        pygame.mixer.music.play(loops = -1)
+        user = 'Emulator' 
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     if user == 'Emulator':
         emulator_params()
 
+# 
 
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
@@ -848,10 +844,9 @@ def emulator():
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
-
     body.insert(0, tuple(snake))
     body.pop(-1)
-    if not popup:
+    if not popup:        
         #Bomb
         if counter[0] == 0:
             bombx, bomby = -1, -1
@@ -1036,6 +1031,7 @@ def emulator():
             snake[0] += PIXEL
         #GameOver
         if gameover:
+            pygame.mixer.music.stop()
             popup = True
             t = f'{(time.time() - start):.2f}'
             coins = int(8 * (score / 1000) -
