@@ -271,10 +271,48 @@ def maintain10onleaderboard():
 
         print('Leaderboard bought down to 10 players')
 
+def pullCheaterlistData(index, collection):
+    indexes = client.query(q.paginate(q.match(q.index(index))))
+
+    data = [indexes['data']]  # list of ref ids
+    # print(indexes['data'])
+
+    result = re.findall('\d+', str(data))  # to find all the numbers in the list
+
+    fData = []
+
+    for i in result:
+        user_details = client.query(q.get(q.ref(q.collection(collection), i)))
+        details = user_details['data']
+        fData.append(details['name'])
+
+    return fData
+
+def cheaterlistData():
+    try:
+        data = pullCheaterlistData(index='cheaterindex',
+                                     collection='cheaterlist')
+        file = open("cheaterlist.dat", "wb")
+        pickle.dump(data, file)
+        file.close()
+        print('data pulled')
+        return data
+    except:
+        try:
+            file = open("cheaterlist.dat", "rb")
+            data = pickle.load(file)
+            print('data taken from file')
+            file.close()
+            return data
+        except:
+            data = []
+            print('Cheaterlist data can\'t be pulled and file is empty or non-existent')
+            return data
 
 sortedData = pullingSortedData()
 # print(sortedData)
 maintain10onleaderboard()
+listOfCheaters = cheaterlistData()
 
 if internet and os.path.exists("savedData.dat"):
     try:
@@ -350,10 +388,14 @@ try:
 except pickle.UnpicklingError:
     user = 'Cheater'
     non_cheater = False
-    with open('bigGame.dat', 'rb') as file:
-        bigData = pickle.load(bigData) 
-    dictData = {'name': bigData['name']}
-    pushDictData(collection='cheaterlist', data=dictData)
+    try:
+        with open('bigGame.dat', 'rb') as file:
+            bigData = pickle.load(file) 
+        dictData = {'name': bigData['name']}
+        pushDictData(collection='cheaterlist', data=dictData)
+    except:
+        pass
+    print('YOU CHEATED!')
 if non_cheater:
     if data['name'] == '' or data['name'] == None:
         user = 'NewUser'
@@ -1095,7 +1137,6 @@ def leaderboard():
     # fauna
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
-    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('LEADERBOARDS', WHITE, 10, 10, 20)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
@@ -2169,6 +2210,25 @@ def cheater():
             'time': ''
         }, file)
 
+def cheaterlist():
+    global listOfCheaters, user
+    # fauna
+    LENGTH = pygame.display.get_surface().get_width()
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('Cheaters\' List', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
+    if len(listOfCheaters) > 0:
+        for i, dt in enumerate(listOfCheaters):
+            if i < 10:
+                show(dt, BLACK, 40, 78 + i * 35, 30)
+    else:
+        show('Oops! No Data Available', WHITE, 50, 200, 30)
+    if (button('R', LENGTH - 40, 10, 20, 20, BLACKBROWN, 4, 14, WHITE,
+               LIGHTBROWN)):
+        listOfCheaters = pullingSortedData()
+        print('Refresh clicked')
+    user = 'Home' if button('Home', LENGTH - 150, 10, 100, 30) else user
 
 def Popup(txt):
     global Pop
@@ -2216,6 +2276,8 @@ def main():
             inventory()
         elif user == 'Missions':
             missions()
+        elif user == 'Cheaterlist':
+            cheaterlist()
         for event in event_list:
             if event.type == pygame.QUIT:
                 pygame.quit()
