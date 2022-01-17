@@ -103,13 +103,6 @@ def sameScoreTimes(data, score):
     return lTimes
 
 
-def writeBigGame(bigGame):
-    bigData = {'bigGame': bigGame}
-    with open('bigGame.dat', 'wb') as file:
-        pickle.dump(bigData, file)
-    print(f"BigGame is set to {bigGame}")
-
-
 def bigGameVar():
     global data, sortedData
     names = []
@@ -127,41 +120,18 @@ def bigGameVar():
     else:
         bigGame = False
 
-    writeBigGame(bigGame)
+    writeBigGame(data['name'], bigGame)
     return bigGame
 
 
-def writeBigGame(bigGame):
-    bigData = {'bigGame': bigGame}
+def writeBigGame(name, bigGame):
+    bigData = {'name':name, 'bigGame': bigGame}
     with open('bigGame.dat', 'wb') as file:
         pickle.dump(bigData, file)
 
 
-def bigGameVar():
-    global data, sortedData
-    names = []
-    for i in sortedData:
-        names.append(i[0])
-
-    if os.path.exists("bigGame.dat"):
-        print('file exists')
-        with open('bigGame.dat', 'rb') as file:
-            bigData = pickle.load(file)
-        bigGame = bigData['bigGame']
-        print(f"In file, bigGame: {bigGame}")
-
-    if data['name'] not in names:
-        bigGame = False
-        print('Name not on leaderboard, bigGame: False')
-    elif not (os.path.exists("bigGame.dat")):
-        bigGame = False
-
-    writeBigGame(bigGame)
-    return bigGame
-
-
 def pushData(name, score, time, bigGame):
-    global Pop, PopT
+    global Pop, PopT, data
     sortedData1 = sortedLeaderboardList(index='testindex',
                                         collection='testcollection')
 
@@ -219,7 +189,7 @@ def pushData(name, score, time, bigGame):
                     deleteDoc(collection='testcollection', refid=i[4])
                     pushDictData(collection='testcollection', data=dataDict)
                     print("Your data on Leaderboard updated successfully!")
-                    writeBigGame(True)
+                    writeBigGame(data['name'], True)
         else:
             if name in lnames:
                 print(
@@ -232,7 +202,7 @@ def pushData(name, score, time, bigGame):
             else:
                 pushDictData(collection='testcollection', data=dataDict)
                 print("Data sent successfully!")
-                writeBigGame(True)
+                writeBigGame(data['name'], True)
     else:
         print("Data not sent since conditions are not met")
 
@@ -380,8 +350,10 @@ try:
 except pickle.UnpicklingError:
     user = 'Cheater'
     non_cheater = False
-    # dictData = {'name': data['name']}
-    # pushDictData(collection='cheaterlist', data=dictData)
+    with open('bigGame.dat', 'rb') as file:
+        bigData = pickle.load(bigData) 
+    dictData = {'name': bigData['name']}
+    pushDictData(collection='cheaterlist', data=dictData)
 if non_cheater:
     if data['name'] == '' or data['name'] == None:
         user = 'NewUser'
@@ -2174,7 +2146,7 @@ def newuser():
         data = {'name': Text_Val[:-1], 'highscore': 0, 'coin': '0', 'time': ''}
         update_data()
         print('Signed up as new user')
-        writeBigGame(False)
+        writeBigGame(data['name'], False)
         user = 'Home'
 
 
