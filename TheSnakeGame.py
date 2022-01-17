@@ -102,11 +102,13 @@ def sameScoreTimes(data, score):
 
     return lTimes
 
+
 def writeBigGame(bigGame):
-    bigData = {'bigGame':bigGame}
+    bigData = {'bigGame': bigGame}
     with open('bigGame.dat', 'wb') as file:
         pickle.dump(bigData, file)
     print(f"BigGame is set to {bigGame}")
+
 
 def bigGameVar():
     global data, sortedData
@@ -127,6 +129,7 @@ def bigGameVar():
 
     writeBigGame(bigGame)
     return bigGame
+
 
 def writeBigGame(bigGame):
     bigData = {'bigGame': bigGame}
@@ -158,7 +161,7 @@ def bigGameVar():
 
 
 def pushData(name, score, time, bigGame):
-
+    global Pop, PopT
     sortedData1 = sortedLeaderboardList(index='testindex',
                                         collection='testcollection')
 
@@ -183,11 +186,14 @@ def pushData(name, score, time, bigGame):
     lTimes = sameScoreTimes(data=sortedData1, score=min(lScores))
 
     if count < ndataset:
-        print('Sending data to leaderboard as there\'s less than 10 players on it')
+        print(
+            'Sending data to leaderboard as there\'s less than 10 players on it'
+        )
         sending = True
     elif score > min(lScores):
         sending = True
-        print('Sending data to leaderboard as you beat player(s) to deserve it')
+        print(
+            'Sending data to leaderboard as you beat player(s) to deserve it')
         if lScores.count(min(lScores)) == 1:
             for i in sortedData1:
                 if i[1] == min(lScores):
@@ -195,7 +201,9 @@ def pushData(name, score, time, bigGame):
                         deleteDoc(collection='testcollection', refid=i[4])
                         print(f'{i[0]}\'s name removed from the Leaderboard')
     elif score == min(lScores):
-        print('Sending data to leaderboard as you scored the same as the lowest person on leaderboard but in fewer time')
+        print(
+            'Sending data to leaderboard as you scored the same as the lowest person on leaderboard but in fewer time'
+        )
         if time < max(lTimes):
             sending = True
             for i in sortedData1:
@@ -228,6 +236,7 @@ def pushData(name, score, time, bigGame):
     else:
         print("Data not sent since conditions are not met")
 
+
 # pulling data
 def pullingSortedData():
     try:
@@ -237,7 +246,7 @@ def pullingSortedData():
         pickle.dump(data, file)
         file.close()
         print('data pulled')
-        return data        
+        return data
     except:
         try:
             file = open("sortedData.dat", "rb")
@@ -269,25 +278,29 @@ def saveGameDataForLater(name, score, time):
         pickle.dump(data, file)
         file.close()
 
+
 def maintain10onleaderboard():
     global sortedData
     toDelete = []
     revData = sortedData.copy()
     revData.reverse()
-    
+
     if len(sortedData) > 10:
         n = len(sortedData) - 10
-        print('n : ',n)
+        print('n : ', n)
         for i in range(n):
-            print('added: ',revData[i])
+            print('added: ', revData[i])
             toDelete.append(revData[i])
 
     if len(toDelete) >= 1:
         for i in toDelete:
-            deleteDoc(collection = 'testcollection', refid = i[4])
-            print(f'{i[0]}\'s name removed from Leaderboard as it doesn\'t qualify to show up there anymore.')
+            deleteDoc(collection='testcollection', refid=i[4])
+            print(
+                f'{i[0]}\'s name removed from Leaderboard as it doesn\'t qualify to show up there anymore.'
+            )
 
         print('Leaderboard bought down to 10 players')
+
 
 sortedData = pullingSortedData()
 # print(sortedData)
@@ -295,15 +308,20 @@ maintain10onleaderboard()
 
 if internet and os.path.exists("savedData.dat"):
     try:
-        fileR = open('savedData.dat',"rb")
+        fileR = open('savedData.dat', "rb")
         data = pickle.load(fileR)
         bigGame = bigGameVar()
-        pushData(name = data['name'], score = data['score'], time = data['time'], bigGame = bigGame)
+        pushData(name=data['name'],
+                 score=data['score'],
+                 time=data['time'],
+                 bigGame=bigGame)
         fileR.close()
         os.remove("savedData.dat")
         print('Saved data from previous games sent')
     except:
-        print("Saved data from previous games couldn't be sent due to an unexpected error")
+        print(
+            "Saved data from previous games couldn't be sent due to an unexpected error"
+        )
 
 # line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
 # rect pygame.draw.rect(SCREEN, BLUE, (390,390,50,25)) #screen, color, (starting_x, starting_y, width,height)
@@ -314,7 +332,6 @@ if internet and os.path.exists("savedData.dat"):
 
 def changeName():
     pass
-
 
 
 #constants
@@ -363,8 +380,8 @@ try:
 except pickle.UnpicklingError:
     user = 'Cheater'
     non_cheater = False
-    dictData = {'name':data['name']}
-    pushDictData(collection = 'cheaterlist', data = dictData)
+    # dictData = {'name': data['name']}
+    # pushDictData(collection='cheaterlist', data=dictData)
 if non_cheater:
     if data['name'] == '' or data['name'] == None:
         user = 'NewUser'
@@ -383,6 +400,7 @@ def show(msg, color, x, y, size):
 
 selected_items = [False, False, False, False, False, False]
 
+Pop = False
 I = 0
 iterr = 0
 
@@ -457,39 +475,144 @@ def home():
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, HEIGHT - 60))
     usualWidth, margin = 120, 65
-    
-    show('playing as ', LIGHTBROWN, 20, 16, 16)    
-    show(data['name'].upper()+'.', WHITE, 110, 9, 24)
-    show(data['coin']+' coins', WHITE, 210, 9, 24)
-    user = 'Settings' if button('Settings', LENGTH - 154, 5, 100, 30, LIGHTBROWN, x_offset = 10, text_col=DARKBROWN, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
-        
-    scaledFrontSnake = pygame.transform.scale(frontSnake, (int(250*HEIGHT/400), int(250*HEIGHT/400)))
+
+    show('playing as ', LIGHTBROWN, 20, 16, 16)
+    show(data['name'].upper() + '.', WHITE, 110, 9, 24)
+    show(data['coin'] + ' coins', WHITE, 210, 9, 24)
+    user = 'Settings' if button('Settings',
+                                LENGTH - 154,
+                                5,
+                                100,
+                                30,
+                                LIGHTBROWN,
+                                x_offset=10,
+                                text_col=DARKBROWN,
+                                text_size=16,
+                                hover_col=BLACKBROWN,
+                                hover_width=1) else user
+
+    scaledFrontSnake = pygame.transform.scale(
+        frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
     frontSnakeSize = scaledFrontSnake.get_size()
-    
-    scaledSideSnake = pygame.transform.scale(sideSnake, (int(250*HEIGHT/454), int(250*HEIGHT/454)))
+
+    scaledSideSnake = pygame.transform.scale(
+        sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
     sideSnakeSize = scaledSideSnake.get_size()
 
-    flippedScaledSideSnake = pygame.transform.flip(scaledSideSnake, True, False)
+    flippedScaledSideSnake = pygame.transform.flip(scaledSideSnake, True,
+                                                   False)
     scaledSideSnake.set_alpha(55), flippedScaledSideSnake.set_alpha(55)
 
-    SCREEN.blit(scaledSideSnake, (margin + (usualWidth*LENGTH/554 - sideSnakeSize[0])/2, 40 +(265*HEIGHT/454 - frontSnakeSize[1])/2 + frontSnakeSize[1]/4))
-    SCREEN.blit(flippedScaledSideSnake, (LENGTH - (margin + (usualWidth*LENGTH/554)/2 + sideSnakeSize[0]/2 + 15), 40 +(265*HEIGHT/454 - frontSnakeSize[1])/2 + frontSnakeSize[1]/4))
+    SCREEN.blit(
+        scaledSideSnake,
+        (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2, 40 +
+         (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
+    SCREEN.blit(
+        flippedScaledSideSnake,
+        (LENGTH -
+         (margin +
+          (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15), 40 +
+         (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
 
-    user = 'Arsenal' if button('Play Game', (LENGTH - (170*LENGTH/554))/2, 265*HEIGHT/454, 170*LENGTH/554, 55*HEIGHT/454, DARKBROWN, x_offset = 30 + (10**(LENGTH/554))/5, text_col=WHITE, text_size=int(24*LENGTH/700),hover_col=BLACKBROWN, hover_width=1) else user
-    SCREEN.blit(scaledFrontSnake, ((LENGTH - frontSnakeSize[0])/2, 30 +(265*HEIGHT/454 - frontSnakeSize[1])/2))    
-    
-    newUser = button('New User', margin, 380*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 20 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1)
+    user = 'Arsenal' if button('Play Game',
+                               (LENGTH - (170 * LENGTH / 554)) / 2,
+                               265 * HEIGHT / 454,
+                               170 * LENGTH / 554,
+                               55 * HEIGHT / 454,
+                               DARKBROWN,
+                               x_offset=30 + (10**(LENGTH / 554)) / 5,
+                               text_col=WHITE,
+                               text_size=int(24 * LENGTH / 700),
+                               hover_col=BLACKBROWN,
+                               hover_width=1) else user
+    SCREEN.blit(scaledFrontSnake,
+                ((LENGTH - frontSnakeSize[0]) / 2, 30 +
+                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
+
+    newUser = button('New User',
+                     margin,
+                     380 * HEIGHT / 454,
+                     usualWidth * LENGTH / 554,
+                     30 * HEIGHT / 454,
+                     DARKBROWN,
+                     x_offset=20 + (10**(LENGTH / 554)) / 3,
+                     text_col=WHITE,
+                     text_size=16,
+                     hover_col=BLACKBROWN,
+                     hover_width=1)
     if newUser:
         newUser_init()
         user = 'NewUser'
 
-    user = 'LeaderBoard' if button('LeaderBoard', margin, 300*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 7 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
-    user = 'Missions' if button('Missions', margin, 340*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 20 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
-    user = 'MarketPlace' if button('Shop', LENGTH - (margin+usualWidth*LENGTH/554), 300*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 35 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
-    user = 'Inventory' if button('Inventory', LENGTH - (margin+usualWidth*LENGTH/554), 340*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 20 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
-    user = 'Cheaterlist' if button('Cheaters\' list', LENGTH - (margin+usualWidth*LENGTH/554), 380*HEIGHT/454, usualWidth*LENGTH/554, 30*HEIGHT/454, DARKBROWN, x_offset = 7 + (10**(LENGTH/554))/3, text_col=WHITE, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
-    user = 'Licenses' if button('SEE LEGAL INFO', (LENGTH - (140*LENGTH/554))/2, 380*HEIGHT/454, 140*LENGTH/554, 30*HEIGHT/454, LIGHTBROWN, x_offset = (10**(LENGTH/554))/3, text_col=DARKBROWN, text_size=16,hover_col=BLACKBROWN, hover_width=1) else user
-    
+    user = 'LeaderBoard' if button('LeaderBoard',
+                                   margin,
+                                   300 * HEIGHT / 454,
+                                   usualWidth * LENGTH / 554,
+                                   30 * HEIGHT / 454,
+                                   DARKBROWN,
+                                   x_offset=7 + (10**(LENGTH / 554)) / 3,
+                                   text_col=WHITE,
+                                   text_size=16,
+                                   hover_col=BLACKBROWN,
+                                   hover_width=1) else user
+    user = 'Missions' if button('Missions',
+                                margin,
+                                340 * HEIGHT / 454,
+                                usualWidth * LENGTH / 554,
+                                30 * HEIGHT / 454,
+                                DARKBROWN,
+                                x_offset=20 + (10**(LENGTH / 554)) / 3,
+                                text_col=WHITE,
+                                text_size=16,
+                                hover_col=BLACKBROWN,
+                                hover_width=1) else user
+    user = 'MarketPlace' if button('Shop',
+                                   LENGTH -
+                                   (margin + usualWidth * LENGTH / 554),
+                                   300 * HEIGHT / 454,
+                                   usualWidth * LENGTH / 554,
+                                   30 * HEIGHT / 454,
+                                   DARKBROWN,
+                                   x_offset=35 + (10**(LENGTH / 554)) / 3,
+                                   text_col=WHITE,
+                                   text_size=16,
+                                   hover_col=BLACKBROWN,
+                                   hover_width=1) else user
+    user = 'Inventory' if button('Inventory',
+                                 LENGTH - (margin + usualWidth * LENGTH / 554),
+                                 340 * HEIGHT / 454,
+                                 usualWidth * LENGTH / 554,
+                                 30 * HEIGHT / 454,
+                                 DARKBROWN,
+                                 x_offset=20 + (10**(LENGTH / 554)) / 3,
+                                 text_col=WHITE,
+                                 text_size=16,
+                                 hover_col=BLACKBROWN,
+                                 hover_width=1) else user
+    user = 'Cheaterlist' if button('Cheaters\' list',
+                                   LENGTH -
+                                   (margin + usualWidth * LENGTH / 554),
+                                   380 * HEIGHT / 454,
+                                   usualWidth * LENGTH / 554,
+                                   30 * HEIGHT / 454,
+                                   DARKBROWN,
+                                   x_offset=7 + (10**(LENGTH / 554)) / 3,
+                                   text_col=WHITE,
+                                   text_size=16,
+                                   hover_col=BLACKBROWN,
+                                   hover_width=1) else user
+    user = 'Licenses' if button('SEE LEGAL INFO',
+                                (LENGTH - (140 * LENGTH / 554)) / 2,
+                                380 * HEIGHT / 454,
+                                140 * LENGTH / 554,
+                                30 * HEIGHT / 454,
+                                LIGHTBROWN,
+                                x_offset=(10**(LENGTH / 554)) / 3,
+                                text_col=DARKBROWN,
+                                text_size=16,
+                                hover_col=BLACKBROWN,
+                                hover_width=1) else user
+
     # if not done:
     #     d = screen_animation()
     #     done = d
@@ -707,7 +830,7 @@ def emulator_params():
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData
+    global sortedData, Pop, PopT
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
@@ -991,10 +1114,14 @@ def emulator():
             SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH),
                                              pygame.RESIZABLE)
 
+    if Pop:
+        Popup(PopT)
+
 
 def leaderboard():
     global sortedData, user
     # fauna
+    LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -1004,8 +1131,8 @@ def leaderboard():
         for i, dt in enumerate(sortedData):
             if i < 10:
                 show(dt[0], BLACK, 30, 78 + i * 35, 30)
-                show(str(dt[1]), BLACK, 175, 78 + i * 35, 30)
-                show(str(dt[2]), BLACK, 320, 78 + i * 35, 30)
+                show(str(dt[1]), BLACK, 305, 78 + i * 35, 30)
+                show(str(dt[2]), BLACK, 420, 78 + i * 35, 30)
     else:
         show('Oops! No Data Available', WHITE, 50, 200, 30)
     if (button('R', LENGTH - 40, 10, 20, 20, BLACKBROWN, 4, 14, WHITE,
@@ -1013,6 +1140,7 @@ def leaderboard():
         sortedData = pullingSortedData()
         print('Refresh clicked')
     user = 'Home' if button('Home', LENGTH - 150, 10, 100, 30) else user
+
 
 def missions():
     global user
@@ -1106,25 +1234,25 @@ def marketplace():
         show('Are you sure you wanna purchase this item ?', BLACK, 70, 200, 18)
         pop = False if button('no',
                               410,
-                              240,
+                              235,
                               70,
                               30,
                               DARKBROWN,
                               text_size=18,
                               text_col=WHITE,
                               hover_col=DARKBROWN,
-                              hover_width=0) else True
+                              hover_width=1) else True
 
         return True if button('yes',
                               70,
-                              240,
+                              235,
                               70,
                               30,
                               DARKBROWN,
                               text_size=18,
                               text_col=WHITE,
                               hover_col=DARKBROWN,
-                              hover_width=0) else False
+                              hover_width=1) else False
 
     if button("Background",
               10,
@@ -1693,6 +1821,7 @@ def inventory():
         Popup('Theme not purchased')
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
 
+
 def settings():
     global user, start, SCREEN, LENGTH, opened, pop, q
     LENGTH = pygame.display.get_surface().get_width()
@@ -1995,6 +2124,7 @@ def settings():
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     show(str(data['coin']), LIGHTBROWN, LENGTH - 130, 10, 16)
 
+
 def newuser():
     LENGTH = pygame.display.get_surface().get_width()
     global user, Text_Val, iterrr, Cursor, data
@@ -2076,7 +2206,14 @@ def Popup(txt):
     SCREEN.blit(s, (0, 0))
     pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 150, 450, 200), 0, 1)
     show(txt, DARKBROWN, 70, 170, 20)
-    if button('Ok', 350, 300, 100, 30):
+    if button('Ok',
+              350,
+              300,
+              100,
+              30,
+              DARKBROWN,
+              text_col=WHITE,
+              hover_col=DARKBROWN):
         Pop = False
 
 
@@ -2116,6 +2253,7 @@ def main():
         CLOCK.tick(rate)
         if breaker:
             break
+
 
 main()
 
