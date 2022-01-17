@@ -492,7 +492,7 @@ def home():
 
     show('playing as ', LIGHTBROWN, 20, 16, 16)
     show(data['name'].upper() + '.', WHITE, 110, 9, 24)
-    show(data['coin'] + ' coins', WHITE, 210, 9, 24)
+    show(data['coin'] + ' coins', WHITE, 275, 9, 24)
     user = 'Settings' if button('Settings',
                                 LENGTH - 154,
                                 5,
