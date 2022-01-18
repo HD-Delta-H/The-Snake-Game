@@ -2153,9 +2153,13 @@ def settings():
         newuser(changename=True)
 
 
+errormsg = False
+errorstart = 0
+
+
 def newuser(changename=False):
     LENGTH = pygame.display.get_surface().get_width()
-    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, event_list, popinit
+    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart
     if not changename:
         SCREEN.fill(BLACKBROWN)
         pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -2194,37 +2198,63 @@ def newuser(changename=False):
     # iterrr+=1
     # iterrr=0 if iterrr>20 else iterrr
     pygame.draw.line(SCREEN, DARKBROWN, (50, 250), (LENGTH - 50, 250), 1)
-    Text_Ent = button('Create Account', (LENGTH - 155) // 2,
-                      260,
+    Text_Ent = button('Change Name' if changename else 'Create Account',
+                      (LENGTH - 155) // 2,
+                      280,
                       140,
                       40,
                       bg_color=DARKBROWN,
                       text_col=WHITE,
                       text_size=14,
                       hover_width=0)
-    for event in event_list:
-        if event.type == pygame.KEYDOWN:
-            if event.unicode in ALPHA:
-                Text_Val = Text_Val[:-1] + str(
-                    event.unicode) + ('|' if Cursor else ' ')
-            elif event.key == pygame.K_BACKSPACE:
-                Text_Val = Text_Val[:-2] + ('|' if Cursor else ' ')
-            elif event.unicode == '\r':
-                Text_Ent = True
-
+    if not Pop:
+        for event in event_list:
+            if event.type == pygame.KEYDOWN:
+                if event.unicode in ALPHA:
+                    Text_Val = Text_Val[:-1] + str(
+                        event.unicode) + ('|' if Cursor else ' ')
+                elif event.key == pygame.K_BACKSPACE:
+                    Text_Val = Text_Val[:-2] + ('|' if Cursor else ' ')
+                elif event.unicode == '\r':
+                    Text_Ent = True
+                elif not event.unicode in ALPHA:
+                    errormsg = True
+                    errorstart = time.time()
+    if 3 < len(Text_Val) <= 11:
+        allowed_name = True
+    else:
+        allowed_name = False
     if Text_Ent:
-        data = {'name': Text_Val[:-1], 'highscore': 0, 'coin': '0', 'time': ''}
-        update_data()
-        print('Signed up as new user')
-        writeBigGame(data['name'], False)
-        if changename:
-            namepop = False
-            fromsetting = False
-            popinit = True
-        if fromsetting:
-            user = 'Settings'
+        if allowed_name:
+            if not changename:
+                data = {
+                    'name': Text_Val[:-1],
+                    'highscore': 0,
+                    'coin': '0',
+                    'time': ''
+                }
+            if changename:
+                data['name'] = Text_Val[:-1]
+            update_data()
+            print('Signed up as new user')
+            writeBigGame(data['name'], False)
+            if changename:
+                namepop = False
+                fromsetting = False
+                popinit = True
+            if fromsetting:
+                user = 'Settings'
+            else:
+                user = 'Home'
         else:
-            user = 'Home'
+            Pop = True
+    if errormsg:
+        show("*Only Uppercase/Lowercase letters, numbers and '_' is allowed",
+             RED, (LENGTH - 310) // 2, 260, 12)
+        if time.time() - errorstart > 4:
+            errormsg = False
+    if Pop:
+        Popup("Username must be between 3 to 10 letters.")
 
 
 def cheater():
