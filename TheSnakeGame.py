@@ -543,9 +543,65 @@ I = 0
 iterr = 0
 
 
+def update_obj():
+    with open('daily.dat', 'wb') as file:
+        pickle.dump(obj, file)
+
+
 def update_data():
     with open('userData.dat', 'wb') as file:
         pickle.dump(data, file)
+
+
+def daily():
+    global obj
+    mission_list = [['points', 20, 200], ['up', 20, 100], ['down', 20, 100],
+                    ['apple', 50, 250], ['speed', 0, 11]]
+    items_dict = {
+        "More Ice Apples": 12,
+        "More Green Apples": 12,
+        "High Vel": 8,
+        "Low Vel": 8,
+        "Fewer Bombs": 15,
+        "Teleport": 40,
+    }
+    s = time.time()
+    day = int(((s + 19800) / 3600) // 24)
+    with open('daily.dat', 'rb') as file:
+        dail = pickle.load(file)
+        if dail['day'] < day:
+            mis = random.choice(mission_list)
+            val = random.randint(mis[1], mis[2])
+            disp_v = val * (50 if mis[0] == 'points' else
+                            (2 if mis[0] == 'speed' else 1))
+            rat_cal = (abs(
+                (6 - val) / (6 - mis[2])) if mis[0] == 'speed' else val /
+                       mis[2])
+            rat = float(f"{rat_cal:.2f}")
+            reward = (('5' if val < 0.4 else
+                       ('30' if val > 0.8 else '10')) + '-' + random.choice(
+                           ('C', 'P')),
+                      int(rat *
+                          (15 if mis[0] in ('up', 'down', 'speed') else 30)))
+            it = random.choice(list(items_dict.keys()))
+            obj = {
+                'mission': [
+                    mis[0], disp_v, reward,
+                    (f"0/{disp_v}" if mis[0] in ('apple', 'up',
+                                                 'down') else False), False
+                ],
+                'offer1': (it, items_dict[it] * random.randint(25, 75) / 100,
+                           items_dict[it]),
+                'offer2':
+                '',
+                'time':
+                s,
+                'day':
+                day
+            }
+            update_obj()
+        else:
+            obj = dail
 
 
 def button(text,
@@ -693,17 +749,19 @@ def home():
                                    text_size=16,
                                    hover_col=BLACKBROWN,
                                    hover_width=1) else user
-    user = 'Missions' if button('Missions',
-                                margin,
-                                340 * HEIGHT / 454,
-                                usualWidth * LENGTH / 554,
-                                30 * HEIGHT / 454,
-                                DARKBROWN,
-                                x_offset=20 + (10**(LENGTH / 554)) / 3,
-                                text_col=WHITE,
-                                text_size=16,
-                                hover_col=BLACKBROWN,
-                                hover_width=1) else user
+    if button('Missions',
+              margin,
+              340 * HEIGHT / 454,
+              usualWidth * LENGTH / 554,
+              30 * HEIGHT / 454,
+              DARKBROWN,
+              x_offset=20 + (10**(LENGTH / 554)) / 3,
+              text_col=WHITE,
+              text_size=16,
+              hover_col=BLACKBROWN,
+              hover_width=1):
+        user = 'Missions'
+        daily()
     user = 'MarketPlace' if button('Shop',
                                    LENGTH -
                                    (margin + usualWidth * LENGTH / 554),
@@ -881,6 +939,7 @@ def arsenal():
     user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
     if user == 'Emulator':
         emulator_params()
+        daily()
 
 
 #
@@ -947,7 +1006,7 @@ def emulator_params():
         m_counter = {'apple': [], 'up': [], 'down': []}
         speed_checker = []
         st = []
-        for i, m in enumerate(miss['missions']):
+        for m in miss['missions']:
             if m[0] in ('apple', 'up', 'down'):
                 m_counter[m[0]].append(m[3])
             if m[0] == 'speed':
@@ -1032,6 +1091,12 @@ def emulator():
                 m_counter['apple'][i] = str(
                     int(C[0]) +
                     (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
+            if obj['mission'][0] == 'apple':
+                c = obj['mission'][3]
+                C = c.split('/')
+                obj['mission'][3] = str(
+                    int(C[0]) +
+                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
             score += 100 if point_2 else 50
             for pair in st:
                 if (time.time() - start) <= pair[1] and score == pair[0]:
@@ -1057,6 +1122,12 @@ def emulator():
                 m_counter['up'][i] = str(
                     int(C[0]) +
                     (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
+            if obj['mission'][0] == 'up':
+                c = obj['mission'][3]
+                C = c.split('/')
+                obj['mission'][3] = str(
+                    int(C[0]) +
+                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
             score += 300 if point_2 else 150
             for pair in st:
                 if (time.time() - start) <= pair[1] and score == pair[0]:
@@ -1076,6 +1147,9 @@ def emulator():
                                 with open('missions.dat', 'wb') as f:
                                     miss['missions'][i][3] = True
                                     pickle.dump(miss, f)
+            if obj['mission'][0] == 'speed':
+                if rate == obj['mission'][1]:
+                    obj['mission'][3] = True
         elif tuple(snake) == (speeddownx, speeddowny):
             if userSettings['sound']:
                 speeddownMusic.play(loops=0)
@@ -1083,6 +1157,12 @@ def emulator():
             for i, c in enumerate(m_counter['down']):
                 C = c.split('/')
                 m_counter['down'][i] = str(
+                    int(C[0]) +
+                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
+            if obj['mission'][0] == 'down':
+                c = obj['mission'][3]
+                C = c.split('/')
+                obj['mission'][3] = str(
                     int(C[0]) +
                     (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
             rate -= 2
@@ -1105,7 +1185,9 @@ def emulator():
                                 with open('missions.dat', 'wb') as f:
                                     miss['missions'][i][3] = True
                                     pickle.dump(miss, f)
-
+            if obj['mission'][0] == 'speed':
+                if rate == obj['mission'][1]:
+                    obj['mission'][3] = True
         if Apple == True:
             applex, appley = random_cord(blocks)
             Apple = False
@@ -1196,6 +1278,10 @@ def emulator():
                                     miss['missions'][i][3] = k
                                     pickle.dump(miss, f)
 
+            if obj['mission'][0] == 'points':
+                if score >= obj['mission'][1]:
+                    obj['mission'][3] = True
+            update_obj()
             # data['coin'] = f"{int(data['coin'])+coins}"
             update_data()
 
@@ -1295,14 +1381,72 @@ def leaderboard():
 
 
 def missions():
-    global user
+    global user, obj
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('MISSIONS', WHITE, 10, 10, 20)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 50, LENGTH - 40, 40), 0, 8)
+
+    def miss_txt(m):
+        txt = ''
+        if m[0] == 'points':
+            txt = f'Reach {m[1]} points.'
+        elif m[0] == 'speed':
+            txt = f'Reach {m[1]} speed.'
+        elif m[0] == 'st':
+            txt = f'Reach {m[1][0]} points under {m[1][1]} seconds.'
+        elif m[0] == 'leaderboard':
+            txt = 'Get on the leaderboards.'
+        elif m[0] == 'rank':
+            txt = 'Beat your curren Rank' if m[
+                1] == 'prev' else f'Reach {m[1]} rank or below.'
+        elif m[0] == 'up':
+            txt = f'Collect {m[1]} green apples in total.'
+        elif m[0] == 'down':
+            txt = f'Collect {m[1]} ice apples in total.'
+        elif m[0] == 'apple':
+            txt = f'Collect {m[1]} normal apples in total.'
+        return txt
+
     show("Today's Special Mission :", WHITE, 30, 54, 16)
-    show("Mission Text", WHITE, 35, 74, 14)
+    m = obj['mission']
+    txt = miss_txt(m)
+    show(txt, WHITE, 35, 74, 14)
+    show('Rewards :', DARKBROWN, LENGTH - 150, 55, 13)
+    if m[0] in ('up', 'down', 'apple'):
+        show('Status : ' + m[3], DARKBROWN, LENGTH - 300, 55, 13)
+    else:
+        show('Status : ' + ('Completed' if m[3] else 'Pending'), DARKBROWN,
+             LENGTH - 300, 55, 13)
+
+    if ((m[3] == True) if str(type(m[3])) == "<class 'bool'>" else
+        (m[3].split('/')[0] == m[3].split('/')[1])) and not m[4]:
+        if button('Claim', LENGTH - 300, 70, 70, 17, DARKBROWN, 10, 13, WHITE,
+                  DARKBROWN, 0):
+            with open('missions.dat', 'rb') as file:
+                miss = pickle.load(file)
+                with open('missions.dat', 'wb') as f:
+                    obj['mission'][4] = True
+                    x = m[2][0].split('-')
+                    miss['coins']["2x " +
+                                  ('Coins ' if x[1] == 'C' else 'Points ') +
+                                  x[0] + ' min'][0] = str(
+                                      int(miss['coins']["2x " +
+                                                        ('Coins ' if x[1] ==
+                                                         'C' else 'Points ') +
+                                                        x[0] + ' min'][0]) + 1)
+                    pickle.dump(miss, f)
+                    data['coin'] = str(int(data['coin']) + m[2][1])
+                    update_data()
+                    update_obj()
+    if m[4]:
+        show('Claimed', BLACK, LENGTH - 300, 75, 13)
+    show(f'{m[2][1]} coins', DARKBROWN, LENGTH - 80, 55, 13)
+    M = m[2][0].replace('-', ' min 2x ')
+    M += 'oins' if M[-1] == 'C' else 'oints'
+    show(f'{M} ', DARKBROWN, LENGTH - 150, 75, 13)
+
     pygame.draw.line(SCREEN, WHITE, (10, 100), (LENGTH - 20, 100), 3)
     with open('missions.dat', 'rb') as file:
         miss = pickle.load(file)
@@ -1310,24 +1454,7 @@ def missions():
             pygame.draw.rect(SCREEN, LIGHTBROWN,
                              (20, 110 + i * 50, LENGTH - 40, 40), 0, 8)
             show(f"Mission {i+1} :", BLACK, 30, 114 + i * 50, 16)
-            txt = ''
-            if m[0] == 'points':
-                txt = f'Reach {m[1]} points.'
-            elif m[0] == 'speed':
-                txt = f'Reach {m[1]} speed.'
-            elif m[0] == 'st':
-                txt = f'Reach {m[1][0]} points under {m[1][1]} seconds.'
-            elif m[0] == 'leaderboard':
-                txt = 'Get on the leaderboards.'
-            elif m[0] == 'rank':
-                txt = 'Beat your curren Rank' if m[
-                    1] == 'prev' else f'Reach {m[1]} rank or below.'
-            elif m[0] == 'up':
-                txt = f'Collect {m[1]} green apples in total.'
-            elif m[0] == 'down':
-                txt = f'Collect {m[1]} ice apples in total.'
-            elif m[0] == 'apple':
-                txt = f'Collect {m[1]} normal apples in total.'
+            txt = miss_txt(m)
             show(txt, WHITE, 35, 134 + i * 50, 14)
             show('Rewards :', DARKBROWN, LENGTH - 150, 115 + i * 50, 13)
             if m[0] in ('up', 'down', 'apple'):
