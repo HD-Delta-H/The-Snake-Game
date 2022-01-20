@@ -469,6 +469,7 @@ sideSnake = pygame.image.load(r'images\side-snake.png')
 frontSnake = pygame.image.load(r'images\front-snake.png')
 bgMusic = pygame.mixer.music.load(r'audios\bgmusic.mp3')
 speedupMusic = pygame.mixer.Sound(r'audios\speedup.wav')
+buttonSound = pygame.mixer.Sound(r'audios\button.mp3')
 appleMusic = pygame.mixer.Sound(r'audios\apple.wav')
 bombMusic = pygame.mixer.Sound(r'audios\bomb.wav')
 speeddownMusic = pygame.mixer.Sound(r'audios\speeddown.wav')
@@ -538,7 +539,7 @@ def button(text,
            text_col=BLACK,
            hover_col=BLUE,
            hover_width=2):
-    global event_list
+    global event_list, buttonSound
     pos = pygame.mouse.get_pos()
     if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
             1] <= y + height:
@@ -546,6 +547,8 @@ def button(text,
                          (x - hover_width, y - hover_width,
                           width + hover_width * 2, height + hover_width * 2))
         if pygame.mouse.get_pressed()[0]:
+            if userSettings['sound']:
+                buttonSound.play(loops=0)
             return True
     pygame.draw.rect(SCREEN, bg_color, (x, y, width, height))
     show(text, text_col, x + x_offset,
@@ -739,10 +742,11 @@ def home():
 
 
 def arsenal():
-    global user, start, SCREEN, selected_items, coin_2, point_2, Pop, userSettings
+    global user, start, SCREEN, selected_items, coin_2, point_2, Pop
     LENGTH = pygame.display.get_surface().get_width()
     # LENGTH = 554
     # SCREEN = pygame.display.set_mode((LENGTH, 454))
+    userSettings = readSettings()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('Your Arsenel for the game', WHITE, 10, 10, 20)
@@ -945,6 +949,7 @@ def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
     global sortedData, Pop, PopT
+    userSettings = readSettings()
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
@@ -1955,7 +1960,8 @@ changeNamePopup = False
 
 def settings():
     global user, start, SCREEN, LENGTH, openedSettings, pop, q
-    global userSettings, data, changeNamePopup
+    global data, changeNamePopup
+    userSettings = readSettings()
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
