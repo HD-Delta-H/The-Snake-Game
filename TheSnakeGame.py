@@ -354,85 +354,6 @@ if internet and os.path.exists("savedData.dat"):
 # polygon pygame.draw.polygon(SCREEN, BLUE, ((25,75),(76,125),(250,375),(390,25),(60,540))) #screen, color, (coordinates of polygon(consecutive))
 # image pygame.image.load("space-invaders.png")
 
-# def changeName():
-#     LENGTH = pygame.display.get_surface().get_width()
-#     global user, iterrr, Cursor, data
-#     Text_Val = ''
-#     popup = True
-#     SCREEN.fill(BLACKBROWN)
-#     pygame.draw.rect(SCREEN, LIGHTBROWN, (27, 125, LENGTH - 54, 200))
-
-#     if len(Text_Val) == 0:
-#         show("Type your name here.", WHITE, (LENGTH - 200) // 2, 200, 20)
-#     else:
-#         show(Text_Val, WHITE, (LENGTH - len(Text_Val) * 10) // 2, 200, 20)
-#         if iterrr % 8 == 0:
-#             Text_Val = Text_Val[:-1] + '|'
-#             Cursor = True
-#         if iterrr % 8 == 4 and Cursor:
-#             Text_Val = Text_Val[:-1] + ' '
-#             Cursor = False
-#         iterrr += 1
-
-#     pygame.draw.line(SCREEN, DARKBROWN, (50, 230), (LENGTH - 50, 230), 1)
-
-#     Text_Ent = button('CHANGE NAME', 265 , 255, 150, 35, DARKBROWN, 10, 17, WHITE, BLACK)
-#     popup = False if (button('CANCEL', 140 , 255, 100, 35, WHITE, 15, 17, DARKBROWN, GREY)) else popup
-
-#     for event in event_list:
-#         if event.type == pygame.KEYDOWN:
-#             if event.unicode in ALPHA:
-#                 Text_Val = Text_Val[:-1] + str(
-#                     event.unicode) + ('|' if Cursor else ' ')
-#             elif event.key == pygame.K_BACKSPACE:
-#                 Text_Val = Text_Val[:-2] + ('|' if Cursor else ' ')
-#             elif event.unicode == '\r':
-#                 Text_Ent = True
-
-#     if Text_Ent:
-#         data = {'name': Text_Val[:-1], 'highscore': 0, 'coin': '0', 'time': ''}
-#         update_data()
-#         print('Signed up as new user')
-#         writeBigGame(data['name'], False)
-#         user = 'Home'
-
-
-def changeName(nameText):
-    global user, iterrr, data, changeNamePopup
-    Cursor = False
-    SCREEN.fill(BLACKBROWN)
-    pygame.draw.rect(SCREEN, LIGHTBROWN, (27, 125, LENGTH - 54, 200))
-
-    if len(nameText) == 0:
-        show("Type your name here.", WHITE, (LENGTH - 200) // 2, 200, 20)
-    else:
-        show(nameText, WHITE, (LENGTH - len(nameText) * 10) // 2, 200, 20)
-        if iterrr % 8 == 0:
-            nameText = nameText[:-1] + '|'
-            Cursor = True
-        if iterrr % 8 == 4 and Cursor:
-            nameText = nameText[:-1] + ' '
-            Cursor = False
-        iterrr += 1
-
-    pygame.draw.line(SCREEN, DARKBROWN, (50, 230), (LENGTH - 50, 230), 1)
-
-    textEnt = button('CHANGE NAME', 265, 255, 150, 35, DARKBROWN, 10, 17,
-                     WHITE, BLACK)
-    changeNamePopup = False if (button('CANCEL', 140, 255, 100, 35, WHITE, 15,
-                                       17, DARKBROWN,
-                                       GREY)) else changeNamePopup
-
-    for event in event_list:
-        if event.type == pygame.KEYDOWN:
-            if event.unicode in ALPHA:
-                nameText = nameText[:-1] + str(
-                    event.unicode) + ('|' if Cursor else ' ')
-            elif event.key == pygame.K_BACKSPACE:
-                nameText = nameText[:-2] + ('|' if Cursor else ' ')
-            elif event.unicode == '\r':
-                textEnt = True
-
 
 def readSettings():
     try:
@@ -455,7 +376,7 @@ def readSettings():
 def updateSettings(setData):
     with open('userSettings.dat', 'wb') as file:
         pickle.dump(setData, file)
-    print('Settings Updated')
+    # print('Settings Updated')
 
 
 userSettings = readSettings()
@@ -489,9 +410,11 @@ sideSnake = pygame.image.load(r'images\side-snake.png')
 frontSnake = pygame.image.load(r'images\front-snake.png')
 bgMusic = pygame.mixer.music.load(r'audios\bgmusic.mp3')
 speedupMusic = pygame.mixer.Sound(r'audios\speedup.wav')
+buttonSound = pygame.mixer.Sound(r'audios\button.mp3')
 appleMusic = pygame.mixer.Sound(r'audios\apple.wav')
 bombMusic = pygame.mixer.Sound(r'audios\bomb.wav')
 speeddownMusic = pygame.mixer.Sound(r'audios\speeddown.wav')
+gameOverSound = pygame.mixer.Sound(r'audios\gameOver.wav')
 
 #[[name,score,timeplayed,1_time,ref_id]]
 
@@ -559,7 +482,7 @@ def button(text,
            text_col=BLACK,
            hover_col=BLUE,
            hover_width=2):
-    global event_list
+    global event_list, buttonSound
     pos = pygame.mouse.get_pos()
     if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
             1] <= y + height:
@@ -567,6 +490,8 @@ def button(text,
                          (x - hover_width, y - hover_width,
                           width + hover_width * 2, height + hover_width * 2))
         if pygame.mouse.get_pressed()[0]:
+            if userSettings['sound']:
+                buttonSound.play(loops=0)
             return True
     pygame.draw.rect(SCREEN, bg_color, (x, y, width, height))
     show(text, text_col, x + x_offset,
@@ -878,12 +803,19 @@ def arsenal():
             pygame.mixer.music.set_volume(userSettings['volume'] / 100)
             pygame.mixer.music.play(loops=-1)
         user = 'Emulator'
-    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
+    user = 'Home' if button('Home',
+                            LENGTH - 154,
+                            5,
+                            100,
+                            30,
+                            LIGHTBROWN,
+                            x_offset=10,
+                            text_col=DARKBROWN,
+                            text_size=16,
+                            hover_col=BLACKBROWN,
+                            hover_width=1) else user
     if user == 'Emulator':
         emulator_params()
-
-
-#
 
 
 def emulator_params():
@@ -975,7 +907,7 @@ def emulator_params():
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT
+    global sortedData, Pop, PopT, userSettings
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
@@ -1175,6 +1107,7 @@ def emulator():
         #GameOver
         if gameover:
             pygame.mixer.music.stop()
+            gameOverSound.play(loops=0)
             popup = True
             t = f'{(time.time() - start):.2f}'
             coins = int(8 * (score / 1000) -
@@ -1291,7 +1224,17 @@ def leaderboard():
                LIGHTBROWN)):
         sortedData = pullingSortedData()
         print('Refresh clicked')
-    user = 'Home' if button('Home', LENGTH - 150, 10, 100, 30) else user
+    user = 'Home' if button('Home',
+                            LENGTH - 154,
+                            5,
+                            100,
+                            30,
+                            LIGHTBROWN,
+                            x_offset=10,
+                            text_col=DARKBROWN,
+                            text_size=16,
+                            hover_col=BLACKBROWN,
+                            hover_width=1) else user
 
 
 def missions():
@@ -1359,7 +1302,17 @@ def missions():
             M = m[2][0].replace('-', ' min 2x ')
             M += 'oins' if M[-1] == 'C' else 'oints'
             show(f'{M} ', DARKBROWN, LENGTH - 150, 135 + i * 50, 13)
-    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
+    user = 'Home' if button('Home',
+                            LENGTH - 154,
+                            5,
+                            100,
+                            30,
+                            LIGHTBROWN,
+                            x_offset=10,
+                            text_col=DARKBROWN,
+                            text_size=16,
+                            hover_col=BLACKBROWN,
+                            hover_width=1) else user
 
 
 opened = [True, False, False, False]
@@ -1679,8 +1632,18 @@ def marketplace():
     if Pop:
         Popup('Not enough coins')
 
-    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
-    show(str(data['coin']), LIGHTBROWN, LENGTH - 130, 10, 16)
+    user = 'Home' if button('Home',
+                            LENGTH - 154,
+                            5,
+                            100,
+                            30,
+                            LIGHTBROWN,
+                            x_offset=10,
+                            text_col=DARKBROWN,
+                            text_size=16,
+                            hover_col=BLACKBROWN,
+                            hover_width=1) else user
+    show(str(data['coin'])+' coin(s)', LIGHTBROWN, LENGTH -270, 10, 19)
 
 
 def inventory():
@@ -1971,28 +1934,28 @@ def inventory():
                     SCREEN.blit(s, (x, y))
     if Pop:
         Popup('Theme not purchased')
-    user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
+    user = 'Home' if button('Home',
+                            LENGTH - 154,
+                            5,
+                            100,
+                            30,
+                            LIGHTBROWN,
+                            x_offset=10,
+                            text_col=DARKBROWN,
+                            text_size=16,
+                            hover_col=BLACKBROWN,
+                            hover_width=1) else user
 
 
 openedSettings = [True, False, False, False]
 
-
-def settings_init():
-    global Cursor, Text_Val, iterrr
-    iterrr = 0
-    Cursor = False
-    Text_Val = ''
-
-
-changeNamePopup = False
 namepop = False
 popinit = True
-
+popupClose = False
 
 def settings():
     global user, start, SCREEN, LENGTH, openedSettings, pop, q
-    global userSettings, data, fromsetting, namepop, changeNamePopup, popinit
-
+    global data, namepop, popinit, fromsetting, popupClose, userSettings
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -2047,12 +2010,14 @@ def settings():
                    21, BLACK,
                    WHITE if userSettings['music'] == True else DARKBROWN)):
             userSettings['music'] = not userSettings['music']
+            updateSettings(userSettings)
         show('Sounds', DARKBROWN, mul + 220, 120, 21)
         if (button('', mul + 310, 122, 15, 15,
                    WHITE if userSettings['sound'] == False else DARKBROWN, 7,
                    21, BLACK,
                    WHITE if userSettings['sound'] == True else DARKBROWN)):
             userSettings['sound'] = not userSettings['sound']
+            updateSettings(userSettings)
 
         pygame.draw.line(SCREEN,
                          DARKBROWN, (mul + 20, 155), (LENGTH - 30, 155),
@@ -2062,12 +2027,14 @@ def settings():
         if (button('-', mul + 200, 170, 30, 25, DARKBROWN, 10, 17, WHITE,
                    BLACK)):
             userSettings['volume'] -= 5
+            updateSettings(userSettings)
         pygame.draw.rect(SCREEN, WHITE, (mul + 235, 170, 40, 25))
         show(str(userSettings['volume']), DARKBROWN, mul + 240, 175, 19)
         if (button('+', mul + 280, 170, 30, 25, DARKBROWN, 10, 19, WHITE,
                    BLACK)):
             if userSettings['volume'] < 100:
                 userSettings['volume'] += 5
+                updateSettings(userSettings)
 
         pygame.draw.line(SCREEN,
                          DARKBROWN, (mul + 20, 210), (LENGTH - 30, 210),
@@ -2080,24 +2047,19 @@ def settings():
                    21, BLACK,
                    WHITE if userSettings['arrow'] == True else DARKBROWN)):
             userSettings['arrow'] = not userSettings['arrow']
+            updateSettings(userSettings)
         show('AWSD Keys ', BLACK, mul + 225, 270, 21)
         if (button('', mul + 270, 300, 20, 20,
                    WHITE if userSettings['arrow'] == True else DARKBROWN, 7,
                    21, BLACK,
                    WHITE if userSettings['arrow'] == False else DARKBROWN)):
             userSettings['arrow'] = not userSettings['arrow']
+            updateSettings(userSettings)
 
         pygame.draw.line(SCREEN,
                          DARKBROWN, (mul + 20, 335), (LENGTH - 30, 335),
                          width=3)
-
-        if (button('ACCEPT', 340, 360, 100, 30, DARKBROWN, 15, 17, WHITE,
-                   BLACK)):
-            updateSettings(userSettings)
-            user = 'Home'
-        if (button('CANCEL', 210, 360, 100, 30, WHITE, 15, 17, DARKBROWN,
-                   GREY)):
-            user = 'Home'
+        
     elif openedSettings[1]:
         pygame.draw.line(SCREEN,
                          DARKBROWN, (mul + 20, 100), (LENGTH - 30, 100),
@@ -2122,14 +2084,11 @@ def settings():
                 newUser_init()
                 user = 'NewUser'
                 fromsetting = True
-
-            if (button('ACCEPT', 340, 315, 100, 30, DARKBROWN, 15, 17, WHITE,
-                       BLACK)):
-                updateSettings(userSettings)
-                pass
-            if (button('CANCEL', 210, 315, 100, 30, WHITE, 15, 17, DARKBROWN,
-                       GREY)):
-                user = 'Home'
+            show('Please note that your name on the leaderboard' , DARKBROWN, mul + 25, 310, 16)
+            show('won\'t be updated when you change name, and' , DARKBROWN, mul + 25, 330, 16)
+            show('you\'ll be treated as a new user altogether.', DARKBROWN, mul + 25, 350, 16)
+            show('Your coins, items and completed missions will' , DARKBROWN, mul + 25, 370, 16)
+            show('still be yours.' , DARKBROWN, mul + 25, 390, 16)
     elif openedSettings[2]:
         pass
 
@@ -2150,7 +2109,7 @@ def settings():
             newUser_init()
             popinit = False
         fromsetting = True
-        newuser(changename=True)
+        popupClose = newuser(changename=True)
 
 
 errormsg = False
@@ -2159,7 +2118,7 @@ errorstart = 0
 
 def newuser(changename=False):
     LENGTH = pygame.display.get_surface().get_width()
-    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart
+    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData
     if not changename:
         SCREEN.fill(BLACKBROWN)
         pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -2171,6 +2130,15 @@ def newuser(changename=False):
         s.set_alpha(200)
         SCREEN.blit(s, (0, 0))
         pygame.draw.rect(SCREEN, LIGHTBROWN, (27, 125, LENGTH - 54, 200))
+        # button('Cancel' if changename else 'Create Account',
+        #               (LENGTH - 355) // 2,
+        #               280,
+        #               140,
+        #               40,
+        #               bg_color=WHITE,
+        #               text_col=DARKBROWN,
+        #               text_size=14,
+        #               hover_width=0)
     if len(Text_Val) == 0:
         show("Type your name here.", WHITE, (LENGTH - 200) // 2, 220, 20)
     else:
@@ -2183,12 +2151,15 @@ def newuser(changename=False):
             Cursor = False
         iterrr += 1
     if not fromsetting:
-        user = 'Home' if button('Home', LENGTH - 70, 10, 100, 30) else user
+        if button('Home', LENGTH - 154, 5, 100, 30, LIGHTBROWN, x_offset=10, text_col=DARKBROWN, text_size=16, hover_col=BLACKBROWN, hover_width=1):
+            user = 'Home'
+            Text_Val = ''
     else:
-        if button('Settings', LENGTH - 70, 10, 100, 30):
+        if button('Settings', LENGTH - 154, 5, 100, 30, LIGHTBROWN, x_offset=10, text_col=DARKBROWN, text_size=16, hover_col=BLACKBROWN, hover_width=1):
             user = 'Settings'
             fromsetting = False
-            namepop = True
+            namepop = False
+            Text_Val = ''
 
     #
     # if iterrr>10:
@@ -2236,8 +2207,8 @@ def newuser(changename=False):
             if changename:
                 data['name'] = Text_Val[:-1]
             update_data()
-            print('Signed up as new user')
             writeBigGame(data['name'], False)
+            print('Signed up as new user')            
             if changename:
                 namepop = False
                 fromsetting = False
@@ -2246,6 +2217,7 @@ def newuser(changename=False):
                 user = 'Settings'
             else:
                 user = 'Home'
+            Text_Val = ''
         else:
             Pop = True
     if errormsg:
@@ -2277,6 +2249,7 @@ def cheater():
         }, file)
 
 
+
 def cheaterlist():
     global listOfCheaters, user
     # fauna
@@ -2295,7 +2268,17 @@ def cheaterlist():
                LIGHTBROWN)):
         listOfCheaters = pullingSortedData()
         print('Refresh clicked')
-    user = 'Home' if button('Home', LENGTH - 150, 10, 100, 30) else user
+    user = 'Home' if button('Home',
+                            LENGTH - 154,
+                            5,
+                            100,
+                            30,
+                            LIGHTBROWN,
+                            x_offset=10,
+                            text_col=DARKBROWN,
+                            text_size=16,
+                            hover_col=BLACKBROWN,
+                            hover_width=1) else user
 
 
 def Popup(txt):
