@@ -2084,6 +2084,11 @@ def settings():
                 newUser_init()
                 user = 'NewUser'
                 fromsetting = True
+            show('Please note that your name on the leaderboard' , DARKBROWN, mul + 25, 310, 16)
+            show('won\'t be updated when you change name, and' , DARKBROWN, mul + 25, 330, 16)
+            show('you\'ll be treated as a new user altogether.', DARKBROWN, mul + 25, 350, 16)
+            show('Your coins, items and completed missions will' , DARKBROWN, mul + 25, 370, 16)
+            show('still be yours.' , DARKBROWN, mul + 25, 390, 16)
     elif openedSettings[2]:
         pass
 
