@@ -223,14 +223,8 @@ def pushData(name, score, time, bigGame):
                 print(
                     'A player already thrives on the leaderboard with this name. Kindly enter the new name.'
                 )
-                # Pop = True
-                # PopT = 'A player already thrives on the leaderboard with this name. Kindly enter the new name.'
-                # fromsetting = True
-                # newName = newuser(changename=True)
-                # dataDict = {'name': newName, 'score': score, 'time': time}
-                # pushDictData(collection='testcollection',
-                #                      data=dataDict)
-                # writeBigGame(data['name'], True)
+                # send data with changed name
+                # writeBigGame(True)
                 pass
             else:
                 pushDictData(collection='testcollection', data=dataDict)
