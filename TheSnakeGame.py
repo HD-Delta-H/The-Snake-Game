@@ -4,9 +4,8 @@ import time
 import random
 import pickle
 import os
-
 pygame.init()
-
+# global
 import urllib.request
 
 #image
@@ -387,6 +386,7 @@ SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH), pygame.RESIZABLE)
 CLOCK = pygame.time.Clock()
 rate = 8
 coin_2, point_2 = False, False
+sensitivity=0
 #colours
 LIGHTBROWN = '#AD9157'
 DARKBROWN = '#4F3119'
@@ -536,14 +536,15 @@ def button(text,
            text_col=BLACK,
            hover_col=BLUE,
            hover_width=2):
-    global event_list, buttonSound
+    global buttonSound,sensitivity
     pos = pygame.mouse.get_pos()
     if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
             1] <= y + height:
         pygame.draw.rect(SCREEN, hover_col,
                          (x - hover_width, y - hover_width,
                           width + hover_width * 2, height + hover_width * 2))
-        if pygame.mouse.get_pressed()[0]:
+        if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
+            sensitivity=time.time()
             if userSettings['sound']:
                 buttonSound.play(loops=0)
             return True
@@ -741,7 +742,7 @@ def home():
 
 
 def arsenal():
-    global user, start, SCREEN, selected_items, coin_2, point_2, Pop, userSettings
+    global user, start, SCREEN, selected_items, coin_2, point_2, Pop, userSettings,sensitivity
     LENGTH = pygame.display.get_surface().get_width()
     # LENGTH = 554
     # SCREEN = pygame.display.set_mode((LENGTH, 454))
@@ -776,7 +777,8 @@ def arsenal():
                 s.set_alpha(0)
                 if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
                         1] <= y + height and not Pop:
-                    if pygame.mouse.get_pressed()[0]:
+                    if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
+                        sensitivity=time.time()
                         if item[1][0] != '0' or selected_items[i]:
                             with open('items.dat', 'wb') as f:
                                 list_items['Powerups'][item[0]] = (str(
@@ -808,7 +810,8 @@ def arsenal():
                 s.set_alpha(0)
                 if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
                         1] <= y + height and not Pop:
-                    if pygame.mouse.get_pressed()[0]:
+                    if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
+                        sensitivity=time.time()
                         if item[1][0] != '0' or selected_items[i]:
                             with open('items.dat', 'wb') as f:
                                 list_items['Powerups'][item[0]] = (str(
@@ -859,17 +862,29 @@ def arsenal():
             pygame.mixer.music.set_volume(userSettings['volume'] / 100)
             pygame.mixer.music.play(loops=-1)
         user = 'Emulator'
-    user = 'Home' if button('Home',
-                            LENGTH - 154,
-                            5,
-                            100,
-                            30,
-                            LIGHTBROWN,
-                            x_offset=10,
-                            text_col=DARKBROWN,
-                            text_size=16,
-                            hover_col=BLACKBROWN,
-                            hover_width=1) else user
+    if button('Home',
+            LENGTH - 154,
+            5,
+            100,
+            30,
+            LIGHTBROWN,
+            x_offset=10,
+            text_col=DARKBROWN,
+            text_size=16,
+            hover_col=BLACKBROWN,
+            hover_width=1):
+        user = 'Home' 
+        with open('items.dat', 'rb') as file:
+            list_items = pickle.load(file)
+
+            for i, item in enumerate(list_items['Powerups'].items()):
+                list_items['Powerups'][item[0]] = (str(
+                    int(item[1][0]) +
+                    (1 if selected_items[i] else 0)),
+                                                    item[1][1])
+                selected_items[i]=False
+        with open('items.dat', 'wb') as f:
+            pickle.dump(list_items, f)
     if user == 'Emulator':
         emulator_params()
         daily()
@@ -964,7 +979,7 @@ def emulator_params():
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT, userSettings
+    global sortedData, Pop, PopT, userSettings,sensitivity
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
@@ -1012,10 +1027,12 @@ def emulator():
             SpeedDown = False
         # Teleportation
         if selected_items[5]:
-            snake[0] = -13 if snake[0] >= 452 else (
-                452 if snake[0] <= -13 else snake[0])
-            snake[1] = 17 if snake[1] >= 452 else (
-                452 if snake[1] <= 17 else snake[1])
+            snake[0] = -13 if snake[0] > 452 else (
+                452 if snake[0] < -13 else snake[0])
+            snake[1] = 17 if snake[1] > 453 else (
+                452 if snake[1] < 17 else snake[1])
+            
+        print(snake)
         #Collision Logics
         if tuple(snake) == (applex, appley):
             if userSettings['sound']:
@@ -1129,8 +1146,8 @@ def emulator():
             Apple = False
         if (tuple(snake) in body[1::]):
             gameover = True
-        if not (-17 < snake[0] < 455) or not (20 < snake[1] <
-                                              455) and not selected_items[5]:
+        if (not (-10 <= snake[0] <= 450) or not (20 <= snake[1] <=
+                                              450)) and not selected_items[5]:
             gameover = True
         # 0 speed Realm
         if rate == 0:
@@ -1164,9 +1181,10 @@ def emulator():
                     ee_dec = screen_animation(True, 5, Theme[7], 0.0001)
                     ee_done = not ee_dec
         #event loop
-
         for event in event_list:
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN and not snake[0] in (452,-13) and not snake[1] in (452,17) and (time.time()-sensitivity)>0.01*((16-rate) if rate<=14 else 0):
+                sensitivity=time.time()
+                
                 if event.key == (pygame.K_UP if userSettings['arrow'] else pygame.K_w) and not direction == "down":
                     direction = "up"
                 if event.key == (pygame.K_DOWN if userSettings['arrow'] else pygame.K_s) and not direction == "up":
@@ -1445,7 +1463,7 @@ pop = False
 
 
 def marketplace():
-    global user, start, SCREEN, LENGTH, opened, pop, q, Pop
+    global user, start, SCREEN, LENGTH, opened, pop, q, Pop,sensitivity
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -1564,7 +1582,8 @@ def marketplace():
                     if not pop or not Pop:
                         if pos[0] >= x and pos[0] <= x + width and pos[
                                 1] >= y and pos[1] <= y + height:
-                            if pygame.mouse.get_pressed()[0]:
+                            if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
+                                sensitivity=time.time()
                                 pop = True
                                 q = i
                             s.set_alpha(60)
@@ -1588,7 +1607,8 @@ def marketplace():
                     if not pop or not Pop:
                         if pos[0] >= x and pos[0] <= x + width and pos[
                                 1] >= y and pos[1] <= y + height:
-                            if pygame.mouse.get_pressed()[0]:
+                            if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
+                                sensitivity=time.time()
                                 pop = True
                                 q = i
                             s.set_alpha(60)
@@ -1633,7 +1653,8 @@ def marketplace():
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
+                        if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
+                            sensitivity=time.time()
                             selected_items[i] = not selected_items[i]
                         s.set_alpha(60)
                     if selected_items[i]:
@@ -1668,7 +1689,8 @@ def marketplace():
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
+                        if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
+                            sensitivity=time.time()
                             selected_items[i] = not selected_items[i]
                         s.set_alpha(60)
                     if selected_items[i]:
@@ -1771,7 +1793,7 @@ def marketplace():
 
 
 def inventory():
-    global user, start, SCREEN, LENGTH, opened, Pop
+    global user, start, SCREEN, LENGTH, opened, Pop,sensitivity
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -1854,8 +1876,6 @@ def inventory():
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
-                            selected_items[i] = not selected_items[i]
                         s.set_alpha(60)
                     if selected_items[i]:
                         s.set_alpha(120)
@@ -2006,7 +2026,8 @@ def inventory():
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
+                        if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
+                            sensitivity=time.time()
                             if D[0 if opened[0] else 1]:
                                 with open('items.dat', 'wb') as f:
                                     list_items['Offers']['pseudo'][
@@ -2042,7 +2063,8 @@ def inventory():
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0]:
+                        if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
+                            sensitivity=time.time()
                             if D[0 if opened[0] else 1]:
                                 with open('items.dat', 'wb') as f:
                                     list_items['Offers']['pseudo'][
@@ -2352,7 +2374,7 @@ def newuser(changename=False):
                         for a in list(item_list['list(Themes'][i].keys()):
                             item_list['Themes'][i][a]=False
                     for i in list(item_list['Powerups'].keys()):
-                        item_list['Themes'][i]=('0',item_list['Themes'][i][1])
+                        item_list['Powerups'][i]=('0',item_list['Powerups'][i][1])
                     item_list['Offers']['pseudo']={'background': 'Theme1', 'snake': 'Theme1'}
                         
                 with open('items.dat','wb') as f:
