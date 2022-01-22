@@ -925,7 +925,7 @@ def arsenal():
 
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
-    global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley, m_counter, st, speed_checker
+    global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley, m_counter, st, speed_checker,petyr
     LENGTH = 454
     rate = 4 if selected_items[3] else (12 if selected_items[2] else 8)
 
@@ -976,7 +976,7 @@ def emulator_params():
                 self.color = Theme[6]
             pygame.draw.rect(SCREEN, self.color,
                              (self.x + 1, self.y + 1, PIXEL - 2, PIXEL - 2))
-
+    petyr=0
     blocks = []
     # missions initialize
     with open('missions.dat', 'rb') as file:
@@ -1012,7 +1012,7 @@ def emulator_params():
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT, userSettings,sensitivity
+    global sortedData, Pop, PopT, userSettings,sensitivity,petyr
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
@@ -1242,42 +1242,8 @@ def emulator():
             t = f'{(time.time() - start):.2f}'
             coins = int(8 * (score / 1000) -
                         (time.time() - start) / 60) * (2 if coin_2 else 1)
-            data['coin'] = f"{int(data['coin'])+coins}"
-            if data['highscore'] == score:
-                data['time'] = t
-            with open('missions.dat', 'rb') as file:
-                miss = pickle.load(file)
-                for i, m in enumerate(miss['missions']):
-                    if m[0] == 'points' and m[1] <= score:
-                        with open('missions.dat', 'wb') as f:
-                            miss['missions'][i][3] = True
-                            pickle.dump(miss, f)
-                    if m[0] in ('apple', 'up', 'down'):
-                        for k in m_counter[m[0]]:
-                            if m[3].split('/')[1] == k.split('/')[1]:
-                                with open('missions.dat', 'wb') as f:
-                                    miss['missions'][i][3] = k
-                                    pickle.dump(miss, f)
 
-            if obj['mission'][0] == 'points':
-                if score >= obj['mission'][1]:
-                    obj['mission'][3] = True
-            update_obj()
-            update_data()
-
-            bigGame = bigGameVar()
-            if internet:
-                try:
-                    pushData(data['name'], score, t, bigGame)
-                except:
-                    print(
-                        'Data not sent to servers due to an unexpected error')
-                    saveGameDataForLater(data['name'], score, t)
-            else:
-                print(
-                    'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
-                )
-                saveGameDataForLater(data['name'], score, t)
+            
     #block loop
     for block in blocks:
         block.block_type = None
@@ -1308,6 +1274,7 @@ def emulator():
     show("High Score :" + str(data['highscore']), Theme[7], mul * 3 - 145 + 5,
          6, 16)
     if popup:
+        petyr+=1
         s = pygame.Surface((LENGTH, LENGTH))
         s.set_colorkey(GREY)
         s.set_alpha(200)
@@ -1331,7 +1298,43 @@ def emulator():
             selected_items = [False, False, False, False, False, False]
             SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH),
                                              pygame.RESIZABLE)
+        if petyr==3:
+            data['coin'] = f"{int(data['coin'])+coins}"
+            if data['highscore'] == score:
+                data['time'] = t
+            with open('missions.dat', 'rb') as file:
+                miss = pickle.load(file)
+                for i, m in enumerate(miss['missions']):
+                    if m[0] == 'points' and m[1] <= score:
+                        with open('missions.dat', 'wb') as f:
+                            miss['missions'][i][3] = True
+                            pickle.dump(miss, f)
+                    if m[0] in ('apple', 'up', 'down'):
+                        for k in m_counter[m[0]]:
+                            if m[3].split('/')[1] == k.split('/')[1]:
+                                with open('missions.dat', 'wb') as f:
+                                    miss['missions'][i][3] = k
+                                    pickle.dump(miss, f)
 
+            if obj['mission'][0] == 'points':
+                if score >= obj['mission'][1]:
+                    obj['mission'][3] = True
+            update_obj()
+            update_data()
+            bigGame = bigGameVar()
+            if internet:
+                try:
+                    pushData(data['name'], score, t, bigGame)
+                except:
+                    print(
+                        'Data not sent to servers due to an unexpected error')
+                    saveGameDataForLater(data['name'], score, t)
+            else:
+                print(
+                    'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
+                )
+                saveGameDataForLater(data['name'], score, t)
+            sent=True
     if Pop:
         Popup(PopT)
 
@@ -1493,6 +1496,37 @@ opened = [True, False, False, False]
 pop = False
 
 
+
+def popup():
+    global pop
+    sur = pygame.Surface((LENGTH, LENGTH))
+    sur.set_colorkey(GREY)
+    sur.set_alpha(200)
+    SCREEN.blit(sur, (0, 0))
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 180, 450, 90), 0, 1)
+    show('Are you sure you wanna purchase this item ?', BLACK, 70, 200, 18)
+    pop = False if button('no',
+                            410,
+                            235,
+                            70,
+                            30,
+                            DARKBROWN,
+                            text_size=18,
+                            text_col=WHITE,
+                            hover_col=DARKBROWN,
+                            hover_width=1) else True
+
+    return True if button('yes',
+                            70,
+                            235,
+                            70,
+                            30,
+                            DARKBROWN,
+                            text_size=18,
+                            text_col=WHITE,
+                            hover_col=DARKBROWN,
+                            hover_width=1) else False
+
 def marketplace():
     global user, start, SCREEN, LENGTH, opened, pop, q, Pop,sensitivity
     LENGTH = pygame.display.get_surface().get_width()
@@ -1501,37 +1535,6 @@ def marketplace():
     show('MARKET PLACE', WHITE, 10, 10, 20)
     mul = (LENGTH - 30) // 4
     pygame.draw.rect(SCREEN, DARKBROWN, (10, 50, mul - 10, 390))
-
-    def popup():
-        global pop
-        sur = pygame.Surface((LENGTH, LENGTH))
-        sur.set_colorkey(GREY)
-        sur.set_alpha(200)
-        SCREEN.blit(sur, (0, 0))
-        pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 180, 450, 90), 0, 1)
-        show('Are you sure you wanna purchase this item ?', BLACK, 70, 200, 18)
-        pop = False if button('no',
-                              410,
-                              235,
-                              70,
-                              30,
-                              DARKBROWN,
-                              text_size=18,
-                              text_col=WHITE,
-                              hover_col=DARKBROWN,
-                              hover_width=1) else True
-
-        return True if button('yes',
-                              70,
-                              235,
-                              70,
-                              30,
-                              DARKBROWN,
-                              text_size=18,
-                              text_col=WHITE,
-                              hover_col=DARKBROWN,
-                              hover_width=1) else False
-
     if button("Background",
               10,
               50,
@@ -2389,7 +2392,10 @@ def newuser(changename=False):
                             miss['missions'][i][3]=False
                         miss['missions'][i][4]=False
                     for i in list(miss['coins'].keys()):
-                        miss['coins'][i]=['0',False,0]  
+                        if i in('coins','points'):
+                            miss['coins'][i]=False
+                        else:
+                            miss['coins'][i]=['10',False,0]
                 with open('missions.dat','wb') as f:
                     pickle.dump(miss,f)
                 with open('items.dat','rb') as f:
@@ -2474,7 +2480,7 @@ def cheater():
 
 
 def cheaterlist():
-    user
+    global user
     listOfCheaters = cheaterlistData()
     # fauna
     LENGTH = pygame.display.get_surface().get_width()
