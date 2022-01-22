@@ -1496,37 +1496,6 @@ opened = [True, False, False, False]
 pop = False
 
 
-
-def popup():
-    global pop
-    sur = pygame.Surface((LENGTH, LENGTH))
-    sur.set_colorkey(GREY)
-    sur.set_alpha(200)
-    SCREEN.blit(sur, (0, 0))
-    pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 180, 450, 90), 0, 1)
-    show('Are you sure you wanna purchase this item ?', BLACK, 70, 200, 18)
-    pop = False if button('no',
-                            410,
-                            235,
-                            70,
-                            30,
-                            DARKBROWN,
-                            text_size=18,
-                            text_col=WHITE,
-                            hover_col=DARKBROWN,
-                            hover_width=1) else True
-
-    return True if button('yes',
-                            70,
-                            235,
-                            70,
-                            30,
-                            DARKBROWN,
-                            text_size=18,
-                            text_col=WHITE,
-                            hover_col=DARKBROWN,
-                            hover_width=1) else False
-
 def marketplace():
     global user, start, SCREEN, LENGTH, opened, pop, q, Pop,sensitivity
     LENGTH = pygame.display.get_surface().get_width()
@@ -1647,24 +1616,25 @@ def marketplace():
                                 q = i
                             s.set_alpha(60)
                     SCREEN.blit(s, (x, y))
-                if pop:
-                    cont = popup()
-                    if cont:
-                        t = list_items['Powerups'][list(
-                            list_items['Powerups'].keys())[q]]
-                        print(t)
-                        data['coin'] = str(int(data['coin']) - int(t[1]))
-                        if int(data['coin']) >= 0:
-                            update_data()
-                            with open('items.dat', 'wb') as f:
-                                list_items['Powerups'][list(
-                                    list_items['Powerups'].keys())[q]] = (
-                                        str(int(t[0]) + 1), t[1])
-                                pickle.dump(list_items, f)
-                        else:
-                            data['coin'] = str(int(data['coin']) + int(t[1]))
-                            Pop = True
-                        pop = False
+            if pop:
+                cont = Popup('Would you like to make this purchase',mode='yesno')
+                if cont==True:
+                    t = list_items['Powerups'][list(
+                        list_items['Powerups'].keys())[q]]
+                    data['coin'] = str(int(data['coin']) - int(t[1]))
+                    if int(data['coin']) >= 0:
+                        update_data()
+                        with open('items.dat', 'wb') as f:
+                            list_items['Powerups'][list(
+                                list_items['Powerups'].keys())[q]] = (
+                                    str(int(t[0]) + 1), t[1])
+                            pickle.dump(list_items, f)
+                    else:
+                        data['coin'] = str(int(data['coin']) + int(t[1]))
+                        Pop = True
+                    pop = False
+                if cont!=None:
+                    pop=False
         elif opened[3]:
             for i, item in enumerate(list_items['Offers'].items()):
                 if i <= 2:
@@ -1752,13 +1722,14 @@ def marketplace():
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[
-                            1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed(
-                        )[0] and not D[0 if opened[0] else 1]:
-                            pop = True
-                            q = i
-                        s.set_alpha(60)
+                    if not pop or not Pop:
+                        if pos[0] >= x and pos[0] <= x + width and pos[
+                                1] >= y and pos[1] <= y + height:
+                            if pygame.mouse.get_pressed(
+                            )[0] and not D[0 if opened[0] else 1]:
+                                pop = True
+                                q = i
+                            s.set_alpha(60)
                     if D[0 if opened[0] else 1]:
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
@@ -1780,37 +1751,41 @@ def marketplace():
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[
-                            1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed(
-                        )[0] and not D[0 if opened[0] else 1]:
-                            pop = True
-                            q = i
-                        s.set_alpha(60)
+                    if not pop or not Pop:
+                        if pos[0] >= x and pos[0] <= x + width and pos[
+                                1] >= y and pos[1] <= y + height:
+                            if pygame.mouse.get_pressed(
+                            )[0] and not D[0 if opened[0] else 1]:
+                                pop = True
+                                q = i
+                            s.set_alpha(60)
                     if D[0 if opened[0] else 1]:
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
-                if pop:
-                    cont = popup()
-                    if cont:
-                        t = list_items['Themes'][list(
-                            list_items['Themes'].keys())[q]]
+            if pop:
+                cont = Popup('Would you like to make this purchase',mode='yesno')
+                if cont:
+                    t = list_items['Themes'][list(
+                        list_items['Themes'].keys())[q]]
+                    data['coin'] = str(
+                        int(data['coin']) - (25 if opened[0] else 15))
+                    if int(data['coin']) >= 0:
+                        update_data()
+                        with open('items.dat', 'wb') as f:
+                            t[list(t.keys())[0 if opened[0] else 1]] = True
+                            list_items['Themes'][list(
+                                list_items['Themes'].keys())[q]] = t
+                            pickle.dump(list_items, f)
+                    else:
+                        Pop = True
                         data['coin'] = str(
-                            int(data['coin']) - (25 if opened[0] else 15))
-                        if int(data['coin']) >= 0:
-                            update_data()
-                            with open('items.dat', 'wb') as f:
-                                t[list(t.keys())[0 if opened[0] else 1]] = True
-                                list_items['Themes'][list(
-                                    list_items['Themes'].keys())[q]] = t
-                                pickle.dump(list_items, f)
-                        else:
-                            Pop = True
-                            data['coin'] = str(
-                                int(data['coin']) + (25 if opened[0] else 15))
-                        pop = False
+                            int(data['coin']) + (25 if opened[0] else 15))
+                    pop = False
+                if cont!=None:
+                    pop=False
     if Pop:
         Popup('Not enough coins')
+        
 
     user = 'Home' if button('Home',
                             LENGTH - 154,
@@ -2511,7 +2486,7 @@ def cheaterlist():
                             hover_width=1) else user
 
 
-def Popup(txt):
+def Popup(txt,mode='ok'):
     global Pop
     s = pygame.Surface((LENGTH * 2, LENGTH * 2))
     s.set_colorkey(GREY)
@@ -2519,15 +2494,38 @@ def Popup(txt):
     SCREEN.blit(s, (0, 0))
     pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 150, 450, 200), 0, 1)
     show(txt, DARKBROWN, 70, 170, 20)
-    if button('Ok',
-              350,
-              300,
-              100,
-              30,
-              DARKBROWN,
-              text_col=WHITE,
-              hover_col=DARKBROWN):
-        Pop = False
+    if mode=='ok':
+        if button('Ok',
+                350,
+                300,
+                100,
+                30,
+                DARKBROWN,
+                text_col=WHITE,
+                hover_col=DARKBROWN):
+            Pop = False
+    elif mode=='yesno':
+        if button('Yes',
+                350,
+                300,
+                100,
+                30,
+                DARKBROWN,
+                text_col=WHITE,
+                hover_col=DARKBROWN):
+            Popyn = False
+            return True
+        if button('No',
+                70,
+                300,
+                100,
+                30,
+                DARKBROWN,
+                text_col=WHITE,
+                hover_col=DARKBROWN):
+            Popyn = False
+            return False
+
 
 
 def main():
