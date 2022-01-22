@@ -440,7 +440,6 @@ ORANGE = '#FF8000'
 CADET = '#5f9ea0'
 GOLD = '#FFC000'
 PINK = '#ee70d3'
-LAVENDAR = '#e6e6fa'
 DARKRED = '#811a13'
 
 # Background
@@ -455,12 +454,6 @@ COL1 = '#ce71f3'
 COL2 = '#f7c05a'
 
 VOILET = '#400080'
-DARKCYAN1 = '#004949'
-DEEPBLUE1 = '#092e64'
-DEEPBLUE2 = '#1434A4'
-DARKGREEN2 = '#008000'
-DARKPINK = '#663399'
-BROWN = '#412511'
 
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
@@ -1131,6 +1124,7 @@ def emulator():
                 speedupMusic.play(loops=0)
             speedupx, speedupy = -1, -1
             rate += 2
+            body.append(body[-1])
             for i, c in enumerate(m_counter['up']):
                 C = c.split('/')
                 m_counter['up'][i] = str(
@@ -1168,6 +1162,7 @@ def emulator():
             if userSettings['sound']:
                 speeddownMusic.play(loops=0)
             speeddownx, speeddowny = -1, -1
+            body.append(body[-1])
             for i, c in enumerate(m_counter['down']):
                 C = c.split('/')
                 m_counter['down'][i] = str(
@@ -1273,7 +1268,7 @@ def emulator():
         #GameOver
         if gameover:
             pygame.mixer.music.stop()
-            # gameOverSound.play(loops=0)
+            gameOverSound.play(loops=0)
             popup = True
             t = f'{(time.time() - start):.2f}'
             coins = int(8 * (score / 1000) -
@@ -1333,10 +1328,10 @@ def emulator():
             selected_items = [False, False, False, False, False, False]
             SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH),
                                              pygame.RESIZABLE)
+        if data['highscore'] == score and petyr<4:
+            Popup(mode='loading')
         if petyr == 3:
             data['coin'] = f"{int(data['coin'])+coins}"
-            if data['highscore'] == score:
-                data['time'] = t
             with open('missions.dat', 'rb') as file:
                 miss = pickle.load(file)
                 for i, m in enumerate(miss['missions']):
@@ -1354,21 +1349,23 @@ def emulator():
             if obj['mission'][0] == 'points':
                 if score >= obj['mission'][1]:
                     obj['mission'][3] = True
+            if data['highscore'] == score:
+                data['time'] = t
+                bigGame = bigGameVar()
+                if internet:
+                    try:
+                        pushData(data['name'], score, t, bigGame)
+                    except:
+                        print(
+                            'Data not sent to servers due to an unexpected error')
+                        saveGameDataForLater(data['name'], score, t)
+                else:
+                    print(
+                        'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
+                    )
+                    saveGameDataForLater(data['name'], score, t)
             update_obj()
             update_data()
-            # bigGame = bigGameVar()
-            # if internet:
-            #     try:
-            #         pushData(data['name'], score, t, bigGame)
-            #     except:
-            #         print(
-            #             'Data not sent to servers due to an unexpected error')
-            #         saveGameDataForLater(data['name'], score, t)
-            # else:
-            #     print(
-            #         'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
-            #     )
-            #     saveGameDataForLater(data['name'], score, t)
     if Pop:
         Popup(PopT)
 
@@ -1435,7 +1432,7 @@ def missions():
             txt = f'Collect {m[1]} normal apples in total.'
         return txt
 
-    show("Today's Special Mission :", WHITE, 30, 54, 16)
+    show("Today's Special Mission :", BLACK, 30, 54, 16)
     m = obj['mission']
     txt = miss_txt(m)
     show(txt, WHITE, 35, 74, 14)
@@ -2070,11 +2067,15 @@ def inventory():
                     pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
+                    if Dic[0 if opened[0] else 1]=='LIGHTBROWN':
+                        pygame.draw.rect(SCREEN,
+                                        DARKBROWN,
+                                        (x + 14, y + 14, width - 28, 68))
                     pygame.draw.rect(SCREEN,
                                      globals()[Dic[0 if opened[0] else 1]],
                                      (x + 15, y + 15, width - 30, 65))
                     show(Dic[0 if opened[0] else 1], BLACK, 32 + (i + 1) * mul,
-                         170, 16)
+                         170, 14)
                     show(
                         'Purchased' if D[0 if opened[0] else 1] else
                         'Not Purchased', WHITE, 32 + (i + 1) * mul, 215, 10)
@@ -2109,15 +2110,14 @@ def inventory():
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
                     show(Dic[0 if opened[0] else 1], BLACK, 32 + (i - 2) * mul,
-                         360, 16)
+                         360, 14)
                     show(
                         'Purchased' if D[0 if opened[0] else 1] else
-                        'Not Purchased', BLACK, 32 + (i - 2) * mul, 405, 10)
-                    print(globals()[Dic[0 if opened[0] else 1]])
-                    if globals()[Dic[0 if opened[0] else 1]]=='LIGHTBROWN':
+                        'Not Purchased', WHITE, 32 + (i - 2) * mul, 405, 10)
+                    if Dic[0 if opened[0] else 1]=='LIGHTBROWN':
                         pygame.draw.rect(SCREEN,
                                         DARKBROWN,
-                                        (x + 10, y + 10, width - 20, 75))
+                                        (x + 14, y + 14, width - 28, 68))
                     
                     pygame.draw.rect(SCREEN,
                                     globals()[Dic[0 if opened[0] else 1]],
@@ -2573,15 +2573,16 @@ def cheaterlist():
                             hover_width=1) else user
 
 
-def Popup(txt, mode='ok'):
+def Popup(txt='A Popup', mode='ok'):
     global Pop
+    LENGTH = pygame.display.get_surface().get_width()
     s = pygame.Surface((LENGTH * 2, LENGTH * 2))
     s.set_colorkey(GREY)
     s.set_alpha(200)
     SCREEN.blit(s, (0, 0))
-    pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 150, 450, 200), 0, 1)
-    show(txt, DARKBROWN, 70, 170, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 150, LENGTH-100, 200), 0, 1)
     if mode == 'ok':
+        show(txt, DARKBROWN, 70, 170, 20)
         if button('Ok',
                   350,
                   300,
@@ -2592,7 +2593,8 @@ def Popup(txt, mode='ok'):
                   hover_col=DARKBROWN):
             Pop = False
     elif mode == 'yesno':
-        if button('Yes',
+        show(txt, DARKBROWN, 70, 170, 20)
+        if button('No',
                   350,
                   300,
                   100,
@@ -2600,9 +2602,8 @@ def Popup(txt, mode='ok'):
                   DARKBROWN,
                   text_col=WHITE,
                   hover_col=DARKBROWN):
-            Popyn = False
-            return True
-        if button('No',
+            return False
+        if button('Yes',
                   70,
                   300,
                   100,
@@ -2610,9 +2611,9 @@ def Popup(txt, mode='ok'):
                   DARKBROWN,
                   text_col=WHITE,
                   hover_col=DARKBROWN):
-            Popyn = False
-            return False
-
+            return True
+    if mode == 'loading':
+        show('Loading Please Wait...', DARKBROWN, 70, 260, 20)
 
 def main():
     global event_list, Text_Val
