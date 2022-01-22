@@ -74,11 +74,28 @@ def sortedLeaderboardList(index, collection):
     return finalData
 
 
-def pushDictData(collection, data):
-    global sortedData
-    client.query(q.create(q.collection(collection), {'data': data}))
-    sortedData = pullingSortedData()
+def pullOBJ():
+    indexes = client.query(q.paginate(q.match(q.index('missionsindex'))))
 
+    result = re.findall('\d+',
+                        str([indexes['data']]))  # to find all the numbers in the list
+
+    dataDict = {}
+
+    details = client.query(q.get(q.ref(q.collection("dailymissions"), result[0])))['data']
+
+    dataDict['mission'] = details['mission']
+    dataDict['offer1'] = details['offer1']
+    dataDict['offer2'] = details['offer2']
+    dataDict['time'] = details['time']
+    dataDict['day'] = details['day']
+        
+    return dataDict
+
+
+def pushDictData(collection, data):
+    client.query(q.create(q.collection(collection), {'data': data}))
+   
 
 def countDocs(collection):
     count = client.query(q.count(q.documents(q.collection(collection))))
@@ -117,18 +134,21 @@ def bigGameVar():
     else:
         bigGame = False
 
-    writeBigGame(data['name'], bigGame)
+    # writeBigGame(data['name'], bigGame)
     return bigGame
 
 
-def writeBigGame(name, bigGame):
-    bigData = {'name': name, 'bigGame': bigGame}
+def writeBigGame(name, bigGameP):
+    global bigGame
+    bigGame = bigGameP
+    bigData = {'name': name, 'bigGame': bigGameP}
     with open('bigGame.dat', 'wb') as file:
         pickle.dump(bigData, file)
+    print(f'BigGame for {name} set to {bigGameP}')
 
 
-def pushData(name, score, time, bigGame):
-    global Pop, PopT, data
+def pushData(name, score, time, bigGameP):
+    global Pop, PopT, data, fromsettings
     sortedData1 = sortedLeaderboardList(index='testindex',
                                         collection='testcollection')
 
@@ -159,14 +179,14 @@ def pushData(name, score, time, bigGame):
         sending = True
     elif score > min(lScores):
         sending = True
-        if bigGame == False:
+        if bigGameP == False:
             print(
                 'Sending data to leaderboard as you beat player(s) to deserve it'
             )
         if lScores.count(min(lScores)) == 1:
             for i in sortedData1:
                 if i[1] == min(lScores):
-                    if bigGame == False:
+                    if bigGameP == False:
                         deleteDoc(collection='testcollection', refid=i[4])
                         print(f'{i[0]}\'s name removed from the Leaderboard')
     elif score == min(lScores):
@@ -177,12 +197,12 @@ def pushData(name, score, time, bigGame):
             sending = True
             for i in sortedData1:
                 if i[2] == max(lTimes):
-                    if bigGame == False:
+                    if bigGameP == False:
                         deleteDoc(collection='testcollection', refid=i[4])
                         print(f'{i[0]}\'s name removed from the Leaderboard')
 
     if (sending):
-        if (bigGame):
+        if (bigGameP):
             for i in sortedData1:
                 if name == i[0]:
                     if score > i[1]:
@@ -207,6 +227,7 @@ def pushData(name, score, time, bigGame):
                 )
                 # send data with changed name
                 # writeBigGame(True)
+                pass
             else:
                 pushDictData(collection='testcollection', data=dataDict)
                 print("Data sent successfully!")
@@ -323,10 +344,22 @@ def cheaterlistData():
             return data
 
 
+def update_obj():
+    with open('daily.dat', 'wb') as file:
+        pickle.dump(obj, file)
+
 sortedData = pullingSortedData()
 # print(sortedData)
 maintain10onleaderboard()
-listOfCheaters = cheaterlistData()
+
+
+s = time.time()
+day = int(((s + 19800) / 3600) // 24)
+with open('daily.dat', 'rb') as file:
+    dail = pickle.load(file)
+    if dail['day'] < day:
+        obj = pullOBJ()
+        update_obj()
 
 if internet and os.path.exists("savedData.dat"):
     try:
@@ -408,7 +441,7 @@ sideSnake = pygame.image.load(r'images\side-snake.png')
 frontSnake = pygame.image.load(r'images\front-snake.png')
 bgMusic = pygame.mixer.music.load(r'audios\bgmusic.mp3')
 speedupMusic = pygame.mixer.Sound(r'audios\speedup.wav')
-buttonSound = pygame.mixer.Sound(r'audios\button.mp3')
+buttonSound = pygame.mixer.Sound(r'audios\button.wav')
 appleMusic = pygame.mixer.Sound(r'audios\apple.wav')
 bombMusic = pygame.mixer.Sound(r'audios\bomb.wav')
 speeddownMusic = pygame.mixer.Sound(r'audios\speeddown.wav')
@@ -463,12 +496,6 @@ Pop = False
 I = 0
 iterr = 0
 
-
-def update_obj():
-    with open('daily.dat', 'wb') as file:
-        pickle.dump(obj, file)
-
-
 def update_data():
     with open('userData.dat', 'wb') as file:
         pickle.dump(data, file)
@@ -521,6 +548,7 @@ def daily():
                 day
             }
             update_obj()
+            pushDictData(collection = 'dailymissions', data = obj)
         else:
             obj = dail
 
@@ -584,9 +612,11 @@ def home_params():
 
 breaker = False
 
-
+# reBigGame = False
+    
 def home():
     global i, decreaser, done, user, start, breaker, frontSnake
+    bigGame = bigGameVar()
     LENGTH = pygame.display.get_surface().get_width()
     HEIGHT = pygame.display.get_surface().get_height()
     SCREEN.fill(BLACKBROWN)
@@ -608,6 +638,9 @@ def home():
                                 text_size=16,
                                 hover_col=BLACKBROWN,
                                 hover_width=1) else user
+    
+    if bigGame:
+        pygame.draw.rect(SCREEN, RED, (LENGTH - 30, 10, 10, 20))
 
     scaledFrontSnake = pygame.transform.scale(
         frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
@@ -1233,7 +1266,6 @@ def emulator():
             update_data()
 
             bigGame = bigGameVar()
-
             if internet:
                 try:
                     pushData(data['name'], score, t, bigGame)
@@ -2104,7 +2136,7 @@ popupClose = False
 
 def settings():
     global user, start, SCREEN, LENGTH, openedSettings, pop, q
-    global data, namepop, popinit, fromsetting, popupClose, userSettings
+    global data, namepop, popinit, fromsetting, popupClose, userSettings, sortedData, bigGame
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -2258,7 +2290,8 @@ def settings():
             newUser_init()
             popinit = False
         fromsetting = True
-        popupClose = newuser(changename=True)
+        newuser(changename = True)
+        
 
 
 errormsg = False
@@ -2267,7 +2300,7 @@ errorstart = 0
 
 def newuser(changename=False):
     LENGTH = pygame.display.get_surface().get_width()
-    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData
+    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData, bigGame
     if not changename:
         SCREEN.fill(BLACKBROWN)
         pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -2279,15 +2312,6 @@ def newuser(changename=False):
         s.set_alpha(200)
         SCREEN.blit(s, (0, 0))
         pygame.draw.rect(SCREEN, LIGHTBROWN, (27, 125, LENGTH - 54, 200))
-        # button('Cancel' if changename else 'Create Account',
-        #               (LENGTH - 355) // 2,
-        #               280,
-        #               140,
-        #               40,
-        #               bg_color=WHITE,
-        #               text_col=DARKBROWN,
-        #               text_size=14,
-        #               hover_width=0)
     if len(Text_Val) == 0:
         show("Type your name here.", WHITE, (LENGTH - 200) // 2, 220, 20)
     else:
@@ -2347,12 +2371,15 @@ def newuser(changename=False):
     if Text_Ent:
         if allowed_name:
             if not changename:
+                bigGame = False
+                print('The condition is to sign up as a new user')
                 data = {
                     'name': Text_Val[:-1],
                     'highscore': 0,
                     'coin': '0',
                     'time': ''
                 }
+                # bigGame = False
                 with open('missions.dat','rb') as f:
                     miss=pickle.load(f)
                     for i,j in enumerate(miss['missions']):
@@ -2379,11 +2406,31 @@ def newuser(changename=False):
                 with open('items.dat','wb') as f:
                     pickle.dump(item_list,f)
                 
+                print('Signed up as new user')               
+
             if changename:
-                data['name'] = Text_Val[:-1]
+                print('The condition is to change name')
+                bigGame = bigGameVar()
+                if bigGame:
+                    print('Player is on the leaderboard')
+                    try:
+                        for i in sortedData:
+                            if i[0] == data['name']:
+                                dataDict = {
+                                    'name': Text_Val[:-1],
+                                    'score': i[1],
+                                    'time': i[2],
+                                }
+                                deleteDoc(collection='testcollection', refid=i[4])
+                                pushDictData('testcollection', dataDict)
+                                print(f"Your Name on Leaderboard updated successfully!! {data['name']} changed to {Text_Val[:-1]}")
+                    except:
+                        print('Your name on the leaderboard could not be updated due to an unexpedted error')
+                else:
+                    print('Player doesn\'t exist on the leaderboard')
+                data['name'] = Text_Val[:-1]            
             update_data()
-            writeBigGame(data['name'], False)
-            print('Signed up as new user')            
+            writeBigGame(data['name'], bigGame)
             if changename:
                 namepop = False
                 fromsetting = False
@@ -2391,8 +2438,8 @@ def newuser(changename=False):
             if fromsetting:
                 user = 'Settings'
             else:
-                user = 'Home'
-            Text_Val = ''
+                user = 'Home'                
+            Text_Val = ''            
         else:
             Pop = True
     if errormsg:
@@ -2403,6 +2450,7 @@ def newuser(changename=False):
     if Pop:
         Popup("Username must be between 3 to 10 letters.")
 
+            
 
 def cheater():
     LENGTH = pygame.display.get_surface().get_width()
@@ -2426,7 +2474,8 @@ def cheater():
 
 
 def cheaterlist():
-    global listOfCheaters, user
+    user
+    listOfCheaters = cheaterlistData()
     # fauna
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
