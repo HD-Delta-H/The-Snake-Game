@@ -433,7 +433,7 @@ BLACK = '#181818'
 RED = '#FF4000'  # Apple
 BLUE = '#40FFC0'  # Down
 GREEN = '#00C000'  # Up
-GREY = '#808080'  # Bomb
+GREY = '#606060'  # Bomb
 
 # Snake
 ORANGE = '#FF8000'
@@ -570,6 +570,7 @@ def daily():
                 day
             }
             update_obj()
+            Popup(mode='loading')
             pushDictData(collection='dailymissions', data=obj)
         else:
             obj = dail
@@ -624,17 +625,10 @@ def screen_animation(decreaser=False, r=25, color=BLACK, timer=0.01):
     return False
 
 
-def home_params():
-    pass
-    # global i, decreaser, done
-    # i = 0
-    # done = False
-    # decreaser = False
 
 
 breaker = False
 
-# reBigGame = False
 
 
 def home():
@@ -648,7 +642,7 @@ def home():
     usualWidth, margin = 120, 65
 
     show('playing as ', LIGHTBROWN, 20, 16, 16)
-    show(data['name'].upper() + '.', WHITE, 110, 9, 24)
+    show(data['name'], WHITE, 110, 9, 24)
     show(data['coin'] + ' coins', WHITE, 275, 9, 24)
     user = 'Settings' if button('Settings',
                                 LENGTH - 154,
@@ -662,8 +656,6 @@ def home():
                                 hover_col=BLACKBROWN,
                                 hover_width=1) else user
 
-    if bigGame:
-        pygame.draw.rect(SCREEN, RED, (LENGTH - 30, 10, 10, 20))
 
     scaledFrontSnake = pygame.transform.scale(
         frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
@@ -742,7 +734,7 @@ def home():
               hover_width=1):
         user = 'Missions'
         daily()
-    user = 'MarketPlace' if button('Shop',
+    user = 'Inventory' if button('Inventory',
                                    LENGTH -
                                    (margin + usualWidth * LENGTH / 554),
                                    300 * HEIGHT / 454,
@@ -754,7 +746,7 @@ def home():
                                    text_size=16,
                                    hover_col=BLACKBROWN,
                                    hover_width=1) else user
-    user = 'Inventory' if button('Inventory',
+    user = 'MarketPlace' if button('Shop',
                                  LENGTH - (margin + usualWidth * LENGTH / 554),
                                  340 * HEIGHT / 454,
                                  usualWidth * LENGTH / 554,
@@ -788,14 +780,6 @@ def home():
                                 text_size=16,
                                 hover_col=BLACKBROWN,
                                 hover_width=1) else user
-
-    # if not done:
-    #     d = screen_animation()
-    #     done = d
-    # if done:
-    #     d = screen_animation(True)
-    #     done = not d
-
 
 def arsenal():
     global user, start, SCREEN, selected_items, coin_2, point_2, Pop, userSettings, sensitivity
@@ -1669,73 +1653,6 @@ def marketplace():
                     pop = False
                 if cont != None:
                     pop = False
-        elif opened[3]:
-            for i, item in enumerate(list_items['Offers'].items()):
-                if i <= 2:
-                    global event_list
-                    pos = pygame.mouse.get_pos()
-                    x, y, width, height = (20 + (i + 1) * mul, 70, mul - 20,
-                                           160)
-                    pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
-                    pygame.draw.rect(SCREEN, LIGHTBROWN,
-                                     (x + 5, y + 5, width - 10, height - 10))
-                    SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
-                    if i <= 1:
-                        show('', BLACK, 30 + (i + 1) * mul, 165, 18)
-                        show('', BLACK, 25 + (i + 1) * mul, 185, 14)
-                    else:
-                        show('40', BLACK, 30 + (i + 1) * mul, 165, 18)
-                        show('2x Box', BLACK, 30 + (i + 1) * mul, 185, 14)
-                    s = pygame.Surface((width, height))
-                    s.set_colorkey(GREY)
-                    s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[
-                            1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0] and (
-                                time.time() - sensitivity) > 0.1:
-                            sensitivity = time.time()
-                            selected_items[i] = not selected_items[i]
-                        s.set_alpha(60)
-                    if selected_items[i]:
-                        s.set_alpha(120)
-                    SCREEN.blit(s, (x, y))
-
-                elif i <= 5:
-                    k = sum([(40 if x == '5' else
-                              (15 if x == '4' else
-                               (12 if int(x) <= 1 else 8))) * int(y)
-                             for x, y in item[1].items()])
-                    x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20,
-                                           160)
-                    pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
-                    pygame.draw.rect(SCREEN, LIGHTBROWN,
-                                     (x + 5, y + 5, width - 10, height - 10))
-                    pos = pygame.mouse.get_pos()
-                    SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
-                    if i == 5:
-                        show('15', BLACK, 30 + (i - 2) * mul, 355, 18)
-                        show('Lucky Box', BLACK, 30 + (i - 2) * mul, 375, 14)
-                    else:
-                        show(str(int(k * 0.8)), BLACK, 30 + (i - 2) * mul, 355,
-                             18)
-                        show(str(k), BLACK, 30 + (i - 2) * mul, 375, 14)
-                        pygame.draw.line(SCREEN, BLACK,
-                                         (60 + (i - 2) * mul, 382),
-                                         (65 + (i - 2) * mul - 50, 382), 1)
-                        show(item[0], BLACK, 30 + (i - 2) * mul, 400, 14)
-                    s = pygame.Surface((width, height))
-                    s.set_colorkey(GREY)
-                    s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[
-                            1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0] and (
-                                time.time() - sensitivity) > 0.1:
-                            sensitivity = time.time()
-                            selected_items[i] = not selected_items[i]
-                        s.set_alpha(60)
-                    if selected_items[i]:
-                        s.set_alpha(120)
-                    SCREEN.blit(s, (x, y))
         else:
             for i, item in enumerate(list_items['Themes'].items()):
                 Dic = list(item[1].keys())
@@ -2115,9 +2032,10 @@ def inventory():
                         'Purchased' if D[0 if opened[0] else 1] else
                         'Not Purchased', WHITE, 32 + (i - 2) * mul, 405, 10)
                     if Dic[0 if opened[0] else 1]=='LIGHTBROWN':
+                        print('yes')
                         pygame.draw.rect(SCREEN,
-                                        DARKBROWN,
-                                        (x + 14, y + 14, width - 28, 68))
+                                        BLACK,
+                                        (x + 14, y + 14, width - 28, 67))
                     
                     pygame.draw.rect(SCREEN,
                                     globals()[Dic[0 if opened[0] else 1]],
@@ -2281,7 +2199,7 @@ def settings():
                          width=3)
 
         show('currently playing as: ', DARKBROWN, mul + 30, 125, 19)
-        show(data['name'].upper(), BLACK, mul + 40, 157, 30)
+        show(data['name'], BLACK, mul + 40, 157, 30)
 
         pygame.draw.line(SCREEN,
                          DARKBROWN, (mul + 20, 210), (LENGTH - 30, 210),
@@ -2618,7 +2536,6 @@ def Popup(txt='A Popup', mode='ok'):
 def main():
     global event_list, Text_Val
     SCREEN.fill(BLACK)
-    home_params()
     while True:
         event_list = pygame.event.get()
         if user == 'Home':
@@ -2653,8 +2570,8 @@ def main():
         if breaker:
             break
 
-
-main()
+if __name__=='__main__':
+    main()
 
 if breaker:
     with open('Builder.py', 'r') as f:
