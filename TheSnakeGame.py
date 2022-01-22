@@ -1032,7 +1032,6 @@ def emulator():
             snake[1] = 17 if snake[1] > 453 else (
                 452 if snake[1] < 17 else snake[1])
             
-        print(snake)
         #Collision Logics
         if tuple(snake) == (applex, appley):
             if userSettings['sound']:
@@ -1473,10 +1472,10 @@ def marketplace():
 
     def popup():
         global pop
-        s = pygame.Surface((LENGTH, LENGTH))
-        s.set_colorkey(GREY)
-        s.set_alpha(200)
-        SCREEN.blit(s, (0, 0))
+        sur = pygame.Surface((LENGTH, LENGTH))
+        sur.set_colorkey(GREY)
+        sur.set_alpha(200)
+        SCREEN.blit(sur, (0, 0))
         pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 180, 450, 90), 0, 1)
         show('Are you sure you wanna purchase this item ?', BLACK, 70, 200, 18)
         pop = False if button('no',
@@ -2371,7 +2370,7 @@ def newuser(changename=False):
                     for i in list(item_list['Themes'].keys()):
                         if i==0:
                             continue
-                        for a in list(item_list['list(Themes'][i].keys()):
+                        for a in list(item_list['Themes'][i].keys()):
                             item_list['Themes'][i][a]=False
                     for i in list(item_list['Powerups'].keys()):
                         item_list['Powerups'][i]=('0',item_list['Powerups'][i][1])
