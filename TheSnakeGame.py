@@ -223,11 +223,11 @@ def pushData(name, score, time, bigGameP):
         else:
             if name in lnames:
                 print(
-                    'A player already thrives on the leaderboard with this name. Kindly enter the new name.'
+                    'A player already thrives on the leaderboard with this name. Kindly follow the promts to change name or to not send the data to servers.'
                 )
+                return True
                 # send data with changed name
                 # writeBigGame(True)
-                pass
             else:
                 pushDictData(collection='testcollection', data=dataDict)
                 print("Data sent successfully!")
@@ -1008,11 +1008,13 @@ def emulator_params():
     start = time.time()
     applex, appley = random_cord(blocks)
 
+changeNameForLead = False
+showHomeButton = False
 
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT, userSettings,sensitivity,petyr
+    global sortedData, Pop, PopT, userSettings,sensitivity,petyr, changeNameForLead, showHomeButton
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
@@ -1293,11 +1295,7 @@ def emulator():
         show("Time :" + t, WHITE, LENGTH // 2 - 100, LENGTH // 2 - 20, 20)
         show("Coins :" + str(coins), WHITE, LENGTH // 2 - 100,
              LENGTH // 2 + 10, 20)
-        if button('Home', LENGTH // 2 - 100, LENGTH // 2 + 40, 100, 30):
-            user = 'Home'
-            selected_items = [False, False, False, False, False, False]
-            SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH),
-                                             pygame.RESIZABLE)
+
         if petyr==3:
             data['coin'] = f"{int(data['coin'])+coins}"
             if data['highscore'] == score:
@@ -1324,17 +1322,45 @@ def emulator():
             bigGame = bigGameVar()
             if internet:
                 try:
-                    pushData(data['name'], score, t, bigGame)
+                    changeNameForLead = pushData(data['name'], score, t, bigGame)
+                    if not changeNameForLead:
+                        showHomeButton = True
+                    else:
+                        showHomeButton = False
                 except:
                     print(
                         'Data not sent to servers due to an unexpected error')
                     saveGameDataForLater(data['name'], score, t)
+                    showHomeButton = True
             else:
                 print(
                     'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
                 )
                 saveGameDataForLater(data['name'], score, t)
+                showHomeButton = True
             sent=True
+        
+        if showHomeButton:
+            if button('Home', LENGTH // 2 - 100, LENGTH // 2 + 40, 100,30,WHITE, x_offset=10,text_col=DARKBROWN,text_size=16,hover_col=GREY,hover_width=1):
+                user = 'Home'
+                selected_items = [False, False, False, False, False, False]
+                SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH), pygame.RESIZABLE)
+        
+        if changeNameForLead:
+            show(f"Unable to send data to cloud as a player", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 38, 17)
+            show(f"already thrives on the leadername by the", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 56, 17)
+            show(f"name of {data['name']}", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 74, 17)
+            if button('Don\'t Send Data', LENGTH // 2 - 140, LENGTH // 2 + 100, 140, 25, WHITE, x_offset=10,text_col=DARKBROWN,text_size=15,hover_col=GREY,hover_width=1):
+                showHomeButton = True
+                changeNameForLead = False
+            if button('Change Name', LENGTH // 2 + 10, LENGTH // 2 + 100, 130, 25, DARKBROWN, x_offset=10,text_col=WHITE,text_size=15,hover_col=GREY,hover_width=1):
+                print('change name pressed')
+        
+        if not showHomeButton and not changeNameForLead:
+            show(f"Analysing and Sending", DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 + 56, 18)
+            show(f"your data to cloud ....", DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 + 78, 18)
+              
+
     if Pop:
         Popup(PopT)
 
