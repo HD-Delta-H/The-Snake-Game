@@ -548,7 +548,11 @@ def daily():
                 day
             }
             update_obj()
+            indexes = client.query(q.paginate(q.match(q.index('missionsindex'))))
+            result = re.findall('\d+', str([indexes['data']]))  # to find all the numbers in the list
+            deleteDoc('dailymissions', result[0])
             pushDictData(collection = 'dailymissions', data = obj)
+            obj = pullOBJ()
         else:
             obj = dail
 
