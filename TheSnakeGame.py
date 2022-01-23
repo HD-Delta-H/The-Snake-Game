@@ -1010,11 +1010,15 @@ def emulator_params():
 
 changeNameForLead = False
 showHomeButton = False
+tempDataForLead = {
+    'score':0,
+    'time':0
+}
 
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT, userSettings,sensitivity,petyr, changeNameForLead, showHomeButton
+    global sortedData, Pop, PopT, userSettings,sensitivity,petyr, changeNameForLead, showHomeButton, tempDataForLead
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
@@ -1350,11 +1354,15 @@ def emulator():
             show(f"Unable to send data to cloud as a player", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 38, 17)
             show(f"already thrives on the leadername by the", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 56, 17)
             show(f"name of {data['name']}", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 74, 17)
+            
             if button('Don\'t Send Data', LENGTH // 2 - 140, LENGTH // 2 + 100, 140, 25, WHITE, x_offset=10,text_col=DARKBROWN,text_size=15,hover_col=GREY,hover_width=1):
                 showHomeButton = True
                 changeNameForLead = False
+            
             if button('Change Name', LENGTH // 2 + 10, LENGTH // 2 + 100, 130, 25, DARKBROWN, x_offset=10,text_col=WHITE,text_size=15,hover_col=GREY,hover_width=1):
-                print('change name pressed')
+                tempDataForLead['score'] = score
+                tempDataForLead['time'] = t
+                user = 'ChangeNameForLead'
         
         if not showHomeButton and not changeNameForLead:
             show(f"Analysing and Sending", DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 + 56, 18)
@@ -2457,7 +2465,156 @@ def newuser(changename=False):
     if Pop:
         Popup("Username must be between 3 to 10 letters.")
 
-            
+
+def changeNameForLeadFunc():
+    LENGTH = pygame.display.get_surface().get_width()
+    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData, bigGame, tempDataForLead
+    Text_Val = ''
+    show(f"Score: {tempDataForLead['score']}, Time Played: {tempDataForLead['time']}", DARKBROWN, 30, 80, 18)
+    
+    if button('Don\'t Send',
+                      (LENGTH - 155) // 2,
+                      280,
+                      140,
+                      40,
+                      bg_color=DARKBROWN,
+                      text_col=WHITE,
+                      text_size=14,
+                      hover_width=0):
+        user = 'Home'
+    
+    SCREEN.fill(BLACKBROWN)
+    pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+    show('CHANGE NAME', WHITE, 10, 10, 20)
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
+    
+    if len(Text_Val) == 0:
+        show("Type your name here.", WHITE, (LENGTH - 200) // 2, 220, 20)
+    else:
+        show(Text_Val, WHITE, (LENGTH - len(Text_Val) * 10) // 2, 220, 20)
+        if iterrr % 8 == 0:
+            Text_Val = Text_Val[:-1] + '|'
+            Cursor = True
+        if iterrr % 8 == 4 and Cursor:
+            Text_Val = Text_Val[:-1] + ' '
+            Cursor = False
+        iterrr += 1
+
+    pygame.draw.line(SCREEN, DARKBROWN, (50, 250), (LENGTH - 50, 250), 1)
+       
+
+    Text_Ent = button('Change Name',
+                      (LENGTH - 20) // 2,
+                      280,
+                      140,
+                      40,
+                      bg_color=DARKBROWN,
+                      text_col=WHITE,
+                      text_size=14,
+                      hover_width=0)
+
+    if not Pop:
+        for event in event_list:
+            if event.type == pygame.KEYDOWN:
+                if event.unicode in ALPHA:
+                    Text_Val = Text_Val[:-1] + str(
+                        event.unicode) + ('|' if Cursor else ' ')
+                elif event.key == pygame.K_BACKSPACE:
+                    Text_Val = Text_Val[:-2] + ('|' if Cursor else ' ')
+                elif event.unicode == '\r':
+                    Text_Ent = True
+                elif not event.unicode in ALPHA:
+                    errormsg = True
+                    errorstart = time.time()
+    if 3 < len(Text_Val) <= 11:
+        allowed_name = True
+    else:
+        allowed_name = False
+    if Text_Ent:
+        if allowed_name:
+            if not changename:
+                bigGame = False
+                print('The condition is to sign up as a new user')
+                data = {
+                    'name': Text_Val[:-1],
+                    'highscore': 0,
+                    'coin': '0',
+                    'time': ''
+                }
+                # bigGame = False
+                with open('missions.dat','rb') as f:
+                    miss=pickle.load(f)
+                    for i,j in enumerate(miss['missions']):
+                        if j[0] in ('apple','up','down'):
+                            miss['missions'][i][3]='0'+'/'+j[3].split('/')[1]
+                        else:
+                            miss['missions'][i][3]=False
+                        miss['missions'][i][4]=False
+                    for i in list(miss['coins'].keys()):
+                        if i in('coins','points'):
+                            miss['coins'][i]=False
+                        else:
+                            miss['coins'][i]=['10',False,0]
+                with open('missions.dat','wb') as f:
+                    pickle.dump(miss,f)
+                with open('items.dat','rb') as f:
+                    item_list=pickle.load(f)
+                    for i in list(item_list['Themes'].keys()):
+                        if i==0:
+                            continue
+                        for a in list(item_list['Themes'][i].keys()):
+                            item_list['Themes'][i][a]=False
+                    for i in list(item_list['Powerups'].keys()):
+                        item_list['Powerups'][i]=('0',item_list['Powerups'][i][1])
+                    item_list['Offers']['pseudo']={'background': 'Theme1', 'snake': 'Theme1'}
+                        
+                with open('items.dat','wb') as f:
+                    pickle.dump(item_list,f)
+                
+                print('Signed up as new user')               
+
+            if changename:
+                print('The condition is to change name')
+                bigGame = bigGameVar()
+                if bigGame:
+                    print('Player is on the leaderboard')
+                    try:
+                        for i in sortedData:
+                            if i[0] == data['name']:
+                                dataDict = {
+                                    'name': Text_Val[:-1],
+                                    'score': i[1],
+                                    'time': i[2],
+                                }
+                                deleteDoc(collection='testcollection', refid=i[4])
+                                pushDictData('testcollection', dataDict)
+                                print(f"Your Name on Leaderboard updated successfully!! {data['name']} changed to {Text_Val[:-1]}")
+                    except:
+                        print('Your name on the leaderboard could not be updated due to an unexpedted error')
+                else:
+                    print('Player doesn\'t exist on the leaderboard')
+                data['name'] = Text_Val[:-1]            
+            update_data()
+            writeBigGame(data['name'], bigGame)
+            if changename:
+                namepop = False
+                fromsetting = False
+                popinit = True
+            if fromsetting:
+                user = 'Settings'
+            else:
+                user = 'Home'                
+            Text_Val = ''            
+        else:
+            Pop = True
+    if errormsg:
+        show("*Only Uppercase/Lowercase letters, numbers and '_' is allowed",
+             RED, (LENGTH - 310) // 2, 260, 12)
+        if time.time() - errorstart > 4:
+            errormsg = False
+    if Pop:
+        Popup("Username must be between 3 to 10 letters.")
+
 
 def cheater():
     LENGTH = pygame.display.get_surface().get_width()
@@ -2553,7 +2710,6 @@ def Popup(txt,mode='ok'):
             return False
 
 
-
 def main():
     global event_list, Text_Val
     SCREEN.fill(BLACK)
@@ -2570,6 +2726,8 @@ def main():
             settings()
         elif user == 'NewUser':
             newuser()
+        elif user == 'ChangeNameForLead':
+            changeNameForLeadFunc()
         elif user == 'Cheater':
             cheater()
         elif user == 'Arsenal':
