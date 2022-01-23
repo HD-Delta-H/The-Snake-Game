@@ -741,7 +741,7 @@ def home():
                                    usualWidth * LENGTH / 554,
                                    30 * HEIGHT / 454,
                                    DARKBROWN,
-                                   x_offset=35 + (10**(LENGTH / 554)) / 3,
+                                   x_offset=20 + (10**(LENGTH / 554)) / 3,
                                    text_col=WHITE,
                                    text_size=16,
                                    hover_col=BLACKBROWN,
@@ -752,7 +752,7 @@ def home():
                                  usualWidth * LENGTH / 554,
                                  30 * HEIGHT / 454,
                                  DARKBROWN,
-                                 x_offset=20 + (10**(LENGTH / 554)) / 3,
+                                 x_offset=35 + (10**(LENGTH / 554)) / 3,
                                  text_col=WHITE,
                                  text_size=16,
                                  hover_col=BLACKBROWN,
@@ -1552,17 +1552,6 @@ def marketplace():
               hover_col=LIGHTBROWN,
               hover_width=0):
         opened = [False, False, True, False]
-    if button("Offers",
-              10,
-              140,
-              mul - 10,
-              30, (LIGHTBROWN if opened[3] else DARKBROWN),
-              3,
-              20,
-              WHITE,
-              hover_col=LIGHTBROWN,
-              hover_width=0):
-        opened = [False, False, False, True]
     pygame.draw.rect(SCREEN, LIGHTBROWN,
                      (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
     with open('items.dat', 'rb') as file:
@@ -2032,7 +2021,6 @@ def inventory():
                         'Purchased' if D[0 if opened[0] else 1] else
                         'Not Purchased', WHITE, 32 + (i - 2) * mul, 405, 10)
                     if Dic[0 if opened[0] else 1]=='LIGHTBROWN':
-                        print('yes')
                         pygame.draw.rect(SCREEN,
                                         BLACK,
                                         (x + 14, y + 14, width - 28, 67))
@@ -2572,8 +2560,3 @@ def main():
 
 if __name__=='__main__':
     main()
-
-if breaker:
-    with open('Builder.py', 'r') as f:
-        file = f.read()
-        exec(file)
