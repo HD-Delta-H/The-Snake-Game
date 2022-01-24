@@ -418,10 +418,8 @@ PIXEL = 15
 SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH), pygame.RESIZABLE)
 
 CLOCK = pygame.time.Clock()
-rate = 8
 coin_2, point_2 = False, False
 sensitivity = 0
-petyr = 0
 #colours
 #Theme
 LIGHTBROWN = pygame.Color('#AD9157')
@@ -459,6 +457,7 @@ VOILET = pygame.Color('#400080')
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
 cheaterImage = pygame.image.load(r'images\cheater.png')
+deltaH = pygame.image.load(r'images\delta-h.PNG')
 sideSnake = pygame.image.load(r'images\side-snake.png')
 frontSnake = pygame.image.load(r'images\front-snake.png')
 bgMusic = pygame.mixer.music.load(r'audios\bgmusic.mp3')
@@ -502,7 +501,7 @@ if non_cheater:
         print('Redirecting to New User')
         newUser_init()
     else:
-        user = 'Home'
+        user = 'DeltaH'
     file.close()
 
 
@@ -627,11 +626,57 @@ def screen_animation(decreaser=False, r=25, color=BLACK, timer=0.01):
 
 
 breaker = False
+petyr = 0
+
+rate = 40
+
+
+def delta_h():
+    global petyr, user, rate
+    SCREEN.fill((0, 0, 0))
+    LENGTH = pygame.display.get_surface().get_width()
+    HEIGHT = pygame.display.get_surface().get_height()
+    m1 = (160 - 252) / (238 - 197)
+    m2 = (252 - 240) / (197 - 274)
+    m3 = (240 - 192) / (274 - 248)
+    m4 = (192 - 287) / (248 - 205)
+    c1 = 160 - m1 * 238
+    c2 = 252 - m2 * 197
+    c3 = 240 - m3 * 274
+    c4 = 192 - m4 * 248
+    deltaHSize = deltaH.get_size()
+
+    def circ(x1, x2, i, n, m, c):
+        x = x1 - (x1 - x2) * i / n
+        pygame.draw.circle(SCREEN, WHITE, (x, m * x + c), 4)
+
+    if petyr < 30:
+        for i in range(4):
+            circ(358 + i, 197 + i, petyr, 30, m1, c1)
+    if 30 < petyr < 45:
+        for i in range(4):
+            circ(197 + i, 274 + i, (petyr - 30), 15, m2, c2)
+    if 45 < petyr < 60:
+        for i in range(4):
+            circ(274 + i, 248 + i, (petyr - 45), 15, m3, c3)
+    if 60 <= petyr < 90:
+        for i in range(4):
+            circ(248 + i, 120 + i, (petyr - 60), 15, m4, c4)
+    if petyr > 15:
+        deltaH.set_alpha(255 * ((petyr - 20) if petyr <= 140 else 120) / 120)
+        if petyr > 140:
+            deltaH.set_alpha(195 + (abs(petyr -200)))
+        SCREEN.blit(deltaH, ((LENGTH - deltaHSize[0]) // 2,
+                             (HEIGHT - deltaHSize[1]) // 2 - 15))
+    petyr += 1
+    if petyr == 230:
+        user = 'Home'
+        rate = 8
+        petyr = 0
 
 
 def home():
-    global i, decreaser, done, user, start, breaker, frontSnake
-    bigGame = bigGameVar()
+    global i, decreaser, done, user, start, breaker, frontSnake, petyr
     LENGTH = pygame.display.get_surface().get_width()
     HEIGHT = pygame.display.get_surface().get_height()
     SCREEN.fill(BLACKBROWN)
@@ -2558,6 +2603,8 @@ def main():
             emulator()
         elif user == 'LeaderBoard':
             leaderboard()
+        elif user == 'DeltaH':
+            delta_h()
         elif user == 'Settings':
             settings()
         elif user == 'NewUser':
