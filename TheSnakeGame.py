@@ -380,6 +380,11 @@ def update_obj():
 sortedData = pullingSortedData()
 # print(sortedData)
 maintain10onleaderboard()
+savedDataNameThrives = False
+tempDataForLead = {
+        'score':0,
+        'time':0
+    }
 
 s = time.time()
 day = int(((s + 19800) / 3600) // 24)
@@ -389,22 +394,28 @@ with open('daily.dat', 'rb') as file:
         obj = pullOBJ()
         update_obj()
 
+savedDataDict = {'score':0, 'time':0}
+
 if internet and os.path.exists("savedData.dat"):
-    try:
+    # try:
         fileR = open('savedData.dat', "rb")
         data = pickle.load(fileR)
         bigGame = bigGameVar()
-        pushData(name=data['name'],
+        savedDataReturns = pushData(name=data['name'],
                  score=data['score'],
                  time=data['time'],
-                 bigGame=bigGame)
+                 bigGameP=bigGame)
         fileR.close()
+        if savedDataReturns['thrives']:
+            savedDataNameThrives = True
+            savedDataDict['score'] = data['score']
+            savedDataDict['time'] = data['time']
         os.remove("savedData.dat")
         print('Saved data from previous games sent')
-    except:
-        print(
-            "Saved data from previous games couldn't be sent due to an unexpected error"
-        )
+    # except:
+    #     print(
+    #         "Saved data from previous games couldn't be sent due to an unexpected error"
+    #     )
 
 # line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
 # rect pygame.draw.rect(SCREEN, BLUE, (390,390,50,25)) #screen, color, (starting_x, starting_y, width,height)
@@ -494,9 +505,6 @@ appleMusic = pygame.mixer.Sound(r'audios\apple.wav')
 bombMusic = pygame.mixer.Sound(r'audios\bomb.wav')
 speeddownMusic = pygame.mixer.Sound(r'audios\speeddown.wav')
 gameOverSound = pygame.mixer.Sound(r'audios\gameOver.wav')
-
-#[[name,score,timeplayed,1_time,ref_id]]
-
 
 #user data
 def newUser_init():
@@ -663,6 +671,11 @@ w = 0
 h = 0
 
 
+breaker = False
+changeNamePop = False
+    
+def home():
+    global i, decreaser, done, user, start, breaker, frontSnake, savedDataNameThrives, Pop, changeNamePop
 def circ(x1, x2, i, n, m, c):
     x = x1 - (x1 - x2) * i / n
     pygame.draw.circle(SCREEN, WHITE, (x, m * x + c), 4)
@@ -805,6 +818,21 @@ def home():
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, HEIGHT - 60))
     usualWidth, margin = 120, 65
 
+    show('playing as ', LIGHTBROWN, 20, 16, 16)
+    show(data['name'].upper() + '.', WHITE, 110, 9, 24)
+    show(data['coin'] + ' coins', WHITE, 275, 9, 24)
+    user = 'Settings' if button('Settings',
+                                LENGTH - 154,
+                                5,
+                                100,
+                                30,
+                                LIGHTBROWN,
+                                x_offset=10,
+                                text_col=DARKBROWN,
+                                text_size=16,
+                                hover_col=BLACKBROWN,
+                                hover_width=1) else user
+                          
     scaledFrontSnake = pygame.transform.scale(
         frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
     frontSnakeSize = scaledFrontSnake.get_size()
@@ -944,6 +972,19 @@ def home():
                                 text_size=16,
                                 hover_col=BLACKBROWN,
                                 hover_width=1) else user
+
+    if savedDataNameThrives:
+        if button('Attention', LENGTH - (margin + usualWidth * LENGTH / 554) + 50, 70 * HEIGHT / 454, 100, 30, RED, x_offset=10, text_col=WHITE, text_size=17, hover_col=BLACKBROWN, hover_width=1):
+            changeNamePop = True
+    if changeNamePop:
+        attentionChangeNamePopup()
+
+    # if not done:
+    #     d = screen_animation()
+    #     done = d
+    # if done:
+    #     d = screen_animation(True)
+    #     done = not d
 
 
 def arsenal():
@@ -1094,6 +1135,30 @@ def arsenal():
     if user == 'Emulator':
         daily()
         emulator_params()
+
+fromSD = False
+
+
+def attentionChangeNamePopup():
+    global changeNamePop, savedDataNameThrives, user, fromSD
+    s = pygame.Surface((LENGTH * 2, LENGTH * 2))
+    s.set_colorkey(GREY)
+    s.set_alpha(200)
+    SCREEN.blit(s, (0, 0))
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 60, 450, 180), 0, 1)
+    show("Unable to send data to cloud as a player", DARKBROWN, 80, 80, 20)
+    show("already thrives on the leadername by the", DARKBROWN, 80, 121, 20)
+    show(f"name of {data['name']}", DARKBROWN, 80, 142, 20)
+    
+    if button('Don\'t Send Data', 100, 180, 160, 30, WHITE, x_offset=10,text_col=DARKBROWN,text_size=18, hover_col=GREY,hover_width=1):
+        changeNamePop, savedDataNameThrives = False, False
+    
+    if button('Change Name', 290, 180, 150, 30, DARKBROWN, x_offset=10,text_col=WHITE,text_size=18, hover_col=GREY,hover_width=1):
+        newUser_init()
+        fromSD = True
+        changeNamePop, savedDataNameThrives = False, False
+        user = 'NewUser'
+             
 
 
 def emulator_params():
@@ -1580,24 +1645,11 @@ def emulator():
                 SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
 
         if changeNameForLead:
-            show("Unable to send data to cloud as a player", DARKBROWN,
-                 LENGTH // 2 - 163, LENGTH // 2 + 38, 17)
-            show("already thrives on the leadername by the", DARKBROWN,
-                 LENGTH // 2 - 163, LENGTH // 2 + 56, 17)
-            show("name of {data['name']}", DARKBROWN, LENGTH // 2 - 163,
-                 LENGTH // 2 + 74, 17)
-
-            if button('Don\'t Send Data',
-                      LENGTH // 2 - 140,
-                      LENGTH // 2 + 100,
-                      140,
-                      25,
-                      WHITE,
-                      x_offset=10,
-                      text_col=DARKBROWN,
-                      text_size=15,
-                      hover_col=GREY,
-                      hover_width=1):
+            show("Unable to send data to cloud as a player", DARKBROWN, LENGTH // 2 - 163, LENGTH // 2 + 38, 17)
+            show("already thrives on the leadername by the", DARKBROWN, LENGTH // 2 - 163, LENGTH // 2 + 56, 17)
+            show(f"name of {data['name']}", DARKBROWN, LENGTH // 2 - 163, LENGTH // 2 + 74, 17)
+            
+            if button('Don\'t Send Data', LENGTH // 2 - 140, LENGTH // 2 + 100, 140, 25, WHITE, x_offset=10,text_col=DARKBROWN,text_size=15,hover_col=GREY,hover_width=1):
                 showHomeButton = True
                 changeNameForLead = False
 
@@ -1615,9 +1667,9 @@ def emulator():
                 tempDataForLead['score'] = score
                 tempDataForLead['time'] = t
                 newUser_init()
-                user = 'NewUser'
-                fromLB = True
-
+                user='NewUser'
+                fromLB=True                
+        
         if not showHomeButton and not changeNameForLead:
             show(f"Analysing and Sending", DARKBROWN, LENGTH // 2 - 120,
                  LENGTH // 2 + 56, 18)
@@ -2530,15 +2582,14 @@ errorstart = 0
 
 def newuser(changename=False):
     LENGTH = pygame.display.get_surface().get_width()
-    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData, bigGame, fromLB, selected_items, SCREEN
+    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData, bigGame,fromLB,selected_items,SCREEN, savedDataDict, tempDataForLead, fromSD
 
     if not changename:
-
         SCREEN.fill(BLACKBROWN)
         pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
         pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
-        if fromLB:
-            show('CHANGE NAME', WHITE, 10, 10, 20,'b')
+        if fromLB or fromSD:
+            show('CHANGE NAME', WHITE, 10, 10, 20)
         else:
             show('SIGN UP', WHITE, 10, 10, 20,'b')
     if changename:
@@ -2595,8 +2646,7 @@ def newuser(changename=False):
     # iterrr+=1
     # iterrr=0 if iterrr>20 else iterrr
     pygame.draw.line(SCREEN, DARKBROWN, (50, 250), (LENGTH - 50, 250), 1)
-    Text_Ent = button('Change Name' if
-                      (changename or fromLB) else 'Create Account',
+    Text_Ent = button('Change Name' if (changename or fromLB or fromSD) else 'Create Account',
                       (LENGTH - 155) // 2,
                       280,
                       140,
@@ -2624,11 +2674,30 @@ def newuser(changename=False):
         allowed_name = False
     if Text_Ent:
         if allowed_name:
-            if fromLB:
-                bigGame = True
-                data['name'] = Text_Val[:-1]
+            if fromLB:                
+                data['name']= Text_Val[:-1]
                 data['highscore'] = tempDataForLead['score']
                 data['time'] = tempDataForLead['time']
+                dictData = {'name':Text_Val[:-1], 'score':tempDataForLead['score'], 'time':tempDataForLead['time']}
+                try:
+                    pushDictData('testcollection', dictData)
+                    print('Data with changed name sent')
+                    bigGame=True
+                except:
+                    print('Name changed but data couldn\'t be sent due to an unexpected error')
+                    bigGame=False
+            elif fromSD:
+                data['name']= Text_Val[:-1]
+                data['highscore'] = savedDataDict['score']
+                data['time'] = savedDataDict['time']
+                dictData = {'name':Text_Val[:-1], 'score':savedDataDict['score'], 'time':savedDataDict['time']}
+                try:
+                    pushDictData('testcollection', dictData)
+                    print('Data with changed name sent')
+                    bigGame=True
+                except:
+                    print('Name changed but data couldn\'t be sent due to an unexpected error')
+                    bigGame=False
             elif not changename:
                 bigGame = False
                 print('The condition is to sign up as a new user')
@@ -2662,17 +2731,16 @@ def newuser(changename=False):
                         for a in list(item_list['Themes'][i].keys()):
                             item_list['Themes'][i][a] = False
                     for i in list(item_list['Powerups'].keys()):
-                        item_list['Powerups'][i] = (
-                            '0', item_list['Powerups'][i][1])
-                    item_list['Offers']['pseudo'] = {
-                        'background': 'Theme1',
-                        'snake': 'Theme1'
-                    }
-
-                with open('items.dat', 'wb') as f:
-                    pickle.dump(item_list, f)
-
-                print('Signed up as new user')
+                        item_list['Powerups'][i]=('0',item_list['Powerups'][i][1])
+                    item_list['Offers']['pseudo']={'background': 'Theme1', 'snake': 'Theme1'}
+                        
+                with open('items.dat','wb') as f:
+                    pickle.dump(item_list,f)
+                try:
+                    os.remove('savedData.dat')
+                except:
+                    pass
+                print('Signed up as new user')               
 
             elif changename:
                 print('The condition is to change name')
@@ -2711,8 +2779,13 @@ def newuser(changename=False):
             elif fromLB:
                 selected_items = [False, False, False, False, False, False]
                 SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
-                user = 'Home'
+                user='Home'
                 fromLB = False
+            elif fromSD:
+                selected_items = [False, False, False, False, False, False]
+                SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
+                user='Home'
+                fromSD = False
             else:
                 user = 'Home'
             Text_Val = ''
