@@ -1,3 +1,4 @@
+from tkinter import W
 import pygame
 import sys
 import time
@@ -629,6 +630,13 @@ breaker = False
 petyr = 0
 
 rate = 40
+w = 0
+h = 0
+
+
+def circ(x1, x2, i, n, m, c):
+    x = x1 - (x1 - x2) * i / n
+    pygame.draw.circle(SCREEN, WHITE, (x, m * x + c), 4)
 
 
 def delta_h():
@@ -645,34 +653,112 @@ def delta_h():
     c3 = 240 - m3 * 274
     c4 = 192 - m4 * 248
     deltaHSize = deltaH.get_size()
+    if petyr < 230:
 
-    def circ(x1, x2, i, n, m, c):
-        x = x1 - (x1 - x2) * i / n
-        pygame.draw.circle(SCREEN, WHITE, (x, m * x + c), 4)
-
-    if petyr < 30:
-        for i in range(4):
-            circ(358 + i, 197 + i, petyr, 30, m1, c1)
-    if 30 < petyr < 45:
-        for i in range(4):
-            circ(197 + i, 274 + i, (petyr - 30), 15, m2, c2)
-    if 45 < petyr < 60:
-        for i in range(4):
-            circ(274 + i, 248 + i, (petyr - 45), 15, m3, c3)
-    if 60 <= petyr < 90:
-        for i in range(4):
-            circ(248 + i, 120 + i, (petyr - 60), 15, m4, c4)
-    if petyr > 15:
-        deltaH.set_alpha(255 * ((petyr - 20) if petyr <= 140 else 120) / 120)
-        if petyr > 140:
-            deltaH.set_alpha(195 + (abs(petyr -200)))
-        SCREEN.blit(deltaH, ((LENGTH - deltaHSize[0]) // 2,
-                             (HEIGHT - deltaHSize[1]) // 2 - 15))
+        if petyr < 30:
+            for i in range(4):
+                circ(358 + i, 197 + i, petyr, 30, m1, c1)
+        if 30 < petyr < 45:
+            for i in range(4):
+                circ(197 + i, 274 + i, (petyr - 30), 15, m2, c2)
+        if 45 < petyr < 60:
+            for i in range(4):
+                circ(274 + i, 248 + i, (petyr - 45), 15, m3, c3)
+        if 60 <= petyr < 90:
+            for i in range(4):
+                circ(248 + i, 120 + i, (petyr - 60), 15, m4, c4)
+        if petyr > 15:
+            deltaH.set_alpha(255 * ((petyr - 20) if petyr <= 140 else 120) /
+                             120)
+            if petyr > 140:
+                deltaH.set_alpha(195 + (abs(petyr - 200)))
+            SCREEN.blit(deltaH, ((LENGTH - deltaHSize[0]) // 2,
+                                 (HEIGHT - deltaHSize[1]) // 2 - 15))
     petyr += 1
-    if petyr == 230:
-        user = 'Home'
-        rate = 8
-        petyr = 0
+    if petyr >= 230:
+        global frontSnake, flippedScaledSideSnake, scaledFrontSnake, frontSnakeSize, scaledSideSnake, sideSnakeSize, w, h
+        LENGTH = pygame.display.get_surface().get_width()
+        HEIGHT = pygame.display.get_surface().get_height()
+        SCREEN.fill(BLACKBROWN)
+        pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+        pygame.draw.rect(SCREEN, LIGHTBROWN,
+                         (10, 50, LENGTH - 20, HEIGHT - 60))
+        usualWidth, margin = 120, 65
+        if petyr < 270:
+            scaledFrontSnake = pygame.transform.scale(
+                frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
+            frontSnakeSize = scaledFrontSnake.get_size()
+            scaledFrontSnake.set_alpha(
+                255 * ((petyr - 230) if petyr <= 270 else 40) / 40)
+        SCREEN.blit(scaledFrontSnake,
+                    ((LENGTH - frontSnakeSize[0]) / 2, 30 +
+                     (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
+        if petyr <= 300:
+            scaledSideSnake = pygame.transform.scale(
+                sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
+            sideSnakeSize = scaledSideSnake.get_size()
+            scaledSideSnake.set_alpha(
+                55 * ((petyr - 270) if petyr <= 300 else 30) / 30)
+
+            flippedScaledSideSnake = pygame.transform.flip(
+                scaledSideSnake, True, False)
+            flippedScaledSideSnake.set_alpha(
+                55 * ((petyr - 270) if petyr <= 300 else 30) / 30)
+            SCREEN.blit(
+                scaledSideSnake,
+                ((LENGTH - sideSnakeSize[0]) / 2 +
+                 (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2 -
+                  (LENGTH - sideSnakeSize[0]) / 2) * (petyr - 270) / 30, 40 +
+                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                 frontSnakeSize[1] / 4))
+            SCREEN.blit(
+                flippedScaledSideSnake,
+                ((LENGTH - sideSnakeSize[0]) / 2 +
+                 (margin + 45 +
+                  (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 -
+                  (LENGTH - sideSnakeSize[0]) / 2) * (petyr - 270) / 30, 40 +
+                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                 frontSnakeSize[1] / 4))
+        if petyr > 300:
+            SCREEN.blit(
+                scaledSideSnake,
+                (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2,
+                 40 + (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                 frontSnakeSize[1] / 4))
+            SCREEN.blit(
+                flippedScaledSideSnake,
+                (LENGTH -
+                 (margin +
+                  (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15),
+                 40 + (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                 frontSnakeSize[1] / 4))
+        if petyr > 330:
+            for j in range(3):
+                pygame.draw.rect(
+                    SCREEN, DARKBROWN,
+                    ((-40 + (petyr - 330) if petyr < 370 else 0) + margin,
+                     (300 + 40 * j) * HEIGHT / 454, usualWidth * LENGTH / 554,
+                     30 * HEIGHT / 454))
+                pygame.draw.rect(
+                    SCREEN, DARKBROWN,
+                    ((40 - (petyr - 330) if petyr < 370 else 0) + LENGTH -
+                     (margin + usualWidth * LENGTH / 554),
+                     (300 + 40 * j) * HEIGHT / 454, usualWidth * LENGTH / 554,
+                     30 * HEIGHT / 454))
+            s = pygame.Surface((170 * LENGTH / 554, 55 * HEIGHT / 454))
+            s.fill(DARKBROWN)
+            s.set_alpha(255 * (petyr - 330) / 40)
+            SCREEN.blit(s, ((LENGTH -
+                             (170 * LENGTH / 554)) / 2, 265 * HEIGHT / 454))
+        if petyr > 370:
+            w += 100
+            h += 100
+            pygame.draw.rect(SCREEN, BLACK,
+                             (((LENGTH - w) / 2, (HEIGHT - h) / 2, w, h)))
+            if petyr == 377:
+                user = 'Home'
+                rate = 8
+                petyr = 0
 
 
 def home():
@@ -683,6 +769,31 @@ def home():
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, HEIGHT - 60))
     usualWidth, margin = 120, 65
+
+    scaledFrontSnake = pygame.transform.scale(
+        frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
+    frontSnakeSize = scaledFrontSnake.get_size()
+    SCREEN.blit(scaledFrontSnake,
+                ((LENGTH - frontSnakeSize[0]) / 2, 30 +
+                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
+
+    scaledSideSnake = pygame.transform.scale(
+        sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
+    sideSnakeSize = scaledSideSnake.get_size()
+
+    flippedScaledSideSnake = pygame.transform.flip(scaledSideSnake, True,
+                                                   False)
+    scaledSideSnake.set_alpha(55), flippedScaledSideSnake.set_alpha(55)
+    SCREEN.blit(
+        scaledSideSnake,
+        (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2, 40 +
+         (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
+    SCREEN.blit(
+        flippedScaledSideSnake,
+        (LENGTH -
+         (margin +
+          (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15), 40 +
+         (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
 
     show('playing as ', LIGHTBROWN, 20, 16, 16)
     show(data['name'], WHITE, 110, 9, 24)
@@ -698,30 +809,6 @@ def home():
                                 text_size=16,
                                 hover_col=BLACKBROWN,
                                 hover_width=1) else user
-
-    scaledFrontSnake = pygame.transform.scale(
-        frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
-    frontSnakeSize = scaledFrontSnake.get_size()
-
-    scaledSideSnake = pygame.transform.scale(
-        sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
-    sideSnakeSize = scaledSideSnake.get_size()
-
-    flippedScaledSideSnake = pygame.transform.flip(scaledSideSnake, True,
-                                                   False)
-    scaledSideSnake.set_alpha(55), flippedScaledSideSnake.set_alpha(55)
-
-    SCREEN.blit(
-        scaledSideSnake,
-        (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2, 40 +
-         (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
-    SCREEN.blit(
-        flippedScaledSideSnake,
-        (LENGTH -
-         (margin +
-          (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15), 40 +
-         (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
-
     user = 'Arsenal' if button('Play Game',
                                (LENGTH - (170 * LENGTH / 554)) / 2,
                                265 * HEIGHT / 454,
@@ -733,9 +820,6 @@ def home():
                                text_size=int(24 * LENGTH / 700),
                                hover_col=BLACKBROWN,
                                hover_width=1) else user
-    SCREEN.blit(scaledFrontSnake,
-                ((LENGTH - frontSnakeSize[0]) / 2, 30 +
-                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
 
     newUser = button('New User',
                      margin,
