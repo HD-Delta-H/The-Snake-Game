@@ -533,7 +533,7 @@ def show(msg, color, x, y, size):
 
 
 selected_items = [False, False, False, False, False, False]
-fromLB=True
+fromLB=False
 Pop = False
 I = 0
 iterr = 0
@@ -1181,7 +1181,7 @@ def emulator_params():
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT, userSettings,sensitivity,petyr, internet
+    global sortedData, Pop, PopT, userSettings,sensitivity,petyr, internet,fromLB
     global changeNameForLead, showHomeButton, tempDataForLead, popForLeadInit, dataSent, dataNotSent, dataUpdated, dataNotUpdated, errorButDataSaved
     gameover = False
     SCREEN.fill(Theme[0])
@@ -1565,6 +1565,14 @@ def emulator():
         if not showHomeButton and not changeNameForLead:
             show(f"Analysing and Sending", DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 + 56, 18)
             show(f"your data to cloud ....", DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 + 78, 18)
+            # loading_anime=''
+            # load_i=petyr%10
+            # if load_i>5:
+            #     loading_anime+='|'
+            # else:
+            #     loading_anime=loading_anime[:-1]
+            # show(loading_anime, DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 + 100, 18)
+
 
 
 def leaderboard():
@@ -2531,8 +2539,6 @@ def newuser(changename=False):
             fromsetting = False
             namepop = False
             Text_Val = ''
-
-    #
     # if iterrr>10:
     #     Text_Val+='|'
     # else:
@@ -2655,6 +2661,7 @@ def newuser(changename=False):
                 selected_items = [False, False, False, False, False, False]
                 SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
                 user='Home'
+                fromLB=False
             else:
                 user = 'Home'
             Text_Val = ''
