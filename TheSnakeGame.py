@@ -994,7 +994,7 @@ def arsenal():
     # SCREEN = pygame.display.set_mode((LENGTH, 454))
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-    show('Your Arsenel for the game', WHITE, 10, 10, 20)
+    show('Your Arsenel for the game', WHITE, 10, 10, 20,'b')
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     with open('items.dat', 'rb') as file:
         list_items = pickle.load(file)
@@ -1728,7 +1728,7 @@ def missions():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-    show('MISSIONS', WHITE, 10, 10, 20)
+    show('MISSIONS', WHITE, 10, 10, 20,'b')
     show(data['coin'] + ' coin(s)', WHITE, 275, 9, 24)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 50, LENGTH - 40, 40), 0, 8)
 
@@ -1866,7 +1866,7 @@ def marketplace():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-    show('MARKET PLACE', WHITE, 10, 10, 20)
+    show('MARKET PLACE', WHITE, 10, 10, 20,'b')
     mul = (LENGTH - 30) // 4
     pygame.draw.rect(SCREEN, DARKBROWN, (10, 50, mul - 10, 390))
     if button("Background",
@@ -2098,7 +2098,7 @@ def inventory():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-    show('INVENTORY', WHITE, 10, 10, 20)
+    show('INVENTORY', WHITE, 10, 10, 20,'b')
     mul = (LENGTH - 30) // 4
     pygame.draw.rect(SCREEN, DARKBROWN, (10, 50, mul - 10, 390))
     if button("Background",
@@ -2428,7 +2428,7 @@ def settings():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-    show('SETTINGS', WHITE, 10, 10, 20)
+    show('SETTINGS', WHITE, 10, 10, 20,'b')
     mul = (LENGTH - 30) // 4
     pygame.draw.rect(SCREEN, DARKBROWN, (10, 50, mul - 10, 390))
     if button("Basic",
@@ -2591,7 +2591,7 @@ def newuser(changename=False):
         if fromLB or fromSD:
             show('CHANGE NAME', WHITE, 10, 10, 20)
         else:
-            show('SIGN UP', WHITE, 10, 10, 20)
+            show('SIGN UP', WHITE, 10, 10, 20,'b')
     if changename:
         s = pygame.Surface((LENGTH * 2, LENGTH * 2))
         s.set_colorkey(GREY)
@@ -2599,9 +2599,9 @@ def newuser(changename=False):
         SCREEN.blit(s, (0, 0))
         pygame.draw.rect(SCREEN, LIGHTBROWN, (27, 125, LENGTH - 54, 200))
     if len(Text_Val) == 0:
-        show("Type your name here.", WHITE, (LENGTH - 200) // 2, 220, 20)
+        show("Type your name here.", WHITE, (LENGTH - 200) // 2, 220, 20,'i')
     else:
-        show(Text_Val, WHITE, (LENGTH - len(Text_Val) * 10) // 2, 220, 20)
+        show(Text_Val, WHITE, (LENGTH - len(Text_Val) * 10) // 2, 220, 20,'i')
         if iterrr % 8 == 0:
             Text_Val = Text_Val[:-1] + '|'
             Cursor = True
@@ -2801,16 +2801,28 @@ def newuser(changename=False):
 
 
 def cheater():
+    global user
     LENGTH = pygame.display.get_surface().get_width()
     # fauna
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 90))
-    show('CHEATER CHEATER,', WHITE, 10, 16, 30)
-    show('COMPULSIVE EATER', WHITE, 10, 51, 30)
+    show('CHEATER CHEATER,', WHITE, 10, 16, 30,'b')
+    show('COMPULSIVE EATER', WHITE, 10, 51, 30,'b')
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 100, LENGTH - 20, 345))
     SCREEN.blit(cheaterImage, (30, 135))
-    show('YOU CAN\'T CHEAT YOUR WAY TO THE TOP', RED, 30, 380, 23)
-
+    show('YOU CAN\'T CHEAT YOUR WAY TO THE TOP', RED, 30, 380, 23,'ib')
+    if button('Home',
+                  LENGTH - 154,
+                  5,
+                  100,
+                  30,
+                  LIGHTBROWN,
+                  x_offset=10,
+                  text_col=DARKBROWN,
+                  text_size=16,
+                  hover_col=BLACKBROWN,
+                  hover_width=1):
+            user = 'NewUser'
     with open('userData.dat', 'wb') as file:
         pickle.dump({
             'name': '',
