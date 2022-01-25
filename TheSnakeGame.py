@@ -810,29 +810,14 @@ def delta_h():
 
 
 def home():
-    global i, decreaser, done, user, start, breaker, frontSnake, petyr
+    global i, decreaser, done, user, start, breaker, frontSnake, petyr,changeNamePop
     LENGTH = pygame.display.get_surface().get_width()
     HEIGHT = pygame.display.get_surface().get_height()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, HEIGHT - 60))
     usualWidth, margin = 120, 65
-
-    show('playing as ', LIGHTBROWN, 20, 16, 16)
-    show(data['name'].upper() + '.', WHITE, 110, 9, 24)
-    show(data['coin'] + ' coins', WHITE, 275, 9, 24)
-    user = 'Settings' if button('Settings',
-                                LENGTH - 154,
-                                5,
-                                100,
-                                30,
-                                LIGHTBROWN,
-                                x_offset=10,
-                                text_col=DARKBROWN,
-                                text_size=16,
-                                hover_col=BLACKBROWN,
-                                hover_width=1) else user
-                          
+                     
     scaledFrontSnake = pygame.transform.scale(
         frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
     frontSnakeSize = scaledFrontSnake.get_size()
