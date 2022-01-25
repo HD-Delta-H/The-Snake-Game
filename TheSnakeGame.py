@@ -1,3 +1,4 @@
+from tkinter import W
 import pygame
 import sys
 import time
@@ -77,25 +78,26 @@ def sortedLeaderboardList(index, collection):
 def pullOBJ():
     indexes = client.query(q.paginate(q.match(q.index('missionsindex'))))
 
-    result = re.findall('\d+',
-                        str([indexes['data']]))  # to find all the numbers in the list
+    result = re.findall('\d+', str([indexes['data']
+                                    ]))  # to find all the numbers in the list
 
     dataDict = {}
 
-    details = client.query(q.get(q.ref(q.collection("dailymissions"), result[0])))['data']
+    details = client.query(
+        q.get(q.ref(q.collection("dailymissions"), result[0])))['data']
 
     dataDict['mission'] = details['mission']
     dataDict['offer1'] = details['offer1']
     dataDict['offer2'] = details['offer2']
     dataDict['time'] = details['time']
     dataDict['day'] = details['day']
-        
+
     return dataDict
 
 
 def pushDictData(collection, data):
     client.query(q.create(q.collection(collection), {'data': data}))
-   
+
 
 def countDocs(collection):
     count = client.query(q.count(q.documents(q.collection(collection))))
@@ -201,7 +203,13 @@ def pushData(name, score, time, bigGameP):
                         deleteDoc(collection='testcollection', refid=i[4])
                         print(f'{i[0]}\'s name removed from the Leaderboard')
 
-    returnDict = {'sent':False, 'updated':False, 'notUpdated':False,'thrives':False, 'notSent':False}
+    returnDict = {
+        'sent': False,
+        'updated': False,
+        'notUpdated': False,
+        'thrives': False,
+        'notSent': False
+    }
 
     if (sending):
         if (bigGameP):
@@ -211,7 +219,7 @@ def pushData(name, score, time, bigGameP):
                         deleteDoc(collection='testcollection', refid=i[4])
                         pushDictData(collection='testcollection',
                                      data=dataDict)
-                        print("Your data on Leaderboard updated successfully!")                       
+                        print("Your data on Leaderboard updated successfully!")
                         writeBigGame(data['name'], True)
                         returnDict['updated'] = True
                         return returnDict
@@ -368,6 +376,7 @@ def update_obj():
     with open('daily.dat', 'wb') as file:
         pickle.dump(obj, file)
 
+
 sortedData = pullingSortedData()
 # print(sortedData)
 maintain10onleaderboard()
@@ -447,26 +456,46 @@ PIXEL = 15
 SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH), pygame.RESIZABLE)
 
 CLOCK = pygame.time.Clock()
-rate = 8
 coin_2, point_2 = False, False
-sensitivity=0
+sensitivity = 0
 #colours
-LIGHTBROWN = '#AD9157'
-DARKBROWN = '#4F3119'
-BLACKBROWN = '#11110F'
-BLACK = (0, 0, 0)
-GREY = (50, 50, 50)
-RED = (255, 0, 0)
-ORANGE = (255, 120, 0)
-VOILET = (100, 0, 100)
-PINK = (255, 0, 255)
-YELLOW = (255, 255, 0)
-BLUE = (0, 255, 255)
-GREEN = (0, 255, 0)
-WHITE = (255, 255, 255)
+#Theme
+LIGHTBROWN = pygame.Color('#AD9157')
+DARKBROWN = pygame.Color('#4F3119')
+BLACKBROWN = pygame.Color('#11110F')
+WHITE = pygame.Color('#FFFFFF')
+BLACK = pygame.Color('#181818')
+
+# Apples and Bomb
+RED = pygame.Color('#FF4000')  # Apple
+BLUE = pygame.Color('#40FFC0')  # Down
+GREEN = pygame.Color('#00C000')  # Up
+GREY = pygame.Color('#606060')  # Bomb
+
+# Snake
+ORANGE = pygame.Color('#FF8000')
+CADET = pygame.Color('#5f9ea0')
+GOLD = pygame.Color('#FFC000')
+PINK = pygame.Color('#ee70d3')
+DARKRED = pygame.Color('#811a13')
+
+# Background
+LIGHTBLACK = pygame.Color('#282828')
+DARKCYAN = pygame.Color('#2f4f4f')
+GRAY = pygame.Color('#454545')
+DARKGREEN = pygame.Color('#556b2f')
+DARKBLUE = pygame.Color('#6b5fb4')
+
+DARKYELLOW = pygame.Color('#b8860b')
+COL1 = pygame.Color('#ce71f3')
+COL2 = pygame.Color('#f7c05a')
+
+VOILET = pygame.Color('#400080')
+
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
 cheaterImage = pygame.image.load(r'images\cheater.png')
+deltaH = pygame.image.load(r'images\delta-h.PNG')
 sideSnake = pygame.image.load(r'images\side-snake.png')
 frontSnake = pygame.image.load(r'images\front-snake.png')
 bgMusic = pygame.mixer.music.load(r'audios\bgmusic.mp3')
@@ -507,21 +536,24 @@ if non_cheater:
         print('Redirecting to New User')
         newUser_init()
     else:
-        user = 'Home'
+        user = 'DeltaH'
     file.close()
 
 
-def show(msg, color, x, y, size):
-    score_show = pygame.font.Font("freesansbold.ttf",
-                                  size).render(msg, True, color)
+def show(msg, color, x, y, size, mode='n'):
+    f = r'images\design.graffiti.comicsansmsgras.ttf' if mode == 'b' else (
+        r'images\comici.ttf' if mode == 'i' else
+        (r'images\comicz.ttf' if mode == 'ib' else r'images\COMIC.ttf'))
+    score_show = pygame.font.Font(f, size).render(msg, True, color)
     SCREEN.blit(score_show, (x, y))
 
 
 selected_items = [False, False, False, False, False, False]
-fromLB=False
+fromLB = False
 Pop = False
 I = 0
 iterr = 0
+
 
 def update_data():
     with open('userData.dat', 'wb') as file:
@@ -529,7 +561,7 @@ def update_data():
 
 
 def daily():
-    global obj
+    global obj, petyr
     mission_list = [['points', 20, 200], ['up', 20, 100], ['down', 20, 100],
                     ['apple', 50, 250], ['speed', 0, 11]]
     items_dict = {
@@ -575,9 +607,10 @@ def daily():
                 day
             }
             update_obj()
-            pushDictData(collection = 'dailymissions', data = obj)
+            petyr = 0
         else:
             obj = dail
+            petyr = 4
 
 
 def button(text,
@@ -590,23 +623,24 @@ def button(text,
            text_size=10,
            text_col=BLACK,
            hover_col=BLUE,
-           hover_width=2):
-    global buttonSound,sensitivity
+           hover_width=2,
+           mode='n'):
+    global buttonSound, sensitivity
     pos = pygame.mouse.get_pos()
     if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
             1] <= y + height:
         pygame.draw.rect(SCREEN, hover_col,
                          (x - hover_width, y - hover_width,
                           width + hover_width * 2, height + hover_width * 2))
-        if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
-            sensitivity=time.time()
+        if pygame.mouse.get_pressed()[0] and (time.time() - sensitivity) > 0.1:
+            sensitivity = time.time()
             if userSettings['sound']:
                 buttonSound.play(loops=0)
             return True
     pygame.draw.rect(SCREEN, bg_color, (x, y, width, height))
     show(text, text_col, x + x_offset,
          (y + (height - text_size) // 2 if height > text_size else height),
-         text_size)
+         text_size, mode)
 
 
 def screen_animation(decreaser=False, r=25, color=BLACK, timer=0.01):
@@ -629,12 +663,12 @@ def screen_animation(decreaser=False, r=25, color=BLACK, timer=0.01):
     return False
 
 
-def home_params():
-    pass
-    # global i, decreaser, done
-    # i = 0
-    # done = False
-    # decreaser = False
+breaker = False
+petyr = 0
+
+rate = 40
+w = 0
+h = 0
 
 
 breaker = False
@@ -642,6 +676,141 @@ changeNamePop = False
     
 def home():
     global i, decreaser, done, user, start, breaker, frontSnake, savedDataNameThrives, Pop, changeNamePop
+def circ(x1, x2, i, n, m, c):
+    x = x1 - (x1 - x2) * i / n
+    pygame.draw.circle(SCREEN, WHITE, (x, m * x + c), 4)
+
+
+def delta_h():
+    global petyr, user, rate
+    SCREEN.fill((0, 0, 0))
+    LENGTH = pygame.display.get_surface().get_width()
+    HEIGHT = pygame.display.get_surface().get_height()
+    m1 = (160 - 252) / (238 - 197)
+    m2 = (252 - 240) / (197 - 274)
+    m3 = (240 - 192) / (274 - 248)
+    m4 = (192 - 287) / (248 - 205)
+    c1 = 160 - m1 * 238
+    c2 = 252 - m2 * 197
+    c3 = 240 - m3 * 274
+    c4 = 192 - m4 * 248
+    deltaHSize = deltaH.get_size()
+    if petyr < 230:
+
+        if petyr < 30:
+            for i in range(4):
+                circ(358 + i, 197 + i, petyr, 30, m1, c1)
+        if 30 < petyr < 45:
+            for i in range(4):
+                circ(197 + i, 274 + i, (petyr - 30), 15, m2, c2)
+        if 45 < petyr < 60:
+            for i in range(4):
+                circ(274 + i, 248 + i, (petyr - 45), 15, m3, c3)
+        if 60 <= petyr < 90:
+            for i in range(4):
+                circ(248 + i, 120 + i, (petyr - 60), 15, m4, c4)
+        if petyr > 15:
+            deltaH.set_alpha(255 * ((petyr - 20) if petyr <= 140 else 120) /
+                             120)
+            if petyr > 140:
+                deltaH.set_alpha(195 + (abs(petyr - 200)))
+            SCREEN.blit(deltaH, ((LENGTH - deltaHSize[0]) // 2,
+                                 (HEIGHT - deltaHSize[1]) // 2 - 15))
+    petyr += 1
+    if petyr >= 230:
+        global frontSnake, flippedScaledSideSnake, scaledFrontSnake, frontSnakeSize, scaledSideSnake, sideSnakeSize, w, h
+        LENGTH = pygame.display.get_surface().get_width()
+        HEIGHT = pygame.display.get_surface().get_height()
+        SCREEN.fill(BLACKBROWN)
+        pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+        pygame.draw.rect(SCREEN, LIGHTBROWN,
+                         (10, 50, LENGTH - 20, HEIGHT - 60))
+        usualWidth, margin = 120, 65
+        if petyr < 270:
+            scaledFrontSnake = pygame.transform.scale(
+                frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
+            frontSnakeSize = scaledFrontSnake.get_size()
+            scaledFrontSnake.set_alpha(
+                255 * ((petyr - 230) if petyr <= 270 else 40) / 40)
+        SCREEN.blit(scaledFrontSnake,
+                    ((LENGTH - frontSnakeSize[0]) / 2, 30 +
+                     (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
+        if petyr <= 300:
+            scaledSideSnake = pygame.transform.scale(
+                sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
+            sideSnakeSize = scaledSideSnake.get_size()
+            scaledSideSnake.set_alpha(
+                55 * ((petyr - 270) if petyr <= 300 else 30) / 30)
+
+            flippedScaledSideSnake = pygame.transform.flip(
+                scaledSideSnake, True, False)
+            flippedScaledSideSnake.set_alpha(
+                55 * ((petyr - 270) if petyr <= 300 else 30) / 30)
+            SCREEN.blit(
+                scaledSideSnake,
+                ((LENGTH - sideSnakeSize[0]) / 2 +
+                 (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2 -
+                  (LENGTH - sideSnakeSize[0]) / 2) * (petyr - 270) / 30, 40 +
+                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                 frontSnakeSize[1] / 4))
+            SCREEN.blit(
+                flippedScaledSideSnake,
+                ((LENGTH - sideSnakeSize[0]) / 2 +
+                 (margin + 45 +
+                  (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 -
+                  (LENGTH - sideSnakeSize[0]) / 2) * (petyr - 270) / 30, 40 +
+                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                 frontSnakeSize[1] / 4))
+        if petyr > 300:
+            SCREEN.blit(
+                scaledSideSnake,
+                (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2,
+                 40 + (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                 frontSnakeSize[1] / 4))
+            SCREEN.blit(
+                flippedScaledSideSnake,
+                (LENGTH -
+                 (margin +
+                  (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15),
+                 40 + (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                 frontSnakeSize[1] / 4))
+        if petyr > 330:
+            for j in range(3):
+                pygame.draw.rect(
+                    SCREEN, DARKBROWN,
+                    ((-40 + (petyr - 330) if petyr < 370 else 0) + margin,
+                     (300 + 40 * j) * HEIGHT / 454, usualWidth * LENGTH / 554,
+                     30 * HEIGHT / 454))
+                pygame.draw.rect(
+                    SCREEN, DARKBROWN,
+                    ((40 - (petyr - 330) if petyr < 370 else 0) + LENGTH -
+                     (margin + usualWidth * LENGTH / 554),
+                     (300 + 40 * j) * HEIGHT / 454, usualWidth * LENGTH / 554,
+                     30 * HEIGHT / 454))
+            s = pygame.Surface((170 * LENGTH / 554, 55 * HEIGHT / 454))
+            s.fill(DARKBROWN)
+            s.set_alpha(255 * (petyr - 330) / 40)
+            SCREEN.blit(s, ((LENGTH -
+                             (170 * LENGTH / 554)) / 2, 265 * HEIGHT / 454))
+    show('Press Space Bar to skip animation.', WHITE, 20, HEIGHT - 20, 14, 'i')
+    stopper = False
+    for event in event_list:
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                stopper = True
+    if petyr > 370:
+        w += 100
+        h += 100
+        pygame.draw.rect(SCREEN, BLACK,
+                         (((LENGTH - w) / 2, (HEIGHT - h) / 2, w, h)))
+    if petyr == 377 or stopper:
+        user = 'Home'
+        rate = 8
+        petyr = 0
+
+
+def home():
+    global i, decreaser, done, user, start, breaker, frontSnake, petyr
     LENGTH = pygame.display.get_surface().get_width()
     HEIGHT = pygame.display.get_surface().get_height()
     SCREEN.fill(BLACKBROWN)
@@ -667,6 +836,9 @@ def home():
     scaledFrontSnake = pygame.transform.scale(
         frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
     frontSnakeSize = scaledFrontSnake.get_size()
+    SCREEN.blit(scaledFrontSnake,
+                ((LENGTH - frontSnakeSize[0]) / 2, 30 +
+                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
 
     scaledSideSnake = pygame.transform.scale(
         sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
@@ -675,7 +847,6 @@ def home():
     flippedScaledSideSnake = pygame.transform.flip(scaledSideSnake, True,
                                                    False)
     scaledSideSnake.set_alpha(55), flippedScaledSideSnake.set_alpha(55)
-
     SCREEN.blit(
         scaledSideSnake,
         (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2, 40 +
@@ -687,20 +858,32 @@ def home():
           (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15), 40 +
          (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
 
+    show('playing as ', LIGHTBROWN, 20, 16, 16)
+    show(data['name'], WHITE, 110, 9, 24,'ib')
+    show(data['coin'] + ' coin(s)', WHITE, 275, 9, 24)
+    user = 'Settings' if button('Settings',
+                                LENGTH - 154,
+                                5,
+                                100,
+                                30,
+                                LIGHTBROWN,
+                                x_offset=10,
+                                text_col=DARKBROWN,
+                                text_size=16,
+                                hover_col=BLACKBROWN,
+                                hover_width=1) else user
     user = 'Arsenal' if button('Play Game',
                                (LENGTH - (170 * LENGTH / 554)) / 2,
-                               265 * HEIGHT / 454,
+                               265 * HEIGHT / 454 - 10,
                                170 * LENGTH / 554,
                                55 * HEIGHT / 454,
                                DARKBROWN,
                                x_offset=30 + (10**(LENGTH / 554)) / 5,
                                text_col=WHITE,
-                               text_size=int(24 * LENGTH / 700),
+                               text_size=int(28 * LENGTH / 700),
                                hover_col=BLACKBROWN,
-                               hover_width=1) else user
-    SCREEN.blit(scaledFrontSnake,
-                ((LENGTH - frontSnakeSize[0]) / 2, 30 +
-                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
+                               hover_width=1,
+                               mode='b') else user
 
     newUser = button('New User',
                      margin,
@@ -717,17 +900,19 @@ def home():
         newUser_init()
         user = 'NewUser'
 
-    user = 'LeaderBoard' if button('LeaderBoard',
-                                   margin,
-                                   300 * HEIGHT / 454,
-                                   usualWidth * LENGTH / 554,
-                                   30 * HEIGHT / 454,
-                                   DARKBROWN,
-                                   x_offset=7 + (10**(LENGTH / 554)) / 3,
-                                   text_col=WHITE,
-                                   text_size=16,
-                                   hover_col=BLACKBROWN,
-                                   hover_width=1) else user
+    if button('LeaderBoard',
+              margin,
+              300 * HEIGHT / 454,
+              usualWidth * LENGTH / 554,
+              30 * HEIGHT / 454,
+              DARKBROWN,
+              x_offset=7 + (10**(LENGTH / 554)) / 3,
+              text_col=WHITE,
+              text_size=16,
+              hover_col=BLACKBROWN,
+              hover_width=1):
+        user = 'LeaderBoard'
+        petyr = 4
     if button('Missions',
               margin,
               340 * HEIGHT / 454,
@@ -741,21 +926,9 @@ def home():
               hover_width=1):
         user = 'Missions'
         daily()
-    user = 'MarketPlace' if button('Shop',
-                                   LENGTH -
-                                   (margin + usualWidth * LENGTH / 554),
-                                   300 * HEIGHT / 454,
-                                   usualWidth * LENGTH / 554,
-                                   30 * HEIGHT / 454,
-                                   DARKBROWN,
-                                   x_offset=35 + (10**(LENGTH / 554)) / 3,
-                                   text_col=WHITE,
-                                   text_size=16,
-                                   hover_col=BLACKBROWN,
-                                   hover_width=1) else user
     user = 'Inventory' if button('Inventory',
                                  LENGTH - (margin + usualWidth * LENGTH / 554),
-                                 340 * HEIGHT / 454,
+                                 300 * HEIGHT / 454,
                                  usualWidth * LENGTH / 554,
                                  30 * HEIGHT / 454,
                                  DARKBROWN,
@@ -764,6 +937,18 @@ def home():
                                  text_size=16,
                                  hover_col=BLACKBROWN,
                                  hover_width=1) else user
+    user = 'MarketPlace' if button('Shop',
+                                   LENGTH -
+                                   (margin + usualWidth * LENGTH / 554),
+                                   340 * HEIGHT / 454,
+                                   usualWidth * LENGTH / 554,
+                                   30 * HEIGHT / 454,
+                                   DARKBROWN,
+                                   x_offset=35 + (10**(LENGTH / 554)) / 3,
+                                   text_col=WHITE,
+                                   text_size=16,
+                                   hover_col=BLACKBROWN,
+                                   hover_width=1) else user
     user = 'Cheaterlist' if button('Cheaters\' list',
                                    LENGTH -
                                    (margin + usualWidth * LENGTH / 554),
@@ -803,7 +988,7 @@ def home():
 
 
 def arsenal():
-    global user, start, SCREEN, selected_items, coin_2, point_2, Pop, userSettings,sensitivity
+    global user, start, SCREEN, selected_items, coin_2, point_2, Pop, userSettings, sensitivity
     LENGTH = pygame.display.get_surface().get_width()
     # LENGTH = 554
     # SCREEN = pygame.display.set_mode((LENGTH, 454))
@@ -838,8 +1023,9 @@ def arsenal():
                 s.set_alpha(0)
                 if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
                         1] <= y + height and not Pop:
-                    if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
-                        sensitivity=time.time()
+                    if pygame.mouse.get_pressed()[0] and (time.time() -
+                                                          sensitivity) > 0.1:
+                        sensitivity = time.time()
                         if item[1][0] != '0' or selected_items[i]:
                             with open('items.dat', 'wb') as f:
                                 list_items['Powerups'][item[0]] = (str(
@@ -871,8 +1057,9 @@ def arsenal():
                 s.set_alpha(0)
                 if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
                         1] <= y + height and not Pop:
-                    if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
-                        sensitivity=time.time()
+                    if pygame.mouse.get_pressed()[0] and (time.time() -
+                                                          sensitivity) > 0.1:
+                        sensitivity = time.time()
                         if item[1][0] != '0' or selected_items[i]:
                             with open('items.dat', 'wb') as f:
                                 list_items['Powerups'][item[0]] = (str(
@@ -924,31 +1111,30 @@ def arsenal():
             pygame.mixer.music.play(loops=-1)
         user = 'Emulator'
     if button('Home',
-            LENGTH - 154,
-            5,
-            100,
-            30,
-            LIGHTBROWN,
-            x_offset=10,
-            text_col=DARKBROWN,
-            text_size=16,
-            hover_col=BLACKBROWN,
-            hover_width=1):
-        user = 'Home' 
+              LENGTH - 154,
+              5,
+              100,
+              30,
+              LIGHTBROWN,
+              x_offset=10,
+              text_col=DARKBROWN,
+              text_size=16,
+              hover_col=BLACKBROWN,
+              hover_width=1):
+        user = 'Home'
         with open('items.dat', 'rb') as file:
             list_items = pickle.load(file)
 
             for i, item in enumerate(list_items['Powerups'].items()):
-                list_items['Powerups'][item[0]] = (str(
-                    int(item[1][0]) +
-                    (1 if selected_items[i] else 0)),
-                                                    item[1][1])
-                selected_items[i]=False
+                list_items['Powerups'][item[0]] = (
+                    str(int(item[1][0]) + (1 if selected_items[i] else 0)),
+                    item[1][1])
+                selected_items[i] = False
         with open('items.dat', 'wb') as f:
             pickle.dump(list_items, f)
     if user == 'Emulator':
-        emulator_params()
         daily()
+        emulator_params()
 
 fromSD = False
 
@@ -977,15 +1163,12 @@ def attentionChangeNamePopup():
 
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
-    global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley, m_counter, st, speed_checker,petyr
+    global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley, m_counter, st, speed_checker, petyr
     global changeNameForLead, showHomeButton, tempDataForLead, popForLeadInit, dataSent, dataNotSent, dataUpdated, dataNotUpdated, errorButDataSaved
     LENGTH = 454
     rate = 4 if selected_items[3] else (12 if selected_items[2] else 8)
 
-    Theme = [
-        LIGHTBROWN, (210, 190, 210), RED, YELLOW, GREY, GREEN, BLUE, WHITE,
-        DARKBROWN
-    ]
+    Theme = [LIGHTBROWN, GREY, CADET, RED, GREY, GREEN, BLUE, WHITE, DARKBROWN]
     # bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col, text_bg
     with open('items.dat', 'rb') as file:
         l = pickle.load(file)
@@ -1029,7 +1212,8 @@ def emulator_params():
                 self.color = Theme[6]
             pygame.draw.rect(SCREEN, self.color,
                              (self.x + 1, self.y + 1, PIXEL - 2, PIXEL - 2))
-    petyr=0
+
+    petyr = 0
     blocks = []
     # missions initialize
     with open('missions.dat', 'rb') as file:
@@ -1068,17 +1252,14 @@ def emulator_params():
     dataUpdated = False
     dataNotUpdated = False
     errorButDataSaved = False
-    tempDataForLead = {
-        'score':0,
-        'time':0
-    }
+    tempDataForLead = {'score': 0, 'time': 0}
     popForLeadInit = True
 
 
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT, userSettings,sensitivity,petyr, internet, fromLB
+    global sortedData, Pop, PopT, userSettings, sensitivity, petyr, internet, fromLB
     global changeNameForLead, showHomeButton, tempDataForLead, popForLeadInit, dataSent, dataNotSent, dataUpdated, dataNotUpdated, errorButDataSaved
     gameover = False
     SCREEN.fill(Theme[0])
@@ -1131,7 +1312,7 @@ def emulator():
                 452 if snake[0] < -13 else snake[0])
             snake[1] = 17 if snake[1] > 453 else (
                 452 if snake[1] < 17 else snake[1])
-            
+
         #Collision Logics
         if tuple(snake) == (applex, appley):
             if userSettings['sound']:
@@ -1169,6 +1350,7 @@ def emulator():
                 speedupMusic.play(loops=0)
             speedupx, speedupy = -1, -1
             rate += 2
+            body.append(body[-1])
             for i, c in enumerate(m_counter['up']):
                 C = c.split('/')
                 m_counter['up'][i] = str(
@@ -1206,6 +1388,7 @@ def emulator():
             if userSettings['sound']:
                 speeddownMusic.play(loops=0)
             speeddownx, speeddowny = -1, -1
+            body.append(body[-1])
             for i, c in enumerate(m_counter['down']):
                 C = c.split('/')
                 m_counter['down'][i] = str(
@@ -1245,8 +1428,8 @@ def emulator():
             Apple = False
         if (tuple(snake) in body[1::]):
             gameover = True
-        if (not (-10 <= snake[0] <= 450) or not (20 <= snake[1] <=
-                                              450)) and not selected_items[5]:
+        if (not (-10 <= snake[0] <= 450)
+                or not (20 <= snake[1] <= 450)) and not selected_items[5]:
             gameover = True
         # 0 speed Realm
         if rate == 0:
@@ -1281,16 +1464,23 @@ def emulator():
                     ee_done = not ee_dec
         #event loop
         for event in event_list:
-            if event.type == pygame.KEYDOWN and not snake[0] in (452,-13) and not snake[1] in (452,17) and (time.time()-sensitivity)>0.01*((16-rate) if rate<=14 else 0):
-                sensitivity=time.time()
-                
-                if event.key == (pygame.K_UP if userSettings['arrow'] else pygame.K_w) and not direction == "down":
+            if event.type == pygame.KEYDOWN and not snake[0] in (
+                    452, -13) and not snake[1] in (
+                        452, 17) and (time.time() - sensitivity) > 0.01 * (
+                            (16 - rate) if rate <= 14 else 0):
+                sensitivity = time.time()
+
+                if event.key == (pygame.K_UP if userSettings['arrow'] else
+                                 pygame.K_w) and not direction == "down":
                     direction = "up"
-                if event.key == (pygame.K_DOWN if userSettings['arrow'] else pygame.K_s) and not direction == "up":
+                if event.key == (pygame.K_DOWN if userSettings['arrow'] else
+                                 pygame.K_s) and not direction == "up":
                     direction = "down"
-                if event.key == (pygame.K_LEFT if userSettings['arrow'] else pygame.K_a) and not direction == "right":
+                if event.key == (pygame.K_LEFT if userSettings['arrow'] else
+                                 pygame.K_a) and not direction == "right":
                     direction = "left"
-                if event.key == (pygame.K_RIGHT if userSettings['arrow'] else pygame.K_d) and not direction == "left":
+                if event.key == (pygame.K_RIGHT if userSettings['arrow'] else
+                                 pygame.K_d) and not direction == "left":
                     direction = "right"
         #Movement
         if direction == 'up':
@@ -1310,7 +1500,7 @@ def emulator():
             t = f'{(time.time() - start):.2f}'
             coins = int(8 * (score / 1000) -
                         (time.time() - start) / 60) * (2 if coin_2 else 1)
-            
+
     #block loop
     for block in blocks:
         block.block_type = None
@@ -1341,7 +1531,7 @@ def emulator():
     show("High Score :" + str(data['highscore']), Theme[7], mul * 3 - 145 + 5,
          6, 16)
     if popup:
-        petyr+=1
+        petyr += 1
         s = pygame.Surface((LENGTH, LENGTH))
         s.set_colorkey(GREY)
         s.set_alpha(200)
@@ -1361,10 +1551,8 @@ def emulator():
         show("Coins :" + str(coins), WHITE, LENGTH // 2 - 100,
              LENGTH // 2 + 10, 20)
 
-        if petyr==3:
+        if petyr == 3:
             data['coin'] = f"{int(data['coin'])+coins}"
-            if data['highscore'] == score:
-                data['time'] = t
             with open('missions.dat', 'rb') as file:
                 miss = pickle.load(file)
                 for i, m in enumerate(miss['missions']):
@@ -1397,7 +1585,8 @@ def emulator():
                     showHomeButton = not changeNameForLead
                 except:
                     print(
-                        'Data not sent to servers due to an unexpected error')
+                        'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
+                    )
                     saveGameDataForLater(data['name'], score, t)
                     errorButDataSaved = True
                     showHomeButton = True
@@ -1407,32 +1596,54 @@ def emulator():
                 )
                 saveGameDataForLater(data['name'], score, t)
                 showHomeButton = True
-        
+
         if not internet:
-            show("Data couldn't be sent to servers due", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
-            show("to an internet error. It's saved and ", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
-            show("will be sent next time you open game.", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
+            show("Data couldn't be sent to servers due", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
+            show("to an internet error. It's saved and ", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
+            show("will be sent next time you open game.", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
         elif dataSent:
-            show("Your Game Data sent to the servers.", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
+            show("Your Game Data sent to the servers.", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
         elif dataNotSent:
-            show("Data hasn't been sent to servers as", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
-            show("you don't qualify to be on leaderboard.", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
+            show("Data hasn't been sent to servers as", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
+            show("you don't qualify to be on leaderboard.", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
         elif dataUpdated:
-            show("Your data on servers has been updated", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
+            show("Your data on servers has been updated", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
         elif dataNotUpdated:
-            show("You already exist on the leaderboard. ", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
-            show("Beat your previous score to be promoted.", DARKBROWN, LENGTH // 2 - 165, LENGTH // 2 + 103, 17)
+            show("You already exist on the leaderboard. ", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
+            show("Beat your previous score to be promoted.", DARKBROWN,
+                 LENGTH // 2 - 165, LENGTH // 2 + 103, 17)
         elif errorButDataSaved:
-            show("Your data couldn't be sent to servers ", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
-            show("due to an unexpected error. It is saved ", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
-            show("and will be sent next time you open game.", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
-        
+            show("Your data couldn't be sent to servers ", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
+            show("due to an unexpected error. It is saved ", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
+            show("and will be sent next time you open game.", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
+
         if showHomeButton:
-            if button('Home', LENGTH // 2 - 100, LENGTH // 2 + 40, 100,30,WHITE, x_offset=10,text_col=DARKBROWN,text_size=16,hover_col=GREY,hover_width=1):
+            if button('Home',
+                      LENGTH // 2 - 100,
+                      LENGTH // 2 + 40,
+                      100,
+                      30,
+                      WHITE,
+                      x_offset=10,
+                      text_col=DARKBROWN,
+                      text_size=16,
+                      hover_col=GREY,
+                      hover_width=1):
                 user = 'Home'
                 selected_items = [False, False, False, False, False, False]
                 SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
-        
+
         if changeNameForLead:
             show("Unable to send data to cloud as a player", DARKBROWN, LENGTH // 2 - 163, LENGTH // 2 + 38, 17)
             show("already thrives on the leadername by the", DARKBROWN, LENGTH // 2 - 163, LENGTH // 2 + 56, 17)
@@ -1441,8 +1652,18 @@ def emulator():
             if button('Don\'t Send Data', LENGTH // 2 - 140, LENGTH // 2 + 100, 140, 25, WHITE, x_offset=10,text_col=DARKBROWN,text_size=15,hover_col=GREY,hover_width=1):
                 showHomeButton = True
                 changeNameForLead = False
-            
-            if button('Change Name', LENGTH // 2 + 10, LENGTH // 2 + 100, 130, 25, DARKBROWN, x_offset=10,text_col=WHITE,text_size=15,hover_col=GREY,hover_width=1):
+
+            if button('Change Name',
+                      LENGTH // 2 + 10,
+                      LENGTH // 2 + 100,
+                      130,
+                      25,
+                      DARKBROWN,
+                      x_offset=10,
+                      text_col=WHITE,
+                      text_size=15,
+                      hover_col=GREY,
+                      hover_width=1):
                 tempDataForLead['score'] = score
                 tempDataForLead['time'] = t
                 newUser_init()
@@ -1450,49 +1671,65 @@ def emulator():
                 fromLB=True                
         
         if not showHomeButton and not changeNameForLead:
-            show(f"Analysing and Sending", DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 + 56, 18)
-            show(f"your data to cloud ....", DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 + 78, 18)
+            show(f"Analysing and Sending", DARKBROWN, LENGTH // 2 - 120,
+                 LENGTH // 2 + 56, 18)
+            show(f"your data to cloud ....", DARKBROWN, LENGTH // 2 - 120,
+                 LENGTH // 2 + 78, 18)
+            # loading_anime=''
+            # load_i=petyr%10
+            # if load_i>5:
+            #     loading_anime+='|'
+            # else:
+            #     loading_anime=loading_anime[:-1]
+            # show(loading_anime, DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 + 100, 18)
 
 
 def leaderboard():
-    global sortedData, user
+    global sortedData, user, petyr
     # fauna
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-    show('LEADERBOARDS', WHITE, 10, 10, 20)
+    show('LEADERBOARDS', WHITE, 10, 10, 20, 'b')
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     if len(sortedData) > 0:
         for i, dt in enumerate(sortedData):
             if i < 10:
-                show(dt[0], BLACK, 30, 78 + i * 35, 30)
-                show(str(dt[1]), BLACK, 305, 78 + i * 35, 30)
-                show(str(dt[2]), BLACK, 420, 78 + i * 35, 30)
+                show(dt[0], BLACK, 30, 78 + i * 35, 30, 'ib')
+                show(str(dt[1]), BLACK, 305, 78 + i * 35, 30, 'ib')
+                show(str(dt[2]), BLACK, 420, 78 + i * 35, 30, 'ib')
     else:
-        show('Oops! No Data Available', WHITE, 50, 200, 30)
+        show('Oops! No Data Available', WHITE, 50, 200, 30, 'b')
     if (button('R', LENGTH - 40, 10, 20, 20, BLACKBROWN, 4, 14, WHITE,
                LIGHTBROWN)):
+        petyr = 0
+    if button('Home',
+              LENGTH - 154,
+              5,
+              100,
+              30,
+              LIGHTBROWN,
+              x_offset=10,
+              text_col=DARKBROWN,
+              text_size=16,
+              hover_col=BLACKBROWN,
+              hover_width=1):
+        user = 'Home'
+        petyr = 0
+    if petyr == 2:
+        Popup(mode='loading')
+    if petyr == 3:
         sortedData = pullingSortedData()
-        print('Refresh clicked')
-    user = 'Home' if button('Home',
-                            LENGTH - 154,
-                            5,
-                            100,
-                            30,
-                            LIGHTBROWN,
-                            x_offset=10,
-                            text_col=DARKBROWN,
-                            text_size=16,
-                            hover_col=BLACKBROWN,
-                            hover_width=1) else user
+    petyr += 1
 
 
 def missions():
-    global user, obj
+    global user, obj, petyr
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('MISSIONS', WHITE, 10, 10, 20)
+    show(data['coin'] + ' coin(s)', WHITE, 275, 9, 24)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 50, LENGTH - 40, 40), 0, 8)
 
     def miss_txt(m):
@@ -1516,7 +1753,7 @@ def missions():
             txt = f'Collect {m[1]} normal apples in total.'
         return txt
 
-    show("Today's Special Mission :", WHITE, 30, 54, 16)
+    show("Today's Special Mission :", BLACK, 30, 54, 16)
     m = obj['mission']
     txt = miss_txt(m)
     show(txt, WHITE, 35, 74, 14)
@@ -1593,17 +1830,30 @@ def missions():
             M = m[2][0].replace('-', ' min 2x ')
             M += 'oins' if M[-1] == 'C' else 'oints'
             show(f'{M} ', DARKBROWN, LENGTH - 150, 135 + i * 50, 13)
-    user = 'Home' if button('Home',
-                            LENGTH - 154,
-                            5,
-                            100,
-                            30,
-                            LIGHTBROWN,
-                            x_offset=10,
-                            text_col=DARKBROWN,
-                            text_size=16,
-                            hover_col=BLACKBROWN,
-                            hover_width=1) else user
+    if button('Home',
+              LENGTH - 154,
+              5,
+              100,
+              30,
+              LIGHTBROWN,
+              x_offset=10,
+              text_col=DARKBROWN,
+              text_size=16,
+              hover_col=BLACKBROWN,
+              hover_width=1):
+        user = 'Home'
+        petyr = 0
+    if petyr == 1:
+        Popup(mode='loading')
+    if petyr == 2:
+        indexes = client.query(q.paginate(q.match(q.index('missionsindex'))))
+        result = re.findall('\d+',
+                            str([indexes['data']
+                                 ]))  # to find all the numbers in the list
+        deleteDoc('dailymissions', result[0])
+        pushDictData(collection='dailymissions', data=obj)
+        obj = pullOBJ()
+    petyr += 1
 
 
 opened = [True, False, False, False]
@@ -1612,7 +1862,7 @@ pop = False
 
 
 def marketplace():
-    global user, start, SCREEN, LENGTH, opened, pop, q, Pop,sensitivity
+    global user, start, SCREEN, LENGTH, opened, pop, q, Pop, sensitivity
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -1652,17 +1902,6 @@ def marketplace():
               hover_col=LIGHTBROWN,
               hover_width=0):
         opened = [False, False, True, False]
-    if button("Offers",
-              10,
-              140,
-              mul - 10,
-              30, (LIGHTBROWN if opened[3] else DARKBROWN),
-              3,
-              20,
-              WHITE,
-              hover_col=LIGHTBROWN,
-              hover_width=0):
-        opened = [False, False, False, True]
     pygame.draw.rect(SCREEN, LIGHTBROWN,
                      (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
     with open('items.dat', 'rb') as file:
@@ -1700,8 +1939,9 @@ def marketplace():
                     if not pop or not Pop:
                         if pos[0] >= x and pos[0] <= x + width and pos[
                                 1] >= y and pos[1] <= y + height:
-                            if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
-                                sensitivity=time.time()
+                            if pygame.mouse.get_pressed()[0] and (
+                                    time.time() - sensitivity) > 0.1:
+                                sensitivity = time.time()
                                 pop = True
                                 q = i
                             s.set_alpha(60)
@@ -1725,15 +1965,17 @@ def marketplace():
                     if not pop or not Pop:
                         if pos[0] >= x and pos[0] <= x + width and pos[
                                 1] >= y and pos[1] <= y + height:
-                            if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
-                                sensitivity=time.time()
+                            if pygame.mouse.get_pressed()[0] and (
+                                    time.time() - sensitivity) > 0.1:
+                                sensitivity = time.time()
                                 pop = True
                                 q = i
                             s.set_alpha(60)
                     SCREEN.blit(s, (x, y))
             if pop:
-                cont = Popup('Would you like to make this purchase',mode='yesno')
-                if cont==True:
+                cont = Popup('Would you like to make this purchase',
+                             mode='yesno')
+                if cont == True:
                     t = list_items['Powerups'][list(
                         list_items['Powerups'].keys())[q]]
                     data['coin'] = str(int(data['coin']) - int(t[1]))
@@ -1748,73 +1990,8 @@ def marketplace():
                         data['coin'] = str(int(data['coin']) + int(t[1]))
                         Pop = True
                     pop = False
-                if cont!=None:
-                    pop=False
-        elif opened[3]:
-            for i, item in enumerate(list_items['Offers'].items()):
-                if i <= 2:
-                    global event_list
-                    pos = pygame.mouse.get_pos()
-                    x, y, width, height = (20 + (i + 1) * mul, 70, mul - 20,
-                                           160)
-                    pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
-                    pygame.draw.rect(SCREEN, LIGHTBROWN,
-                                     (x + 5, y + 5, width - 10, height - 10))
-                    SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
-                    if i <= 1:
-                        show('', BLACK, 30 + (i + 1) * mul, 165, 18)
-                        show('', BLACK, 25 + (i + 1) * mul, 185, 14)
-                    else:
-                        show('40', BLACK, 30 + (i + 1) * mul, 165, 18)
-                        show('2x Box', BLACK, 30 + (i + 1) * mul, 185, 14)
-                    s = pygame.Surface((width, height))
-                    s.set_colorkey(GREY)
-                    s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[
-                            1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
-                            sensitivity=time.time()
-                            selected_items[i] = not selected_items[i]
-                        s.set_alpha(60)
-                    if selected_items[i]:
-                        s.set_alpha(120)
-                    SCREEN.blit(s, (x, y))
-
-                elif i <= 5:
-                    k = sum([(40 if x == '5' else
-                              (15 if x == '4' else
-                               (12 if int(x) <= 1 else 8))) * int(y)
-                             for x, y in item[1].items()])
-                    x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20,
-                                           160)
-                    pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
-                    pygame.draw.rect(SCREEN, LIGHTBROWN,
-                                     (x + 5, y + 5, width - 10, height - 10))
-                    pos = pygame.mouse.get_pos()
-                    SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
-                    if i == 5:
-                        show('15', BLACK, 30 + (i - 2) * mul, 355, 18)
-                        show('Lucky Box', BLACK, 30 + (i - 2) * mul, 375, 14)
-                    else:
-                        show(str(int(k * 0.8)), BLACK, 30 + (i - 2) * mul, 355,
-                             18)
-                        show(str(k), BLACK, 30 + (i - 2) * mul, 375, 14)
-                        pygame.draw.line(SCREEN, BLACK,
-                                         (60 + (i - 2) * mul, 382),
-                                         (65 + (i - 2) * mul - 50, 382), 1)
-                        show(item[0], BLACK, 30 + (i - 2) * mul, 400, 14)
-                    s = pygame.Surface((width, height))
-                    s.set_colorkey(GREY)
-                    s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[
-                            1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
-                            sensitivity=time.time()
-                            selected_items[i] = not selected_items[i]
-                        s.set_alpha(60)
-                    if selected_items[i]:
-                        s.set_alpha(120)
-                    SCREEN.blit(s, (x, y))
+                if cont != None:
+                    pop = False
         else:
             for i, item in enumerate(list_items['Themes'].items()):
                 Dic = list(item[1].keys())
@@ -1878,7 +2055,8 @@ def marketplace():
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
             if pop:
-                cont = Popup('Would you like to make this purchase',mode='yesno')
+                cont = Popup('Would you like to make this purchase',
+                             mode='yesno')
                 if cont:
                     t = list_items['Themes'][list(
                         list_items['Themes'].keys())[q]]
@@ -1896,11 +2074,10 @@ def marketplace():
                         data['coin'] = str(
                             int(data['coin']) + (25 if opened[0] else 15))
                     pop = False
-                if cont!=None:
-                    pop=False
+                if cont != None:
+                    pop = False
     if Pop:
         Popup('Not enough coins')
-        
 
     user = 'Home' if button('Home',
                             LENGTH - 154,
@@ -1913,11 +2090,11 @@ def marketplace():
                             text_size=16,
                             hover_col=BLACKBROWN,
                             hover_width=1) else user
-    show(str(data['coin'])+' coin(s)', LIGHTBROWN, LENGTH -270, 10, 19)
+    show(str(data['coin']) + ' coin(s)', LIGHTBROWN, LENGTH - 270, 10, 19)
 
 
 def inventory():
-    global user, start, SCREEN, LENGTH, opened, Pop,sensitivity
+    global user, start, SCREEN, LENGTH, opened, Pop, sensitivity
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -2023,7 +2200,7 @@ def inventory():
                             1] >= y and pos[1] <= y + height:
                         s.set_alpha(60)
                     SCREEN.blit(s, (x, y))
-  
+
         elif opened[3]:
             with open('missions.dat', 'rb') as file:
                 list_items = pickle.load(file)
@@ -2031,41 +2208,46 @@ def inventory():
                     if i <= 2:
                         global event_list
                         pos = pygame.mouse.get_pos()
-                        x, y, width, height = (20 + (i + 1) * mul, 70, mul - 20,
-                                            160)
-                        pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
-                        pygame.draw.rect(SCREEN, LIGHTBROWN,
-                                        (x + 5, y + 5, width - 10, height - 10))
+                        x, y, width, height = (20 + (i + 1) * mul, 70,
+                                               mul - 20, 160)
+                        pygame.draw.rect(SCREEN, DARKBROWN,
+                                         (x, y, width, height))
+                        pygame.draw.rect(
+                            SCREEN, LIGHTBROWN,
+                            (x + 5, y + 5, width - 10, height - 10))
                         SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
                         if i == 1:
                             show(item[0], BLACK, 25 + (i + 1) * mul, 210, 12)
-                            show(f'{item[1][0]} left', WHITE, 55 + (i + 1) * mul,
-                                165, 20)
+                            show(f'{item[1][0]} left', WHITE,
+                                 55 + (i + 1) * mul, 165, 20)
                         else:
                             show(item[0], BLACK,
-                                (85 if
-                                (i + 1) == 2 else 30) + (i + 1) * mul, 210, 12)
-                            show(f'{item[1][0]} left', WHITE, 50 + (i + 1) * mul,
-                                165, 20)
+                                 (85 if (i + 1) == 2 else 30) + (i + 1) * mul,
+                                 210, 12)
+                            show(f'{item[1][0]} left', WHITE,
+                                 50 + (i + 1) * mul, 165, 20)
                         if item[1][1]:
                             t = float(f"{(time.time()-item[1][2]):.2f}")
                             T = float(item[0].split()[2]) * 60 - t
                             ss = '0' if int(T % 60) // 10 == 0 else ''
                             show(f"{int(T//60)}:{ss}{int(T%60)}", WHITE,
-                                50 + (i + 1) * mul, 187, 20)
+                                 50 + (i + 1) * mul, 187, 20)
                             if t >= (float(item[0].split()[2]) * 60):
                                 with open('missions.dat', 'wb') as f:
                                     list_items['coins'][item[0]][1] = False
                                     list_items['coins']['coins'] = False
                                     pickle.dump(list_items, f)
-                        elif item[1][0] != '0' and not list_items['coins']['coins']:
-                            if button('Activate', 35 + (i + 1) * mul, 187, 80, 22,
-                                    DARKBROWN, 10, 13, WHITE, DARKBROWN, 0):
+                        elif item[1][0] != '0' and not list_items['coins'][
+                                'coins']:
+                            if button('Activate', 35 + (i + 1) * mul, 187, 80,
+                                      22, DARKBROWN, 10, 13, WHITE, DARKBROWN,
+                                      0):
                                 with open('missions.dat', 'wb') as f:
                                     list_items['coins'][item[0]][0] = str(
                                         int(item[1][0]) - 1)
                                     list_items['coins'][item[0]][1] = True
-                                    list_items['coins'][item[0]][2] = time.time()
+                                    list_items['coins'][
+                                        item[0]][2] = time.time()
                                     list_items['coins']['coins'] = True
                                     pickle.dump(list_items, f)
 
@@ -2082,22 +2264,24 @@ def inventory():
                         SCREEN.blit(s, (x, y))
 
                     elif i <= 5:
-                        x, y, width, height = (20 + (i - 2) * mul, 260, mul - 20,
-                                            160)
-                        pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
-                        pygame.draw.rect(SCREEN, LIGHTBROWN,
-                                        (x + 5, y + 5, width - 10, height - 10))
+                        x, y, width, height = (20 + (i - 2) * mul, 260,
+                                               mul - 20, 160)
+                        pygame.draw.rect(SCREEN, DARKBROWN,
+                                         (x, y, width, height))
+                        pygame.draw.rect(
+                            SCREEN, LIGHTBROWN,
+                            (x + 5, y + 5, width - 10, height - 10))
                         pos = pygame.mouse.get_pos()
                         show(item[0], BLACK, 30 + (i - 2) * mul, 400, 12)
-                        show(f'{item[1][0]} left', WHITE, 55 + (i - 2) * mul, 355,
-                            24)
+                        show(f'{item[1][0]} left', WHITE, 55 + (i - 2) * mul,
+                             355, 24)
                         SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
                         if item[1][1]:
                             t = float(f"{(time.time()-item[1][2]):.2f}")
                             T = float(item[0].split()[2]) * 60 - t
                             ss = '0' if int(T % 60) // 10 == 0 else ''
                             show(f"{int(T//60)}:{ss}{int(T%60)}", WHITE,
-                                50 + (i - 2) * mul, 377, 20)
+                                 50 + (i - 2) * mul, 377, 20)
                             if t >= (float(item[0].split()[2]) * 60):
                                 with open('missions.dat', 'wb') as f:
                                     list_items['coins'][item[0]][1] = False
@@ -2105,13 +2289,15 @@ def inventory():
                                     pickle.dump(list_items, f)
                         elif item[1][0] != '0' and not list_items['coins'][
                                 'points']:
-                            if button('Activate', 35 + (i - 2) * mul, 377, 80, 22,
-                                    DARKBROWN, 10, 13, WHITE, DARKBROWN, 0):
+                            if button('Activate', 35 + (i - 2) * mul, 377, 80,
+                                      22, DARKBROWN, 10, 13, WHITE, DARKBROWN,
+                                      0):
                                 with open('missions.dat', 'wb') as f:
                                     list_items['coins'][item[0]][0] = str(
                                         int(item[1][0]) - 1)
                                     list_items['coins'][item[0]][1] = True
-                                    list_items['coins'][item[0]][2] = time.time()
+                                    list_items['coins'][
+                                        item[0]][2] = time.time()
                                     list_items['coins']['points'] = True
                                     pickle.dump(list_items, f)
                         s = pygame.Surface((width, height))
@@ -2124,7 +2310,7 @@ def inventory():
                             s.set_alpha(120)
 
                         SCREEN.blit(s, (x, y))
-          
+
         else:
             for i, item in enumerate(list_items['Themes'].items()):
                 Dic = list(item[1].keys())
@@ -2137,11 +2323,14 @@ def inventory():
                     pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
+                    if Dic[0 if opened[0] else 1] == 'LIGHTBROWN':
+                        pygame.draw.rect(SCREEN, DARKBROWN,
+                                         (x + 14, y + 14, width - 28, 68))
                     pygame.draw.rect(SCREEN,
                                      globals()[Dic[0 if opened[0] else 1]],
                                      (x + 15, y + 15, width - 30, 65))
                     show(Dic[0 if opened[0] else 1], BLACK, 32 + (i + 1) * mul,
-                         170, 16)
+                         170, 14)
                     show(
                         'Purchased' if D[0 if opened[0] else 1] else
                         'Not Purchased', WHITE, 32 + (i + 1) * mul, 215, 10)
@@ -2150,8 +2339,9 @@ def inventory():
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
-                            sensitivity=time.time()
+                        if pygame.mouse.get_pressed()[0] and (
+                                time.time() - sensitivity) > 0.1:
+                            sensitivity = time.time()
                             if D[0 if opened[0] else 1]:
                                 with open('items.dat', 'wb') as f:
                                     list_items['Offers']['pseudo'][
@@ -2175,20 +2365,26 @@ def inventory():
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
                     show(Dic[0 if opened[0] else 1], BLACK, 32 + (i - 2) * mul,
-                         360, 16)
+                         360, 14)
                     show(
                         'Purchased' if D[0 if opened[0] else 1] else
-                        'Not Purchased', BLACK, 32 + (i - 2) * mul, 405, 10)
+                        'Not Purchased', WHITE, 32 + (i - 2) * mul, 405, 10)
+                    if Dic[0 if opened[0] else 1] == 'LIGHTBROWN':
+                        pygame.draw.rect(SCREEN, BLACK,
+                                         (x + 14, y + 14, width - 28, 67))
+
                     pygame.draw.rect(SCREEN,
                                      globals()[Dic[0 if opened[0] else 1]],
                                      (x + 15, y + 15, width - 30, 65))
+
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
                     if pos[0] >= x and pos[0] <= x + width and pos[
                             1] >= y and pos[1] <= y + height:
-                        if pygame.mouse.get_pressed()[0] and (time.time()-sensitivity)>0.1:
-                            sensitivity=time.time()
+                        if pygame.mouse.get_pressed()[0] and (
+                                time.time() - sensitivity) > 0.1:
+                            sensitivity = time.time()
                             if D[0 if opened[0] else 1]:
                                 with open('items.dat', 'wb') as f:
                                     list_items['Offers']['pseudo'][
@@ -2204,8 +2400,6 @@ def inventory():
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
 
-
-     
     if Pop:
         Popup('Theme not purchased')
     user = 'Home' if button('Home',
@@ -2226,6 +2420,7 @@ openedSettings = [True, False, False, False]
 namepop = False
 popinit = True
 popupClose = False
+
 
 def settings():
     global user, start, SCREEN, LENGTH, openedSettings, pop, q
@@ -2278,14 +2473,14 @@ def settings():
                          DARKBROWN, (mul + 20, 100), (LENGTH - 30, 100),
                          width=3)
 
-        show('Music', DARKBROWN, mul + 35, 120, 21)
+        show('Music', DARKBROWN, mul + 35, 110, 21)
         if (button('', mul + 110, 122, 15, 15,
                    WHITE if userSettings['music'] == False else DARKBROWN, 7,
                    21, BLACK,
                    WHITE if userSettings['music'] == True else DARKBROWN)):
             userSettings['music'] = not userSettings['music']
             updateSettings(userSettings)
-        show('Sounds', DARKBROWN, mul + 220, 120, 21)
+        show('Sounds', DARKBROWN, mul + 220, 110, 21)
         if (button('', mul + 310, 122, 15, 15,
                    WHITE if userSettings['sound'] == False else DARKBROWN, 7,
                    21, BLACK,
@@ -2297,13 +2492,13 @@ def settings():
                          DARKBROWN, (mul + 20, 155), (LENGTH - 30, 155),
                          width=3)
 
-        show('VOLUME: ', DARKBROWN, mul + 35, 175, 20)
+        show('VOLUME: ', DARKBROWN, mul + 35, 165, 20)
         if (button('-', mul + 200, 170, 30, 25, DARKBROWN, 10, 17, WHITE,
                    BLACK)):
             userSettings['volume'] -= 5
             updateSettings(userSettings)
         pygame.draw.rect(SCREEN, WHITE, (mul + 235, 170, 40, 25))
-        show(str(userSettings['volume']), DARKBROWN, mul + 240, 175, 19)
+        show(str(userSettings['volume']), DARKBROWN, mul + 240, 170, 19)
         if (button('+', mul + 280, 170, 30, 25, DARKBROWN, 10, 19, WHITE,
                    BLACK)):
             if userSettings['volume'] < 100:
@@ -2314,7 +2509,7 @@ def settings():
                          DARKBROWN, (mul + 20, 210), (LENGTH - 30, 210),
                          width=3)
 
-        show('PREFERRED CONTROLS: ', DARKBROWN, mul + 35, 230, 20)
+        show('PREFERRED CONTROLS: ', DARKBROWN, mul + 35, 220, 20)
         show('Arrow Keys ', BLACK, mul + 55, 270, 21)
         if (button('', mul + 100, 300, 20, 20,
                    WHITE if userSettings['arrow'] == False else DARKBROWN, 7,
@@ -2333,14 +2528,14 @@ def settings():
         pygame.draw.line(SCREEN,
                          DARKBROWN, (mul + 20, 335), (LENGTH - 30, 335),
                          width=3)
-        
+
     elif openedSettings[1]:
         pygame.draw.line(SCREEN,
                          DARKBROWN, (mul + 20, 100), (LENGTH - 30, 100),
                          width=3)
 
         show('currently playing as: ', DARKBROWN, mul + 30, 125, 19)
-        show(data['name'].upper(), BLACK, mul + 40, 157, 30)
+        show(data['name'], BLACK, mul + 40, 157, 30, mode='ib')
 
         pygame.draw.line(SCREEN,
                          DARKBROWN, (mul + 20, 210), (LENGTH - 30, 210),
@@ -2358,11 +2553,6 @@ def settings():
                 newUser_init()
                 user = 'NewUser'
                 fromsetting = True
-            show('Please note that your name on the leaderboard' , DARKBROWN, mul + 25, 310, 16)
-            show('won\'t be updated when you change name, and' , DARKBROWN, mul + 25, 330, 16)
-            show('you\'ll be treated as a new user altogether.', DARKBROWN, mul + 25, 350, 16)
-            show('Your coins, items and completed missions will' , DARKBROWN, mul + 25, 370, 16)
-            show('still be yours.' , DARKBROWN, mul + 25, 390, 16)
     elif openedSettings[2]:
         pass
 
@@ -2383,8 +2573,8 @@ def settings():
             newUser_init()
             popinit = False
         fromsetting = True
-        newuser(changename = True)
-      
+        newuser(changename=True)
+
 
 errormsg = False
 errorstart = 0
@@ -2420,17 +2610,35 @@ def newuser(changename=False):
             Cursor = False
         iterrr += 1
     if not fromsetting:
-        if button('Home', LENGTH - 154, 5, 100, 30, LIGHTBROWN, x_offset=10, text_col=DARKBROWN, text_size=16, hover_col=BLACKBROWN, hover_width=1):
+        if button('Home',
+                  LENGTH - 154,
+                  5,
+                  100,
+                  30,
+                  LIGHTBROWN,
+                  x_offset=10,
+                  text_col=DARKBROWN,
+                  text_size=16,
+                  hover_col=BLACKBROWN,
+                  hover_width=1):
             user = 'Home'
             Text_Val = ''
     else:
-        if button('Settings', LENGTH - 154, 5, 100, 30, LIGHTBROWN, x_offset=10, text_col=DARKBROWN, text_size=16, hover_col=BLACKBROWN, hover_width=1):
+        if button('Settings',
+                  LENGTH - 154,
+                  5,
+                  100,
+                  30,
+                  LIGHTBROWN,
+                  x_offset=10,
+                  text_col=DARKBROWN,
+                  text_size=16,
+                  hover_col=BLACKBROWN,
+                  hover_width=1):
             user = 'Settings'
             fromsetting = False
             namepop = False
             Text_Val = ''
-
-    #
     # if iterrr>10:
     #     Text_Val+='|'
     # else:
@@ -2499,28 +2707,29 @@ def newuser(changename=False):
                     'coin': '0',
                     'time': ''
                 }
-                with open('missions.dat','rb') as f:
-                    miss=pickle.load(f)
-                    for i,j in enumerate(miss['missions']):
-                        if j[0] in ('apple','up','down'):
-                            miss['missions'][i][3]='0'+'/'+j[3].split('/')[1]
+                with open('missions.dat', 'rb') as f:
+                    miss = pickle.load(f)
+                    for i, j in enumerate(miss['missions']):
+                        if j[0] in ('apple', 'up', 'down'):
+                            miss['missions'][i][3] = '0' + '/' + j[3].split(
+                                '/')[1]
                         else:
-                            miss['missions'][i][3]=False
-                        miss['missions'][i][4]=False
+                            miss['missions'][i][3] = False
+                        miss['missions'][i][4] = False
                     for i in list(miss['coins'].keys()):
-                        if i in('coins','points'):
-                            miss['coins'][i]=False
+                        if i in ('coins', 'points'):
+                            miss['coins'][i] = False
                         else:
-                            miss['coins'][i]=['10',False,0]
-                with open('missions.dat','wb') as f:
-                    pickle.dump(miss,f)
-                with open('items.dat','rb') as f:
-                    item_list=pickle.load(f)
+                            miss['coins'][i] = ['10', False, 0]
+                with open('missions.dat', 'wb') as f:
+                    pickle.dump(miss, f)
+                with open('items.dat', 'rb') as f:
+                    item_list = pickle.load(f)
                     for i in list(item_list['Themes'].keys()):
-                        if i==0:
+                        if i == 0:
                             continue
                         for a in list(item_list['Themes'][i].keys()):
-                            item_list['Themes'][i][a]=False
+                            item_list['Themes'][i][a] = False
                     for i in list(item_list['Powerups'].keys()):
                         item_list['Powerups'][i]=('0',item_list['Powerups'][i][1])
                     item_list['Offers']['pseudo']={'background': 'Theme1', 'snake': 'Theme1'}
@@ -2546,14 +2755,19 @@ def newuser(changename=False):
                                     'score': i[1],
                                     'time': i[2],
                                 }
-                                deleteDoc(collection='testcollection', refid=i[4])
+                                deleteDoc(collection='testcollection',
+                                          refid=i[4])
                                 pushDictData('testcollection', dataDict)
-                                print(f"Your Name on Leaderboard updated successfully!! {data['name']} changed to {Text_Val[:-1]}")
+                                print(
+                                    f"Your Name on Leaderboard updated successfully!! {data['name']} changed to {Text_Val[:-1]}"
+                                )
                     except:
-                        print('Your name on the leaderboard could not be updated due to an unexpedted error')
+                        print(
+                            'Your name on the leaderboard could not be updated due to an unexpedted error'
+                        )
                 else:
                     print('Player doesn\'t exist on the leaderboard')
-                data['name'] = Text_Val[:-1]            
+                data['name'] = Text_Val[:-1]
             update_data()
             writeBigGame(data['name'], bigGame)
             if changename:
@@ -2573,8 +2787,8 @@ def newuser(changename=False):
                 user='Home'
                 fromSD = False
             else:
-                user = 'Home'                
-            Text_Val = ''            
+                user = 'Home'
+            Text_Val = ''
         else:
             Pop = True
     if errormsg:
@@ -2584,7 +2798,6 @@ def newuser(changename=False):
             errormsg = False
     if Pop:
         Popup("Username must be between 3 to 10 letters.")
-
 
 
 def cheater():
@@ -2607,84 +2820,90 @@ def cheater():
         }, file)
 
 
-
 def cheaterlist():
-    global user
-    listOfCheaters = cheaterlistData()
+    global user, petyr, listOfCheaters
     # fauna
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('Cheaters\' List', WHITE, 10, 10, 20)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
-    if len(listOfCheaters) > 0:
-        for i, dt in enumerate(listOfCheaters):
-            if i < 10:
-                show(dt, BLACK, 40, 78 + i * 35, 30)
-    else:
-        show('Oops! No Data Available', WHITE, 50, 200, 30)
+    if petyr > 3:
+        if len(listOfCheaters) > 0:
+            for i, dt in enumerate(listOfCheaters):
+                if i < 10:
+                    show(dt, BLACK, 40, 78 + i * 35, 30)
+        else:
+            show('Oops! No Data Available', WHITE, 50, 200, 30)
     if (button('R', LENGTH - 40, 10, 20, 20, BLACKBROWN, 4, 14, WHITE,
                LIGHTBROWN)):
-        listOfCheaters = pullingSortedData()
-        print('Refresh clicked')
-    user = 'Home' if button('Home',
-                            LENGTH - 154,
-                            5,
-                            100,
-                            30,
-                            LIGHTBROWN,
-                            x_offset=10,
-                            text_col=DARKBROWN,
-                            text_size=16,
-                            hover_col=BLACKBROWN,
-                            hover_width=1) else user
+        petyr = 0
+    if button('Home',
+              LENGTH - 154,
+              5,
+              100,
+              30,
+              LIGHTBROWN,
+              x_offset=10,
+              text_col=DARKBROWN,
+              text_size=16,
+              hover_col=BLACKBROWN,
+              hover_width=1):
+        user = 'Home'
+        petyr = 0
+    if petyr == 2:
+        Popup(mode='loading')
+    if petyr == 3:
+        listOfCheaters = cheaterlistData()
+    petyr += 1
 
 
-def Popup(txt,mode='ok'):
+def Popup(txt='A Popup', mode='ok'):
     global Pop
+    LENGTH = pygame.display.get_surface().get_width()
     s = pygame.Surface((LENGTH * 2, LENGTH * 2))
     s.set_colorkey(GREY)
     s.set_alpha(200)
     SCREEN.blit(s, (0, 0))
-    pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 150, 450, 200), 0, 1)
-    show(txt, DARKBROWN, 70, 170, 20)
-    if mode=='ok':
+    pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 150, LENGTH - 100, 200), 0, 1)
+    if mode == 'ok':
+        show(txt, DARKBROWN, 70, 170, 20)
         if button('Ok',
-                350,
-                300,
-                100,
-                30,
-                DARKBROWN,
-                text_col=WHITE,
-                hover_col=DARKBROWN):
+                  350,
+                  300,
+                  100,
+                  30,
+                  DARKBROWN,
+                  text_col=WHITE,
+                  hover_col=DARKBROWN):
             Pop = False
-    elif mode=='yesno':
-        if button('Yes',
-                350,
-                300,
-                100,
-                30,
-                DARKBROWN,
-                text_col=WHITE,
-                hover_col=DARKBROWN):
-            Popyn = False
-            return True
+    elif mode == 'yesno':
+        show(txt, DARKBROWN, 70, 170, 20)
         if button('No',
-                70,
-                300,
-                100,
-                30,
-                DARKBROWN,
-                text_col=WHITE,
-                hover_col=DARKBROWN):
-            Popyn = False
+                  350,
+                  300,
+                  100,
+                  30,
+                  DARKBROWN,
+                  text_col=WHITE,
+                  hover_col=DARKBROWN):
             return False
+        if button('Yes',
+                  70,
+                  300,
+                  100,
+                  30,
+                  DARKBROWN,
+                  text_col=WHITE,
+                  hover_col=DARKBROWN):
+            return True
+    if mode == 'loading':
+        show('Loading Please Wait...', DARKBROWN, 70, 260, 20)
 
 
 def main():
     global event_list, Text_Val
     SCREEN.fill(BLACK)
-    home_params()
     while True:
         event_list = pygame.event.get()
         if user == 'Home':
@@ -2693,6 +2912,8 @@ def main():
             emulator()
         elif user == 'LeaderBoard':
             leaderboard()
+        elif user == 'DeltaH':
+            delta_h()
         elif user == 'Settings':
             settings()
         elif user == 'NewUser':
@@ -2720,9 +2941,5 @@ def main():
             break
 
 
-main()
-
-if breaker:
-    with open('Builder.py', 'r') as f:
-        file = f.read()
-        exec(file)
+if __name__ == '__main__':
+    main()
