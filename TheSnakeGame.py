@@ -203,6 +203,8 @@ def pushData(name, score, time, bigGameP):
                         deleteDoc(collection='testcollection', refid=i[4])
                         print(f'{i[0]}\'s name removed from the Leaderboard')
 
+    returnDict = {'sent':False, 'updated':False, 'notUpdated':False,'thrives':False, 'notSent':False}
+
     if (sending):
         if (bigGameP):
             for i in sortedData1:
@@ -211,8 +213,10 @@ def pushData(name, score, time, bigGameP):
                         deleteDoc(collection='testcollection', refid=i[4])
                         pushDictData(collection='testcollection',
                                      data=dataDict)
-                        print("Your data on Leaderboard updated successfully!")
+                        print("Your data on Leaderboard updated successfully!")                       
                         writeBigGame(data['name'], True)
+                        returnDict['updated'] = True
+                        return returnDict
                     elif score == i[1]:
                         if time < i[2]:
                             deleteDoc(collection='testcollection', refid=i[4])
@@ -222,20 +226,36 @@ def pushData(name, score, time, bigGameP):
                                 "Your data on Leaderboard updated successfully!"
                             )
                             writeBigGame(data['name'], True)
+                            returnDict['updated'] = True
+                            return returnDict
+                    # else:
+                    #     returnDict['notUpdated'] = True
+                    #     return returnDict
         else:
             if name in lnames:
                 print(
-                    'A player already thrives on the leaderboard with this name. Kindly enter the new name.'
+                    'A player already thrives on the leaderboard with this name. Kindly follow the promts to change name or to not send the data to servers.'
                 )
+                returnDict['thrives'] = True
+                return returnDict
                 # send data with changed name
                 # writeBigGame(True)
-                pass
             else:
                 pushDictData(collection='testcollection', data=dataDict)
                 print("Data sent successfully!")
                 writeBigGame(data['name'], True)
+                returnDict['sent'] = True
+                return returnDict
     else:
-        print("Data not sent since conditions are not met")
+        if (bigGameP):
+            for i in sortedData1:
+                if name == i[0]:
+                    returnDict['notUpdated'] = True
+                    return returnDict
+        else:
+            print("Data not sent to the servers since conditions are not met")
+            returnDict['notSent'] = True
+            return returnDict
 
 
 # pulling data
@@ -513,7 +533,7 @@ def show(msg, color, x, y, size):
 
 
 selected_items = [False, False, False, False, False, False]
-
+fromLB=True
 Pop = False
 I = 0
 iterr = 0
@@ -1062,7 +1082,8 @@ def arsenal():
 
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
-    global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley, m_counter, st, speed_checker, petyr
+    global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley, m_counter, st, speed_checker,petyr
+    global changeNameForLead, showHomeButton, tempDataForLead, popForLeadInit, dataSent, dataNotSent, dataUpdated, dataNotUpdated, errorButDataSaved
     LENGTH = 454
     rate = 4 if selected_items[3] else (12 if selected_items[2] else 8)
 
@@ -1143,11 +1164,25 @@ def emulator_params():
     start = time.time()
     applex, appley = random_cord(blocks)
 
+    changeNameForLead = False
+    showHomeButton = False
+    dataSent = False
+    dataNotSent = False
+    dataUpdated = False
+    dataNotUpdated = False
+    errorButDataSaved = False
+    tempDataForLead = {
+        'score':0,
+        'time':0
+    }
+    popForLeadInit = True
+
 
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT, userSettings, sensitivity, petyr
+    global sortedData, Pop, PopT, userSettings,sensitivity,petyr, internet
+    global changeNameForLead, showHomeButton, tempDataForLead, popForLeadInit, dataSent, dataNotSent, dataUpdated, dataNotUpdated, errorButDataSaved
     gameover = False
     SCREEN.fill(Theme[0])
     pygame.draw.rect(SCREEN, BLACK, (2, 32, LENGTH - 4, LENGTH - 35))
@@ -1381,12 +1416,13 @@ def emulator():
         #GameOver
         if gameover:
             pygame.mixer.music.stop()
-            gameOverSound.play(loops=0)
+            if userSettings['sound']:
+                gameOverSound.play(loops=0)
             popup = True
             t = f'{(time.time() - start):.2f}'
             coins = int(8 * (score / 1000) -
                         (time.time() - start) / 60) * (2 if coin_2 else 1)
-
+            
     #block loop
     for block in blocks:
         block.block_type = None
@@ -1436,15 +1472,8 @@ def emulator():
         show("Time :" + t, WHITE, LENGTH // 2 - 100, LENGTH // 2 - 20, 20)
         show("Coins :" + str(coins), WHITE, LENGTH // 2 - 100,
              LENGTH // 2 + 10, 20)
-        if button('Home', LENGTH // 2 - 100, LENGTH // 2 + 40, 100, 30):
-            user = 'Home'
-            petyr = 0
-            selected_items = [False, False, False, False, False, False]
-            SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH),
-                                             pygame.RESIZABLE)
-        if data['highscore'] == score and petyr < 4:
-            Popup(mode='loading')
-        if petyr == 3:
+
+        if petyr==3:
             data['coin'] = f"{int(data['coin'])+coins}"
             with open('missions.dat', 'rb') as file:
                 miss = pickle.load(file)
@@ -1463,26 +1492,79 @@ def emulator():
             if obj['mission'][0] == 'points':
                 if score >= obj['mission'][1]:
                     obj['mission'][3] = True
-            if data['highscore'] == score:
-                data['time'] = t
-                bigGame = bigGameVar()
-                if internet:
-                    try:
-                        pushData(data['name'], score, t, bigGame)
-                    except:
-                        print(
-                            'Data not sent to servers due to an unexpected error'
-                        )
-                        saveGameDataForLater(data['name'], score, t)
-                else:
+            update_obj()
+            update_data()
+            bigGame = bigGameVar()
+            internet = connect()
+            if internet:
+                try:
+                    pushReturnDict = pushData(data['name'], score, t, bigGame)
+                    changeNameForLead = pushReturnDict['thrives']
+                    dataSent = pushReturnDict['sent']
+                    dataNotSent = pushReturnDict['notSent']
+                    dataUpdated = pushReturnDict['updated']
+                    dataNotUpdated = pushReturnDict['notUpdated']
+                    showHomeButton = not changeNameForLead
+                except:
                     print(
                         'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
                     )
                     saveGameDataForLater(data['name'], score, t)
-            update_obj()
-            update_data()
-    if Pop:
-        Popup(PopT)
+                    errorButDataSaved = True
+                    showHomeButton = True
+            else:
+                print(
+                    'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
+                )
+                saveGameDataForLater(data['name'], score, t)
+                showHomeButton = True
+        
+        if not internet:
+            show("Data couldn't be sent to servers due", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
+            show("to an internet error. It's saved and ", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
+            show("will be sent next time you open game.", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
+        elif dataSent:
+            show("Your Game Data sent to the servers.", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
+        elif dataNotSent:
+            show("Data hasn't been sent to servers as", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
+            show("you don't qualify to be on leaderboard.", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
+        elif dataUpdated:
+            show("Your data on servers has been updated", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
+        elif dataNotUpdated:
+            show("You already exist on the leaderboard. ", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
+            show("Beat your previous score to be promoted.", DARKBROWN, LENGTH // 2 - 165, LENGTH // 2 + 103, 17)
+        elif errorButDataSaved:
+            show("Your data couldn't be sent to servers ", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
+            show("due to an unexpected error. It is saved ", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
+            show("and will be sent next time you open game.", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
+        
+        if showHomeButton:
+            if button('Home', LENGTH // 2 - 100, LENGTH // 2 + 40, 100,30,WHITE, x_offset=10,text_col=DARKBROWN,text_size=16,hover_col=GREY,hover_width=1):
+                user = 'Home'
+                selected_items = [False, False, False, False, False, False]
+                SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
+        
+        if changeNameForLead:
+            show("Unable to send data to cloud as a player", DARKBROWN, LENGTH // 2 - 163, LENGTH // 2 + 38, 17)
+            show("already thrives on the leadername by the", DARKBROWN, LENGTH // 2 - 163, LENGTH // 2 + 56, 17)
+            show("name of {data['name']}", DARKBROWN, LENGTH // 2 - 163, LENGTH // 2 + 74, 17)
+            
+            if button('Don\'t Send Data', LENGTH // 2 - 140, LENGTH // 2 + 100, 140, 25, WHITE, x_offset=10,text_col=DARKBROWN,text_size=15,hover_col=GREY,hover_width=1):
+                showHomeButton = True
+                changeNameForLead = False
+            
+            if button('Change Name', LENGTH // 2 + 10, LENGTH // 2 + 100, 130, 25, DARKBROWN, x_offset=10,text_col=WHITE,text_size=15,hover_col=GREY,hover_width=1):
+                tempDataForLead['score'] = score
+                tempDataForLead['time'] = t
+                newUser_init()
+                user='NewUser'
+                fromLB=True
+
+                
+        
+        if not showHomeButton and not changeNameForLead:
+            show(f"Analysing and Sending", DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 + 56, 18)
+            show(f"your data to cloud ....", DARKBROWN, LENGTH // 2 - 120, LENGTH // 2 + 78, 18)
 
 
 def leaderboard():
@@ -2382,8 +2464,8 @@ def settings():
             newUser_init()
             popinit = False
         fromsetting = True
-        newuser(changename=True)
-
+        newuser(changename = True)
+      
 
 errormsg = False
 errorstart = 0
@@ -2391,12 +2473,17 @@ errorstart = 0
 
 def newuser(changename=False):
     LENGTH = pygame.display.get_surface().get_width()
-    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData, bigGame
+    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData, bigGame,fromLB,selected_items,SCREEN
+
     if not changename:
+
         SCREEN.fill(BLACKBROWN)
         pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-        show('SIGN UP', WHITE, 10, 10, 20)
         pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
+        if fromLB:
+            show('CHANGE NAME', WHITE, 10, 10, 20)
+        else:
+            show('SIGN UP', WHITE, 10, 10, 20)
     if changename:
         s = pygame.Surface((LENGTH * 2, LENGTH * 2))
         s.set_colorkey(GREY)
@@ -2453,7 +2540,7 @@ def newuser(changename=False):
     # iterrr+=1
     # iterrr=0 if iterrr>20 else iterrr
     pygame.draw.line(SCREEN, DARKBROWN, (50, 250), (LENGTH - 50, 250), 1)
-    Text_Ent = button('Change Name' if changename else 'Create Account',
+    Text_Ent = button('Change Name' if (changename or fromLB) else 'Create Account',
                       (LENGTH - 155) // 2,
                       280,
                       140,
@@ -2481,7 +2568,12 @@ def newuser(changename=False):
         allowed_name = False
     if Text_Ent:
         if allowed_name:
-            if not changename:
+            if fromLB:
+                bigGame=True
+                data['name']= Text_Val[:-1]
+                data['highscore']=tempDataForLead['score']
+                data['time']=tempDataForLead['time']
+            elif not changename:
                 bigGame = False
                 print('The condition is to sign up as a new user')
                 data = {
@@ -2490,13 +2582,11 @@ def newuser(changename=False):
                     'coin': '0',
                     'time': ''
                 }
-                # bigGame = False
-                with open('missions.dat', 'rb') as f:
-                    miss = pickle.load(f)
-                    for i, j in enumerate(miss['missions']):
-                        if j[0] in ('apple', 'up', 'down'):
-                            miss['missions'][i][3] = '0' + '/' + j[3].split(
-                                '/')[1]
+                with open('missions.dat','rb') as f:
+                    miss=pickle.load(f)
+                    for i,j in enumerate(miss['missions']):
+                        if j[0] in ('apple','up','down'):
+                            miss['missions'][i][3]='0'+'/'+j[3].split('/')[1]
                         else:
                             miss['missions'][i][3] = False
                         miss['missions'][i][4] = False
@@ -2527,7 +2617,7 @@ def newuser(changename=False):
 
                 print('Signed up as new user')
 
-            if changename:
+            elif changename:
                 print('The condition is to change name')
                 bigGame = bigGameVar()
                 if bigGame:
@@ -2561,6 +2651,10 @@ def newuser(changename=False):
                 popinit = True
             if fromsetting:
                 user = 'Settings'
+            elif fromLB:
+                selected_items = [False, False, False, False, False, False]
+                SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
+                user='Home'
             else:
                 user = 'Home'
             Text_Val = ''
@@ -2674,7 +2768,6 @@ def Popup(txt='A Popup', mode='ok'):
             return True
     if mode == 'loading':
         show('Loading Please Wait...', DARKBROWN, 70, 260, 20)
-
 
 def main():
     global event_list, Text_Val
