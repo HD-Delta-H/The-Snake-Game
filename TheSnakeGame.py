@@ -532,11 +532,12 @@ if non_cheater:
     file.close()
 
 
-def show(msg, color, x, y, size,mode='n'):
-    f = r'images\design.graffiti.comicsansmsgras.ttf' if mode=='b' else (r'images\comici.ttf' if mode=='i' else (r'images\comicz.ttf' if mode=='ib' else r'images\COMIC.ttf'))
+def show(msg, color, x, y, size, mode='n'):
+    f = r'images\design.graffiti.comicsansmsgras.ttf' if mode == 'b' else (
+        r'images\comici.ttf' if mode == 'i' else
+        (r'images\comicz.ttf' if mode == 'ib' else r'images\COMIC.ttf'))
     score_show = pygame.font.Font(f, size).render(msg, True, color)
     SCREEN.blit(score_show, (x, y))
-
 
 
 selected_items = [False, False, False, False, False, False]
@@ -631,7 +632,7 @@ def button(text,
     pygame.draw.rect(SCREEN, bg_color, (x, y, width, height))
     show(text, text_col, x + x_offset,
          (y + (height - text_size) // 2 if height > text_size else height),
-         text_size,mode)
+         text_size, mode)
 
 
 def screen_animation(decreaser=False, r=25, color=BLACK, timer=0.01):
@@ -778,15 +779,21 @@ def delta_h():
             s.set_alpha(255 * (petyr - 330) / 40)
             SCREEN.blit(s, ((LENGTH -
                              (170 * LENGTH / 554)) / 2, 265 * HEIGHT / 454))
-        if petyr > 370:
-            w += 100
-            h += 100
-            pygame.draw.rect(SCREEN, BLACK,
-                             (((LENGTH - w) / 2, (HEIGHT - h) / 2, w, h)))
-            if petyr == 377:
-                user = 'Home'
-                rate = 8
-                petyr = 0
+    show('Press Space Bar to skip animation.', WHITE, 20, HEIGHT - 20, 14, 'i')
+    stopper = False
+    for event in event_list:
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                stopper = True
+    if petyr > 370:
+        w += 100
+        h += 100
+        pygame.draw.rect(SCREEN, BLACK,
+                         (((LENGTH - w) / 2, (HEIGHT - h) / 2, w, h)))
+    if petyr == 377 or stopper:
+        user = 'Home'
+        rate = 8
+        petyr = 0
 
 
 def home():
@@ -824,8 +831,8 @@ def home():
          (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
 
     show('playing as ', LIGHTBROWN, 20, 16, 16)
-    show(data['name'], WHITE, 110, 9, 24)
-    show(data['coin'] + ' coins', WHITE, 275, 9, 24)
+    show(data['name'], WHITE, 110, 9, 24,'ib')
+    show(data['coin'] + ' coin(s)', WHITE, 275, 9, 24)
     user = 'Settings' if button('Settings',
                                 LENGTH - 154,
                                 5,
@@ -839,13 +846,13 @@ def home():
                                 hover_width=1) else user
     user = 'Arsenal' if button('Play Game',
                                (LENGTH - (170 * LENGTH / 554)) / 2,
-                               265 * HEIGHT / 454,
+                               265 * HEIGHT / 454 - 10,
                                170 * LENGTH / 554,
                                55 * HEIGHT / 454,
                                DARKBROWN,
                                x_offset=30 + (10**(LENGTH / 554)) / 5,
                                text_col=WHITE,
-                               text_size=int(34 * LENGTH / 700),
+                               text_size=int(28 * LENGTH / 700),
                                hover_col=BLACKBROWN,
                                hover_width=1,
                                mode='b') else user
@@ -1631,16 +1638,16 @@ def leaderboard():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-    show('LEADERBOARDS', WHITE, 10, 10, 20)
+    show('LEADERBOARDS', WHITE, 10, 10, 20, 'b')
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     if len(sortedData) > 0:
         for i, dt in enumerate(sortedData):
             if i < 10:
-                show(dt[0], BLACK, 30, 78 + i * 35, 30)
-                show(str(dt[1]), BLACK, 305, 78 + i * 35, 30)
-                show(str(dt[2]), BLACK, 420, 78 + i * 35, 30)
+                show(dt[0], BLACK, 30, 78 + i * 35, 30, 'ib')
+                show(str(dt[1]), BLACK, 305, 78 + i * 35, 30, 'ib')
+                show(str(dt[2]), BLACK, 420, 78 + i * 35, 30, 'ib')
     else:
-        show('Oops! No Data Available', WHITE, 50, 200, 30)
+        show('Oops! No Data Available', WHITE, 50, 200, 30, 'b')
     if (button('R', LENGTH - 40, 10, 20, 20, BLACKBROWN, 4, 14, WHITE,
                LIGHTBROWN)):
         petyr = 0
@@ -1670,6 +1677,7 @@ def missions():
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('MISSIONS', WHITE, 10, 10, 20)
+    show(data['coin'] + ' coin(s)', WHITE, 275, 9, 24)
     pygame.draw.rect(SCREEN, LIGHTBROWN, (20, 50, LENGTH - 40, 40), 0, 8)
 
     def miss_txt(m):
@@ -2413,14 +2421,14 @@ def settings():
                          DARKBROWN, (mul + 20, 100), (LENGTH - 30, 100),
                          width=3)
 
-        show('Music', DARKBROWN, mul + 35, 120, 21)
+        show('Music', DARKBROWN, mul + 35, 110, 21)
         if (button('', mul + 110, 122, 15, 15,
                    WHITE if userSettings['music'] == False else DARKBROWN, 7,
                    21, BLACK,
                    WHITE if userSettings['music'] == True else DARKBROWN)):
             userSettings['music'] = not userSettings['music']
             updateSettings(userSettings)
-        show('Sounds', DARKBROWN, mul + 220, 120, 21)
+        show('Sounds', DARKBROWN, mul + 220, 110, 21)
         if (button('', mul + 310, 122, 15, 15,
                    WHITE if userSettings['sound'] == False else DARKBROWN, 7,
                    21, BLACK,
@@ -2432,13 +2440,13 @@ def settings():
                          DARKBROWN, (mul + 20, 155), (LENGTH - 30, 155),
                          width=3)
 
-        show('VOLUME: ', DARKBROWN, mul + 35, 175, 20)
+        show('VOLUME: ', DARKBROWN, mul + 35, 165, 20)
         if (button('-', mul + 200, 170, 30, 25, DARKBROWN, 10, 17, WHITE,
                    BLACK)):
             userSettings['volume'] -= 5
             updateSettings(userSettings)
         pygame.draw.rect(SCREEN, WHITE, (mul + 235, 170, 40, 25))
-        show(str(userSettings['volume']), DARKBROWN, mul + 240, 175, 19)
+        show(str(userSettings['volume']), DARKBROWN, mul + 240, 170, 19)
         if (button('+', mul + 280, 170, 30, 25, DARKBROWN, 10, 19, WHITE,
                    BLACK)):
             if userSettings['volume'] < 100:
@@ -2449,7 +2457,7 @@ def settings():
                          DARKBROWN, (mul + 20, 210), (LENGTH - 30, 210),
                          width=3)
 
-        show('PREFERRED CONTROLS: ', DARKBROWN, mul + 35, 230, 20)
+        show('PREFERRED CONTROLS: ', DARKBROWN, mul + 35, 220, 20)
         show('Arrow Keys ', BLACK, mul + 55, 270, 21)
         if (button('', mul + 100, 300, 20, 20,
                    WHITE if userSettings['arrow'] == False else DARKBROWN, 7,
@@ -2475,7 +2483,7 @@ def settings():
                          width=3)
 
         show('currently playing as: ', DARKBROWN, mul + 30, 125, 19)
-        show(data['name'], BLACK, mul + 40, 157, 30)
+        show(data['name'], BLACK, mul + 40, 157, 30, mode='ib')
 
         pygame.draw.line(SCREEN,
                          DARKBROWN, (mul + 20, 210), (LENGTH - 30, 210),
@@ -2493,15 +2501,6 @@ def settings():
                 newUser_init()
                 user = 'NewUser'
                 fromsetting = True
-            show('Please note that your name on the leaderboard', DARKBROWN,
-                 mul + 25, 310, 16)
-            show('won\'t be updated when you change name, and', DARKBROWN,
-                 mul + 25, 330, 16)
-            show('you\'ll be treated as a new user altogether.', DARKBROWN,
-                 mul + 25, 350, 16)
-            show('Your coins, items and completed missions will', DARKBROWN,
-                 mul + 25, 370, 16)
-            show('still be yours.', DARKBROWN, mul + 25, 390, 16)
     elif openedSettings[2]:
         pass
 
