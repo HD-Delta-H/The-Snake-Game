@@ -1,0 +1,6 @@
+faunadb==4.1.1
+Pillow==9.0.0
+pycparser==2.21
+pygame==2.1.0
+urllib3==1.26.7
+webencodings==0.5.1

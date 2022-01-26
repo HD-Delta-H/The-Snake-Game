@@ -1,13 +1,31 @@
-from tkinter import W
-import pygame
-import sys
-import time
-import random
-import pickle
-import os
-pygame.init()
+try:
+    import pygame
+    import sys
+    import time
+    import random
+    import pickle
+    import os
+    import operator
+    from faunadb import query as q
+    from faunadb.client import FaunaClient
+    import re
+    import urllib.request
+except:
+    import subprocess
+    subprocess.run('Installer.bat')
+    import pygame
+    import sys
+    import time
+    import random
+    import pickle
+    import os
+    import operator
+    from faunadb import query as q
+    from faunadb.client import FaunaClient
+    import re
+    import urllib.request
 # global
-import urllib.request
+pygame.init()
 
 #image
 def_powerup = pygame.transform.scale(
@@ -27,12 +45,6 @@ def connect(host='http://google.com'):
 internet = connect()
 
 if internet:
-    import operator
-    from typing import final
-    from faunadb import query as q
-    from faunadb.objects import Ref
-    from faunadb.client import FaunaClient
-    import re
 
     client = FaunaClient(
         secret="fnAEalXja4AAScBNFQW0lxRWEg-VZEhs-thXkrb6",
