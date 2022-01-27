@@ -1574,7 +1574,7 @@ def emulator():
             bigGame = bigGameVar()
             internet = connect()
             if internet:
-                # try:
+                try:
                     pushReturnDict = pushData(data['name'], score, t, bigGame)
                     changeNameForLead = pushReturnDict['thrives']
                     dataSent = pushReturnDict['sent']
@@ -1582,19 +1582,19 @@ def emulator():
                     dataUpdated = pushReturnDict['updated']
                     dataNotUpdated = pushReturnDict['notUpdated']
                     showHomeButton = not changeNameForLead
-            #     except:
-            #         print(
-            #             'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
-            #         )
-            #         saveGameDataForLater(data['name'], score, t)
-            #         errorButDataSaved = True
-            #         showHomeButton = True
-            # else:
-            #     print(
-            #         'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
-            #     )
-            #     saveGameDataForLater(data['name'], score, t)
-            #     showHomeButton = True
+                except:
+                    print(
+                        'Data not sent due to an unexpected error. The data is saved and will be sent when there is an internet connection and the game is opened.'
+                    )
+                    saveGameDataForLater(data['name'], score, t)
+                    errorButDataSaved = True
+                    showHomeButton = True
+            else:
+                print(
+                    'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
+                )
+                saveGameDataForLater(data['name'], score, t)
+                showHomeButton = True
 
         if not internet:
             show("Data couldn't be sent to servers due", DARKBROWN,
