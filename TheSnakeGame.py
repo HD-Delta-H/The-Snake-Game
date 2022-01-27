@@ -12,7 +12,7 @@ try:
     import urllib.request
 except:
     import subprocess
-    subprocess.run('Installer.bat')
+    subprocess.run(r'data\Installer.bat')
     import pygame
     import sys
     import time
@@ -26,12 +26,6 @@ except:
     import urllib.request
 # global
 pygame.init()
-
-#image
-def_powerup = pygame.transform.scale(
-    pygame.image.load(r'images\powerups\Default.PNG'),
-    (70, int(70 * 149 / 129)))
-
 
 def connect(host='http://google.com'):
     try:
@@ -140,8 +134,8 @@ def bigGameVar():
     if data['name'] not in names:
         bigGame = False
         # print('Name not on leaderboard, BiGame set to False')
-    elif os.path.exists("bigGame.dat"):
-        with open('bigGame.dat', 'rb') as file:
+    elif os.path.exists(r"data\bin\bigGame.dat"):
+        with open(r'data\bin\bigGame.dat', 'rb') as file:
             bigData = pickle.load(file)
         bigGame = bigData['bigGame']
         # print(f"In file, bigGame: {bigGame}")
@@ -156,7 +150,7 @@ def writeBigGame(name, bigGameP):
     global bigGame
     bigGame = bigGameP
     bigData = {'name': name, 'bigGame': bigGameP}
-    with open('bigGame.dat', 'wb') as file:
+    with open(r'data\bin\bigGame.dat', 'wb') as file:
         pickle.dump(bigData, file)
     print(f'BigGame for {name} set to {bigGameP}')
 
@@ -281,14 +275,14 @@ def pullingSortedData():
     try:
         data = sortedLeaderboardList(index='testindex',
                                      collection='testcollection')
-        file = open("sortedData.dat", "wb")
+        file = open(r"data\bin\sortedData.dat", "wb")
         pickle.dump(data, file)
         file.close()
         print('data pulled')
         return data
     except:
         try:
-            file = open("sortedData.dat", "rb")
+            file = open(r"data\bin\sortedData.dat", "rb")
             data = pickle.load(file)
             print('data taken from file')
             file.close()
@@ -301,18 +295,18 @@ def pullingSortedData():
 
 def saveGameDataForLater(name, score, time):
     try:
-        fileR = open('savedData.dat', "rb")
+        fileR = open(r'data\bin\savedData.dat', "rb")
         data = pickle.load(fileR)
         if data['score'] < score:
-            fileW = open('savedData.dat', 'wb')
+            fileW = open(r'data\bin\savedData.dat', 'wb')
             pickle.dump(data, fileW)
         elif data['score'] == score:
             if data['time'] > time:
-                fileW = open('savedData.dat', 'wb')
+                fileW = open(r'data\bin\savedData.dat', 'wb')
                 pickle.dump(data, fileW)
         fileR.close()
     except:
-        file = open('savedData.dat', 'wb')
+        file = open(r'data\bin\savedData.dat', 'wb')
         data = {'name': name, 'score': score, 'time': time}
         pickle.dump(data, file)
         file.close()
@@ -364,14 +358,14 @@ def cheaterlistData():
     try:
         data = pullCheaterlistData(index='cheaterindex',
                                    collection='cheaterlist')
-        file = open("cheaterlist.dat", "wb")
+        file = open(r"data\bin\cheaterlist.dat", "wb")
         pickle.dump(data, file)
         file.close()
         print('data pulled')
         return data
     except:
         try:
-            file = open("cheaterlist.dat", "rb")
+            file = open(r"data\bin\cheaterlist.dat", "rb")
             data = pickle.load(file)
             print('data taken from file')
             file.close()
@@ -385,7 +379,7 @@ def cheaterlistData():
 
 
 def update_obj():
-    with open('daily.dat', 'wb') as file:
+    with open(r'data\bin\daily.dat', 'wb') as file:
         pickle.dump(obj, file)
 
 
@@ -400,7 +394,7 @@ tempDataForLead = {
 
 s = time.time()
 day = int(((s + 19800) / 3600) // 24)
-with open('daily.dat', 'rb') as file:
+with open(r'data\bin\daily.dat', 'rb') as file:
     dail = pickle.load(file)
     if dail['day'] < day:
         obj = pullOBJ()
@@ -408,9 +402,9 @@ with open('daily.dat', 'rb') as file:
 
 savedDataDict = {'score':0, 'time':0}
 
-if internet and os.path.exists("savedData.dat"):
+if internet and os.path.exists(r"data\bin\savedData.dat"):
     # try:
-        fileR = open('savedData.dat', "rb")
+        fileR = open(r'data\bin\savedData.dat', "rb")
         data = pickle.load(fileR)
         bigGame = bigGameVar()
         savedDataReturns = pushData(name=data['name'],
@@ -422,7 +416,7 @@ if internet and os.path.exists("savedData.dat"):
             savedDataNameThrives = True
             savedDataDict['score'] = data['score']
             savedDataDict['time'] = data['time']
-        os.remove("savedData.dat")
+        os.remove(r"data\bin\savedData.dat")
         print('Saved data from previous games sent')
     # except:
     #     print(
@@ -438,7 +432,7 @@ if internet and os.path.exists("savedData.dat"):
 
 def readSettings():
     try:
-        with open('userSettings.dat', 'rb') as file:
+        with open(r'data\bin\userSettings.dat', 'rb') as file:
             setData = pickle.load(file)
         return setData
     except:
@@ -449,13 +443,13 @@ def readSettings():
             'arrow': True,
             'fauna': True
         }
-        with open('userSettings.dat', 'wb') as file:
+        with open(r'data\bin\userSettings.dat', 'wb') as file:
             pickle.dump(setData, file)
         return setData
 
 
 def updateSettings(setData):
-    with open('userSettings.dat', 'wb') as file:
+    with open(r'data\bin\userSettings.dat', 'wb') as file:
         pickle.dump(setData, file)
     # print('Settings Updated')
 
@@ -504,19 +498,30 @@ COL2 = pygame.Color('#f7c05a')
 
 VOILET = pygame.Color('#400080')
 
+
+def loader(s):
+    return pygame.transform.scale(
+    pygame.image.load('data\\images\\powerups\\'+s+'.png').convert_alpha(),
+    (70, int(70 * 322 / 301)))
+
+powerup_img = ['down','up','high','low','bomb','teleport','2xp','2xc']
+for i,j in enumerate(powerup_img):
+    powerup_img[i]=loader(j)
+cheaterImage = pygame.image.load(r'data\images\cheater.png').convert()
+deltaH = pygame.image.load(r'data\images\delta-h.PNG').convert()
+sideSnake = pygame.image.load(r'data\images\side-snake.png').convert_alpha()
+frontSnake = pygame.image.load(r'data\images\front-snake.png').convert_alpha()
+
+
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
-cheaterImage = pygame.image.load(r'images\cheater.png')
-deltaH = pygame.image.load(r'images\delta-h.PNG')
-sideSnake = pygame.image.load(r'images\side-snake.png')
-frontSnake = pygame.image.load(r'images\front-snake.png')
-bgMusic = pygame.mixer.music.load(r'audios\bgmusic.mp3')
-speedupMusic = pygame.mixer.Sound(r'audios\speedup.wav')
-buttonSound = pygame.mixer.Sound(r'audios\button.wav')
-appleMusic = pygame.mixer.Sound(r'audios\apple.wav')
-bombMusic = pygame.mixer.Sound(r'audios\bomb.wav')
-speeddownMusic = pygame.mixer.Sound(r'audios\speeddown.wav')
-gameOverSound = pygame.mixer.Sound(r'audios\gameOver.wav')
+bgMusic = pygame.mixer.music.load(r'data\audios\bgmusic.mp3')
+speedupMusic = pygame.mixer.Sound(r'data\audios\speedup.wav')
+buttonSound = pygame.mixer.Sound(r'data\audios\button.wav')
+appleMusic = pygame.mixer.Sound(r'data\audios\apple.wav')
+bombMusic = pygame.mixer.Sound(r'data\audios\bomb.wav')
+speeddownMusic = pygame.mixer.Sound(r'data\audios\speeddown.wav')
+gameOverSound = pygame.mixer.Sound(r'data\audios\gameOver.wav')
 
 #user data
 def newUser_init():
@@ -528,14 +533,14 @@ def newUser_init():
 
 fromsetting = False
 try:
-    file = open('userData.dat', 'rb')
+    file = open(r'data\bin\userData.dat', 'rb')
     data = pickle.load(file)
     non_cheater = True
 except pickle.UnpicklingError:
     user = 'Cheater'
     non_cheater = False
     try:
-        with open('bigGame.dat', 'rb') as file:
+        with open(r'data\bin\bigGame.dat', 'rb') as file:
             bigData = pickle.load(file)
         dictData = {'name': bigData['name']}
         pushDictData(collection='cheaterlist', data=dictData)
@@ -553,9 +558,9 @@ if non_cheater:
 
 
 def show(msg, color, x, y, size, mode='n'):
-    f = r'images\design.graffiti.comicsansmsgras.ttf' if mode == 'b' else (
-        r'images\comici.ttf' if mode == 'i' else
-        (r'images\comicz.ttf' if mode == 'ib' else r'images\COMIC.ttf'))
+    f = r'data\font\design.graffiti.comicsansmsgras.ttf' if mode == 'b' else (
+        r'data\font\comici.ttf' if mode == 'i' else
+        (r'data\font\comicz.ttf' if mode == 'ib' else r'data\images\COMIC.ttf'))
     score_show = pygame.font.Font(f, size).render(msg, True, color)
     SCREEN.blit(score_show, (x, y))
 
@@ -568,7 +573,7 @@ iterr = 0
 
 
 def update_data():
-    with open('userData.dat', 'wb') as file:
+    with open(r'data\bin\userData.dat', 'wb') as file:
         pickle.dump(data, file)
 
 
@@ -586,7 +591,7 @@ def daily():
     }
     s = time.time()
     day = int(((s + 19800) / 3600) // 24)
-    with open('daily.dat', 'rb') as file:
+    with open(r'data\bin\daily.dat', 'rb') as file:
         dail = pickle.load(file)
         if dail['day'] < day:
             mis = random.choice(mission_list)
@@ -651,7 +656,7 @@ def button(text,
             return True
     pygame.draw.rect(SCREEN, bg_color, (x, y, width, height))
     show(text, text_col, x + x_offset,
-         (y + (height - text_size) // 2 if height > text_size else height),
+         (y + abs(height - text_size) // 2-int(text_size/5)),
          text_size, mode)
 
 
@@ -993,7 +998,7 @@ def arsenal():
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
     show('Your Arsenel for the game', WHITE, 10, 10, 20,'b')
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
-    with open('items.dat', 'rb') as file:
+    with open(r'data\bin\items.dat', 'rb') as file:
         list_items = pickle.load(file)
 
         mul = (LENGTH - 30) // 3
@@ -1005,7 +1010,7 @@ def arsenal():
                 pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
                 pygame.draw.rect(SCREEN, LIGHTBROWN,
                                  (x + 5, y + 5, width - 10, height - 10))
-                SCREEN.blit(def_powerup, (60 + i * mul, 80))
+                SCREEN.blit(powerup_img[i], (60 + i * mul, 80))
                 if i == 1:
                     show(item[0], BLACK, 30 + i * mul, 165, 14)
                     show(f'{item[1][0]} in stock', WHITE, 30 + i * mul, 185,
@@ -1024,7 +1029,7 @@ def arsenal():
                                                           sensitivity) > 0.1:
                         sensitivity = time.time()
                         if item[1][0] != '0' or selected_items[i]:
-                            with open('items.dat', 'wb') as f:
+                            with open(r'data\bin\items.dat', 'wb') as f:
                                 list_items['Powerups'][item[0]] = (str(
                                     int(item[1][0]) +
                                     (1 if selected_items[i] else -1)),
@@ -1043,7 +1048,7 @@ def arsenal():
                 pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
                 pygame.draw.rect(SCREEN, LIGHTBROWN,
                                  (x + 5, y + 5, width - 10, height - 10))
-                SCREEN.blit(def_powerup, (60 + (i - 3) * mul, 240))
+                SCREEN.blit(powerup_img[i], (60 + (i - 3) * mul, 240))
                 show(item[0], BLACK, (45 if i == 4 else 65) + (i - 3) * mul,
                      325, 16)
                 show(f'{item[1][0]} in stock', WHITE, 30 + (i - 3) * mul, 345,
@@ -1058,7 +1063,7 @@ def arsenal():
                                                           sensitivity) > 0.1:
                         sensitivity = time.time()
                         if item[1][0] != '0' or selected_items[i]:
-                            with open('items.dat', 'wb') as f:
+                            with open(r'data\bin\items.dat', 'wb') as f:
                                 list_items['Powerups'][item[0]] = (str(
                                     int(item[1][0]) +
                                     (1 if selected_items[i] else -1)),
@@ -1073,7 +1078,7 @@ def arsenal():
                 SCREEN.blit(s, (x, y))
     if Pop:
         Popup('Item not in stock')
-    with open('missions.dat', 'rb') as file:
+    with open(r'data\bin\missions.dat', 'rb') as file:
         list_items = pickle.load(file)
         coin_2 = list_items['coins']['coins']
         point_2 = list_items['coins']['points']
@@ -1082,7 +1087,7 @@ def arsenal():
                 if item[1][1]:
                     t = float(f"{(time.time()-item[1][2]):.2f}")
                     if t >= (float(item[0].split()[2]) * 60):
-                        with open('missions.dat', 'wb') as f:
+                        with open(r'data\bin\missions.dat', 'wb') as f:
                             list_items['coins'][item[0]][1] = False
                             if i <= 2:
                                 list_items['coins']['coins'] = False
@@ -1119,7 +1124,7 @@ def arsenal():
               hover_col=BLACKBROWN,
               hover_width=1):
         user = 'Home'
-        with open('items.dat', 'rb') as file:
+        with open(r'data\bin\items.dat', 'rb') as file:
             list_items = pickle.load(file)
 
             for i, item in enumerate(list_items['Powerups'].items()):
@@ -1127,7 +1132,7 @@ def arsenal():
                     str(int(item[1][0]) + (1 if selected_items[i] else 0)),
                     item[1][1])
                 selected_items[i] = False
-        with open('items.dat', 'wb') as f:
+        with open(r'data\bin\items.dat', 'wb') as f:
             pickle.dump(list_items, f)
     if user == 'Emulator':
         daily()
@@ -1167,7 +1172,7 @@ def emulator_params():
 
     Theme = [LIGHTBROWN, GREY, CADET, RED, GREY, GREEN, BLUE, WHITE, DARKBROWN]
     # bg_color, bomb_col, snake_col, apple_col, empty_col, sup_col, sdown_col, text_col, text_bg
-    with open('items.dat', 'rb') as file:
+    with open(r'data\bin\items.dat', 'rb') as file:
         l = pickle.load(file)
         Theme[4] = globals()[list(
             l['Themes'][l['Offers']['pseudo']['background']].keys())[0]]
@@ -1213,7 +1218,7 @@ def emulator_params():
     petyr = 0
     blocks = []
     # missions initialize
-    with open('missions.dat', 'rb') as file:
+    with open(r'data\bin\missions.dat', 'rb') as file:
         miss = pickle.load(file)
         m_counter = {'apple': [], 'up': [], 'down': []}
         speed_checker = []
@@ -1330,11 +1335,11 @@ def emulator():
             score += 100 if point_2 else 50
             for pair in st:
                 if (time.time() - start) <= pair[1] and score == pair[0]:
-                    with open('missions.dat', 'rb') as file:
+                    with open(r'data\bin\missions.dat', 'rb') as file:
                         miss = pickle.load(file)
                         for i, m in enumerate(miss['missions']):
                             if m[0] == 'st' and pair == m[1]:
-                                with open('missions.dat', 'wb') as f:
+                                with open(r'data\bin\missions.dat', 'wb') as f:
                                     miss['missions'][i][3] = True
                                     pickle.dump(miss, f)
         elif tuple(snake) == (bombx, bomby):
@@ -1362,20 +1367,20 @@ def emulator():
             score += 300 if point_2 else 150
             for pair in st:
                 if (time.time() - start) <= pair[1] and score == pair[0]:
-                    with open('missions.dat', 'rb') as file:
+                    with open(r'data\bin\missions.dat', 'rb') as file:
                         miss = pickle.load(file)
                         for i, m in enumerate(miss['missions']):
                             if m[0] == 'st' and pair == m[1]:
-                                with open('missions.dat', 'wb') as f:
+                                with open(r'data\bin\missions.dat', 'wb') as f:
                                     miss['missions'][i][3] = True
                                     pickle.dump(miss, f)
             for v in speed_checker:
                 if rate == v:
-                    with open('missions.dat', 'rb') as file:
+                    with open(r'data\bin\missions.dat', 'rb') as file:
                         miss = pickle.load(file)
                         for i, m in enumerate(miss['missions']):
                             if m[0] == 'speed' and m[1] == v:
-                                with open('missions.dat', 'wb') as f:
+                                with open(r'data\bin\missions.dat', 'wb') as f:
                                     miss['missions'][i][3] = True
                                     pickle.dump(miss, f)
             if obj['mission'][0] == 'speed':
@@ -1401,20 +1406,20 @@ def emulator():
             score += 300 if point_2 else 150
             for pair in st:
                 if (time.time() - start) <= pair[1] and score == pair[0]:
-                    with open('missions.dat', 'rb') as file:
+                    with open(r'data\bin\missions.dat', 'rb') as file:
                         miss = pickle.load(file)
                         for i, m in enumerate(miss['missions']):
                             if m[0] == 'st' and pair == m[1]:
-                                with open('missions.dat', 'wb') as f:
+                                with open(r'data\bin\missions.dat', 'wb') as f:
                                     miss['missions'][i][3] = True
                                     pickle.dump(miss, f)
             for v in speed_checker:
                 if rate == v:
-                    with open('missions.dat', 'rb') as file:
+                    with open(r'data\bin\missions.dat', 'rb') as file:
                         miss = pickle.load(file)
                         for i, m in enumerate(miss['missions']):
                             if m[0] == 'speed' and m[1] == v:
-                                with open('missions.dat', 'wb') as f:
+                                with open(r'data\bin\missions.dat', 'wb') as f:
                                     miss['missions'][i][3] = True
                                     pickle.dump(miss, f)
             if obj['mission'][0] == 'speed':
@@ -1550,17 +1555,17 @@ def emulator():
 
         if petyr == 3:
             data['coin'] = f"{int(data['coin'])+coins}"
-            with open('missions.dat', 'rb') as file:
+            with open(r'data\bin\missions.dat', 'rb') as file:
                 miss = pickle.load(file)
                 for i, m in enumerate(miss['missions']):
                     if m[0] == 'points' and m[1] <= score:
-                        with open('missions.dat', 'wb') as f:
+                        with open(r'data\bin\missions.dat', 'wb') as f:
                             miss['missions'][i][3] = True
                             pickle.dump(miss, f)
                     if m[0] in ('apple', 'up', 'down'):
                         for k in m_counter[m[0]]:
                             if m[3].split('/')[1] == k.split('/')[1]:
-                                with open('missions.dat', 'wb') as f:
+                                with open(r'data\bin\missions.dat', 'wb') as f:
                                     miss['missions'][i][3] = k
                                     pickle.dump(miss, f)
 
@@ -1765,9 +1770,9 @@ def missions():
         (m[3].split('/')[0] == m[3].split('/')[1])) and not m[4]:
         if button('Claim', LENGTH - 300, 70, 70, 17, DARKBROWN, 10, 13, WHITE,
                   DARKBROWN, 0):
-            with open('missions.dat', 'rb') as file:
+            with open(r'data\bin\missions.dat', 'rb') as file:
                 miss = pickle.load(file)
-                with open('missions.dat', 'wb') as f:
+                with open(r'data\bin\missions.dat', 'wb') as f:
                     obj['mission'][4] = True
                     x = m[2][0].split('-')
                     miss['coins']["2x " +
@@ -1789,7 +1794,7 @@ def missions():
     show(f'{M} ', DARKBROWN, LENGTH - 150, 75, 13)
 
     pygame.draw.line(SCREEN, WHITE, (10, 100), (LENGTH - 20, 100), 3)
-    with open('missions.dat', 'rb') as file:
+    with open(r'data\bin\missions.dat', 'rb') as file:
         miss = pickle.load(file)
         for i, m in enumerate(miss['missions']):
             pygame.draw.rect(SCREEN, LIGHTBROWN,
@@ -1809,7 +1814,7 @@ def missions():
                 (m[3].split('/')[0] == m[3].split('/')[1])) and not m[4]:
                 if button('Claim', LENGTH - 300, 130 + i * 50, 70, 17,
                           DARKBROWN, 10, 13, WHITE, DARKBROWN, 0):
-                    with open('missions.dat', 'wb') as f:
+                    with open(r'data\bin\missions.dat', 'wb') as f:
                         miss['missions'][i][4] = True
                         x = m[2][0].split('-')
                         miss['coins'][
@@ -1901,7 +1906,7 @@ def marketplace():
         opened = [False, False, True, False]
     pygame.draw.rect(SCREEN, LIGHTBROWN,
                      (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
-    with open('items.dat', 'rb') as file:
+    with open(r'data\bin\items.dat', 'rb') as file:
         list_items = pickle.load(file)
         if opened[2]:
             for i, item in enumerate(list_items['Powerups'].items()):
@@ -1914,7 +1919,7 @@ def marketplace():
                     pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
-                    SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
+                    SCREEN.blit(powerup_img[i], (37 + (i + 1) * mul, 80))
                     if i == 1:
                         show(str(item[1][1]), BLACK, 30 + (i + 1) * mul, 165,
                              18)
@@ -1955,7 +1960,7 @@ def marketplace():
                     show(item[0], BLACK, 30 + (i - 2) * mul, 375, 12)
                     show(f'{item[1][0]} in stock', WHITE, 30 + (i - 2) * mul,
                          400, 10)
-                    SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
+                    SCREEN.blit(powerup_img[i], (37 + (i - 2) * mul, 270))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
@@ -1978,7 +1983,7 @@ def marketplace():
                     data['coin'] = str(int(data['coin']) - int(t[1]))
                     if int(data['coin']) >= 0:
                         update_data()
-                        with open('items.dat', 'wb') as f:
+                        with open(r'data\bin\items.dat', 'wb') as f:
                             list_items['Powerups'][list(
                                 list_items['Powerups'].keys())[q]] = (
                                     str(int(t[0]) + 1), t[1])
@@ -2061,7 +2066,7 @@ def marketplace():
                         int(data['coin']) - (25 if opened[0] else 15))
                     if int(data['coin']) >= 0:
                         update_data()
-                        with open('items.dat', 'wb') as f:
+                        with open(r'data\bin\items.dat', 'wb') as f:
                             t[list(t.keys())[0 if opened[0] else 1]] = True
                             list_items['Themes'][list(
                                 list_items['Themes'].keys())[q]] = t
@@ -2145,7 +2150,7 @@ def inventory():
     pygame.draw.rect(SCREEN, LIGHTBROWN,
                      (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
 
-    with open('items.dat', 'rb') as file:
+    with open(r'data\bin\items.dat', 'rb') as file:
         list_items = pickle.load(file)
         if opened[2]:
             for i, item in enumerate(list_items['Powerups'].items()):
@@ -2158,7 +2163,7 @@ def inventory():
                     pygame.draw.rect(SCREEN, DARKBROWN, (x, y, width, height))
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
-                    SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
+                    SCREEN.blit(powerup_img[i], (37 + (i + 1) * mul, 80))
                     if i == 1:
                         show(item[0], BLACK, 25 + (i + 1) * mul, 200, 11)
                         show(f'{item[1][0] } left ', WHITE, 50 + (i + 1) * mul,
@@ -2189,7 +2194,7 @@ def inventory():
                     show(item[0], BLACK, 30 + (i - 2) * mul, 390, 12)
                     show(f'{item[1][0] } left', WHITE, 50 + (i - 2) * mul, 355,
                          24)
-                    SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
+                    SCREEN.blit(powerup_img[i], (37 + (i - 2) * mul, 270))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
@@ -2199,7 +2204,7 @@ def inventory():
                     SCREEN.blit(s, (x, y))
 
         elif opened[3]:
-            with open('missions.dat', 'rb') as file:
+            with open(r'data\bin\missions.dat', 'rb') as file:
                 list_items = pickle.load(file)
                 for i, item in enumerate(list_items['coins'].items()):
                     if i <= 2:
@@ -2212,7 +2217,7 @@ def inventory():
                         pygame.draw.rect(
                             SCREEN, LIGHTBROWN,
                             (x + 5, y + 5, width - 10, height - 10))
-                        SCREEN.blit(def_powerup, (37 + (i + 1) * mul, 80))
+                        SCREEN.blit(powerup_img[6], (37 + (i + 1) * mul, 80))
                         if i == 1:
                             show(item[0], BLACK, 25 + (i + 1) * mul, 210, 12)
                             show(f'{item[1][0]} left', WHITE,
@@ -2230,7 +2235,7 @@ def inventory():
                             show(f"{int(T//60)}:{ss}{int(T%60)}", WHITE,
                                  50 + (i + 1) * mul, 187, 20)
                             if t >= (float(item[0].split()[2]) * 60):
-                                with open('missions.dat', 'wb') as f:
+                                with open(r'data\bin\missions.dat', 'wb') as f:
                                     list_items['coins'][item[0]][1] = False
                                     list_items['coins']['coins'] = False
                                     pickle.dump(list_items, f)
@@ -2239,7 +2244,7 @@ def inventory():
                             if button('Activate', 35 + (i + 1) * mul, 187, 80,
                                       22, DARKBROWN, 10, 13, WHITE, DARKBROWN,
                                       0):
-                                with open('missions.dat', 'wb') as f:
+                                with open(r'data\bin\missions.dat', 'wb') as f:
                                     list_items['coins'][item[0]][0] = str(
                                         int(item[1][0]) - 1)
                                     list_items['coins'][item[0]][1] = True
@@ -2272,7 +2277,7 @@ def inventory():
                         show(item[0], BLACK, 30 + (i - 2) * mul, 400, 12)
                         show(f'{item[1][0]} left', WHITE, 55 + (i - 2) * mul,
                              355, 24)
-                        SCREEN.blit(def_powerup, (37 + (i - 2) * mul, 270))
+                        SCREEN.blit(powerup_img[7], (37 + (i - 2) * mul, 270))
                         if item[1][1]:
                             t = float(f"{(time.time()-item[1][2]):.2f}")
                             T = float(item[0].split()[2]) * 60 - t
@@ -2280,7 +2285,7 @@ def inventory():
                             show(f"{int(T//60)}:{ss}{int(T%60)}", WHITE,
                                  50 + (i - 2) * mul, 377, 20)
                             if t >= (float(item[0].split()[2]) * 60):
-                                with open('missions.dat', 'wb') as f:
+                                with open(r'data\bin\missions.dat', 'wb') as f:
                                     list_items['coins'][item[0]][1] = False
                                     list_items['coins']['points'] = False
                                     pickle.dump(list_items, f)
@@ -2289,7 +2294,7 @@ def inventory():
                             if button('Activate', 35 + (i - 2) * mul, 377, 80,
                                       22, DARKBROWN, 10, 13, WHITE, DARKBROWN,
                                       0):
-                                with open('missions.dat', 'wb') as f:
+                                with open(r'data\bin\missions.dat', 'wb') as f:
                                     list_items['coins'][item[0]][0] = str(
                                         int(item[1][0]) - 1)
                                     list_items['coins'][item[0]][1] = True
@@ -2340,7 +2345,7 @@ def inventory():
                                 time.time() - sensitivity) > 0.1:
                             sensitivity = time.time()
                             if D[0 if opened[0] else 1]:
-                                with open('items.dat', 'wb') as f:
+                                with open(r'data\bin\items.dat', 'wb') as f:
                                     list_items['Offers']['pseudo'][
                                         'background'
                                         if opened[0] else 'snake'] = item[0]
@@ -2383,7 +2388,7 @@ def inventory():
                                 time.time() - sensitivity) > 0.1:
                             sensitivity = time.time()
                             if D[0 if opened[0] else 1]:
-                                with open('items.dat', 'wb') as f:
+                                with open(r'data\bin\items.dat', 'wb') as f:
                                     list_items['Offers']['pseudo'][
                                         'background'
                                         if opened[0] else 'snake'] = item[0]
@@ -2704,7 +2709,7 @@ def newuser(changename=False):
                     'coin': '0',
                     'time': ''
                 }
-                with open('missions.dat', 'rb') as f:
+                with open(r'data\bin\missions.dat', 'rb') as f:
                     miss = pickle.load(f)
                     for i, j in enumerate(miss['missions']):
                         if j[0] in ('apple', 'up', 'down'):
@@ -2718,9 +2723,9 @@ def newuser(changename=False):
                             miss['coins'][i] = False
                         else:
                             miss['coins'][i] = ['10', False, 0]
-                with open('missions.dat', 'wb') as f:
+                with open(r'data\bin\missions.dat', 'wb') as f:
                     pickle.dump(miss, f)
-                with open('items.dat', 'rb') as f:
+                with open(r'data\bin\items.dat', 'rb') as f:
                     item_list = pickle.load(f)
                     for i in list(item_list['Themes'].keys()):
                         if i == 0:
@@ -2731,10 +2736,10 @@ def newuser(changename=False):
                         item_list['Powerups'][i]=('0',item_list['Powerups'][i][1])
                     item_list['Offers']['pseudo']={'background': 'Theme1', 'snake': 'Theme1'}
                         
-                with open('items.dat','wb') as f:
+                with open(r'data\bin\items.dat','wb') as f:
                     pickle.dump(item_list,f)
                 try:
-                    os.remove('savedData.dat')
+                    os.remove(r'data\bin\savedData.dat')
                 except:
                     pass
                 print('Signed up as new user')               
@@ -2820,7 +2825,7 @@ def cheater():
                   hover_col=BLACKBROWN,
                   hover_width=1):
             user = 'NewUser'
-    with open('userData.dat', 'wb') as file:
+    with open(r'data\bin\userData.dat', 'wb') as file:
         pickle.dump({
             'name': '',
             'highscore': 0,
