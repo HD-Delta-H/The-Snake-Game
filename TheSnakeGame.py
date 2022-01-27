@@ -39,10 +39,8 @@ def connect(host='http://google.com'):
 internet = connect()
 
 if internet:
-
     client = FaunaClient(
-        secret="fnAEalXja4AAScBNFQW0lxRWEg-VZEhs-thXkrb6",
-        # secret = "fnAEcMKAPvAAR5LqwD05oCTtvuIWTdsSHyuOu7AE",
+        secret = "fnAEd7T4kkAASRXchQUxZbvl68JiGY1-lXFL6WuT",
         domain="db.us.fauna.com",
         # NOTE: Use the correct domain for your database's Region Group.
         port=443,
@@ -560,7 +558,7 @@ if non_cheater:
 def show(msg, color, x, y, size, mode='n'):
     f = r'data\font\design.graffiti.comicsansmsgras.ttf' if mode == 'b' else (
         r'data\font\comici.ttf' if mode == 'i' else
-        (r'data\font\comicz.ttf' if mode == 'ib' else r'data\images\COMIC.ttf'))
+        (r'data\font\comicz.ttf' if mode == 'ib' else r'data\font\COMIC.ttf'))
     score_show = pygame.font.Font(f, size).render(msg, True, color)
     SCREEN.blit(score_show, (x, y))
 
