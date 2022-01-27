@@ -530,28 +530,12 @@ def newUser_init():
 
 fromsetting = False
 try:
-    file = open(r'data\bin\userData.dat', 'rb')
-    data = pickle.load(file)
+    with open(r'data\bin\userData.dat', 'rb') as file:
+        data = pickle.load(file)
     non_cheater = True
 except pickle.UnpicklingError:
-    user = 'Cheater'
     non_cheater = False
-    try:
-        with open(r'data\bin\bigGame.dat', 'rb') as file:
-            bigData = pickle.load(file)
-        dictData = {'name': bigData['name']}
-        pushDictData(collection='cheaterlist', data=dictData)
-    except:
-        pass
-    print('YOU CHEATED!')
-if non_cheater:
-    if data['name'] == '' or data['name'] == None:
-        user = 'NewUser'
-        print('Redirecting to New User')
-        newUser_init()
-    else:
-        user = 'DeltaH'
-    file.close()
+user = 'DeltaH'
 
 
 def show(msg, color, x, y, size, mode='n'):
@@ -698,6 +682,7 @@ def circ(x1, x2, i, n, m, c):
 def delta_h():
     global petyr, user, rate
     SCREEN.fill((0, 0, 0))
+    stopper = False
     LENGTH = pygame.display.get_surface().get_width()
     HEIGHT = pygame.display.get_surface().get_height()
     m1 = (160 - 252) / (238 - 197)
@@ -732,82 +717,84 @@ def delta_h():
                                  (HEIGHT - deltaHSize[1]) // 2 - 15))
     petyr += 1
     if petyr >= 230:
-        global frontSnake, flippedScaledSideSnake, scaledFrontSnake, frontSnakeSize, scaledSideSnake, sideSnakeSize, w, h
-        LENGTH = pygame.display.get_surface().get_width()
-        HEIGHT = pygame.display.get_surface().get_height()
-        SCREEN.fill(BLACKBROWN)
-        pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
-        pygame.draw.rect(SCREEN, LIGHTBROWN,
-                         (10, 50, LENGTH - 20, HEIGHT - 60))
-        usualWidth, margin = 120, 65
-        if petyr < 270:
-            scaledFrontSnake = pygame.transform.scale(
-                frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
-            frontSnakeSize = scaledFrontSnake.get_size()
-            scaledFrontSnake.set_alpha(
-                255 * ((petyr - 230) if petyr <= 270 else 40) / 40)
-        SCREEN.blit(scaledFrontSnake,
-                    ((LENGTH - frontSnakeSize[0]) / 2, 30 +
-                     (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
-        if petyr <= 300:
-            scaledSideSnake = pygame.transform.scale(
-                sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
-            sideSnakeSize = scaledSideSnake.get_size()
-            scaledSideSnake.set_alpha(
-                55 * ((petyr - 270) if petyr <= 300 else 30) / 30)
+        if non_cheater and (data['name']!='' or data['name']!=None):
+            global frontSnake, flippedScaledSideSnake, scaledFrontSnake, frontSnakeSize, scaledSideSnake, sideSnakeSize, w, h
+            LENGTH = pygame.display.get_surface().get_width()
+            HEIGHT = pygame.display.get_surface().get_height()
+            SCREEN.fill(BLACKBROWN)
+            pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
+            pygame.draw.rect(SCREEN, LIGHTBROWN,
+                            (10, 50, LENGTH - 20, HEIGHT - 60))
+            usualWidth, margin = 120, 65
+            if petyr < 270:
+                scaledFrontSnake = pygame.transform.scale(
+                    frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
+                frontSnakeSize = scaledFrontSnake.get_size()
+                scaledFrontSnake.set_alpha(
+                    255 * ((petyr - 230) if petyr <= 270 else 40) / 40)
+            SCREEN.blit(scaledFrontSnake,
+                        ((LENGTH - frontSnakeSize[0]) / 2, 30 +
+                        (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
+            if petyr <= 300:
+                scaledSideSnake = pygame.transform.scale(
+                    sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
+                sideSnakeSize = scaledSideSnake.get_size()
+                scaledSideSnake.set_alpha(
+                    55 * ((petyr - 270) if petyr <= 300 else 30) / 30)
 
-            flippedScaledSideSnake = pygame.transform.flip(
-                scaledSideSnake, True, False)
-            flippedScaledSideSnake.set_alpha(
-                55 * ((petyr - 270) if petyr <= 300 else 30) / 30)
-            SCREEN.blit(
-                scaledSideSnake,
-                ((LENGTH - sideSnakeSize[0]) / 2 +
-                 (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2 -
-                  (LENGTH - sideSnakeSize[0]) / 2) * (petyr - 270) / 30, 40 +
-                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
-                 frontSnakeSize[1] / 4))
-            SCREEN.blit(
-                flippedScaledSideSnake,
-                ((LENGTH - sideSnakeSize[0]) / 2 +
-                 (margin + 45 +
-                  (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 -
-                  (LENGTH - sideSnakeSize[0]) / 2) * (petyr - 270) / 30, 40 +
-                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
-                 frontSnakeSize[1] / 4))
-        if petyr > 300:
-            SCREEN.blit(
-                scaledSideSnake,
-                (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2,
-                 40 + (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
-                 frontSnakeSize[1] / 4))
-            SCREEN.blit(
-                flippedScaledSideSnake,
-                (LENGTH -
-                 (margin +
-                  (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15),
-                 40 + (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
-                 frontSnakeSize[1] / 4))
-        if petyr > 330:
-            for j in range(3):
-                pygame.draw.rect(
-                    SCREEN, DARKBROWN,
-                    ((-40 + (petyr - 330) if petyr < 370 else 0) + margin,
-                     (300 + 40 * j) * HEIGHT / 454, usualWidth * LENGTH / 554,
-                     30 * HEIGHT / 454))
-                pygame.draw.rect(
-                    SCREEN, DARKBROWN,
-                    ((40 - (petyr - 330) if petyr < 370 else 0) + LENGTH -
-                     (margin + usualWidth * LENGTH / 554),
-                     (300 + 40 * j) * HEIGHT / 454, usualWidth * LENGTH / 554,
-                     30 * HEIGHT / 454))
-            s = pygame.Surface((170 * LENGTH / 554, 55 * HEIGHT / 454))
-            s.fill(DARKBROWN)
-            s.set_alpha(255 * (petyr - 330) / 40)
-            SCREEN.blit(s, ((LENGTH -
-                             (170 * LENGTH / 554)) / 2, 265 * HEIGHT / 454))
+                flippedScaledSideSnake = pygame.transform.flip(
+                    scaledSideSnake, True, False)
+                flippedScaledSideSnake.set_alpha(
+                    55 * ((petyr - 270) if petyr <= 300 else 30) / 30)
+                SCREEN.blit(
+                    scaledSideSnake,
+                    ((LENGTH - sideSnakeSize[0]) / 2 +
+                    (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2 -
+                    (LENGTH - sideSnakeSize[0]) / 2) * (petyr - 270) / 30, 40 +
+                    (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                    frontSnakeSize[1] / 4))
+                SCREEN.blit(
+                    flippedScaledSideSnake,
+                    ((LENGTH - sideSnakeSize[0]) / 2 +
+                    (margin + 45 +
+                    (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 -
+                    (LENGTH - sideSnakeSize[0]) / 2) * (petyr - 270) / 30, 40 +
+                    (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                    frontSnakeSize[1] / 4))
+            if petyr > 300:
+                SCREEN.blit(
+                    scaledSideSnake,
+                    (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2,
+                    40 + (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                    frontSnakeSize[1] / 4))
+                SCREEN.blit(
+                    flippedScaledSideSnake,
+                    (LENGTH -
+                    (margin +
+                    (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15),
+                    40 + (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 +
+                    frontSnakeSize[1] / 4))
+            if petyr > 330:
+                for j in range(3):
+                    pygame.draw.rect(
+                        SCREEN, DARKBROWN,
+                        ((-40 + (petyr - 330) if petyr < 370 else 0) + margin,
+                        (300 + 40 * j) * HEIGHT / 454, usualWidth * LENGTH / 554,
+                        30 * HEIGHT / 454))
+                    pygame.draw.rect(
+                        SCREEN, DARKBROWN,
+                        ((40 - (petyr - 330) if petyr < 370 else 0) + LENGTH -
+                        (margin + usualWidth * LENGTH / 554),
+                        (300 + 40 * j) * HEIGHT / 454, usualWidth * LENGTH / 554,
+                        30 * HEIGHT / 454))
+                s = pygame.Surface((170 * LENGTH / 554, 55 * HEIGHT / 454))
+                s.fill(DARKBROWN)
+                s.set_alpha(255 * (petyr - 330) / 40)
+                SCREEN.blit(s, ((LENGTH -
+                                (170 * LENGTH / 554)) / 2, 265 * HEIGHT / 454))
+        else:
+            stopper=True
     show('Press Space Bar to skip animation.', WHITE, 20, HEIGHT - 20, 14, 'i')
-    stopper = False
     for event in event_list:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
@@ -817,10 +804,26 @@ def delta_h():
         h += 100
         pygame.draw.rect(SCREEN, BLACK,
                          (((LENGTH - w) / 2, (HEIGHT - h) / 2, w, h)))
-    if petyr == 377 or stopper:
-        user = 'Home'
-        rate = 8
-        petyr = 0
+        if petyr==377:
+            stopper=True
+    if stopper:
+        if non_cheater :
+            if data['name']=='' or data['name']==None:
+                user = 'NewUser'
+                newUser_init()
+            else:
+                user = 'Home'
+                rate = 8
+                petyr = 0
+        else:
+            user='Cheater'
+            try:
+                with open(r'data\bin\bigGame.dat', 'rb') as file:
+                    bigData = pickle.load(file)
+                dictData = {'name': bigData['name']}
+                pushDictData(collection='cheaterlist', data=dictData)
+            except:
+                pass
 
 
 def home():
