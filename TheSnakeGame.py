@@ -238,9 +238,9 @@ def pushData(name, score, time, bigGameP):
                             writeBigGame(data['name'], True)
                             returnDict['updated'] = True
                             return returnDict
-                    # else:
-                    #     returnDict['notUpdated'] = True
-                    #     return returnDict
+                    else:
+                        returnDict['notUpdated'] = True
+                        return returnDict
         else:
             if name in lnames:
                 print(
@@ -248,8 +248,6 @@ def pushData(name, score, time, bigGameP):
                 )
                 returnDict['thrives'] = True
                 return returnDict
-                # send data with changed name
-                # writeBigGame(True)
             else:
                 pushDictData(collection='testcollection', data=dataDict)
                 print("Data sent successfully!")
@@ -401,7 +399,7 @@ with open(r'data\bin\daily.dat', 'rb') as file:
 savedDataDict = {'score':0, 'time':0}
 
 if internet and os.path.exists(r"data\bin\savedData.dat"):
-    # try:
+    try:
         fileR = open(r'data\bin\savedData.dat', "rb")
         data = pickle.load(fileR)
         bigGame = bigGameVar()
@@ -409,6 +407,7 @@ if internet and os.path.exists(r"data\bin\savedData.dat"):
                  score=data['score'],
                  time=data['time'],
                  bigGameP=bigGame)
+        print(savedDataReturns)
         fileR.close()
         if savedDataReturns['thrives']:
             savedDataNameThrives = True
@@ -416,10 +415,10 @@ if internet and os.path.exists(r"data\bin\savedData.dat"):
             savedDataDict['time'] = data['time']
         os.remove(r"data\bin\savedData.dat")
         print('Saved data from previous games sent')
-    # except:
-    #     print(
-    #         "Saved data from previous games couldn't be sent due to an unexpected error"
-    #     )
+    except:
+        print(
+            "Saved data from previous games couldn't be sent due to an unexpected error"
+        )
 
 # line pygame.draw.line(SCREEN, BLUE, (100,200), (300,450),5) #screen, color, starting point, ending point, width
 # rect pygame.draw.rect(SCREEN, BLUE, (390,390,50,25)) #screen, color, (starting_x, starting_y, width,height)
@@ -1575,7 +1574,7 @@ def emulator():
             bigGame = bigGameVar()
             internet = connect()
             if internet:
-                try:
+                # try:
                     pushReturnDict = pushData(data['name'], score, t, bigGame)
                     changeNameForLead = pushReturnDict['thrives']
                     dataSent = pushReturnDict['sent']
@@ -1583,19 +1582,19 @@ def emulator():
                     dataUpdated = pushReturnDict['updated']
                     dataNotUpdated = pushReturnDict['notUpdated']
                     showHomeButton = not changeNameForLead
-                except:
-                    print(
-                        'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
-                    )
-                    saveGameDataForLater(data['name'], score, t)
-                    errorButDataSaved = True
-                    showHomeButton = True
-            else:
-                print(
-                    'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
-                )
-                saveGameDataForLater(data['name'], score, t)
-                showHomeButton = True
+            #     except:
+            #         print(
+            #             'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
+            #         )
+            #         saveGameDataForLater(data['name'], score, t)
+            #         errorButDataSaved = True
+            #         showHomeButton = True
+            # else:
+            #     print(
+            #         'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
+            #     )
+            #     saveGameDataForLater(data['name'], score, t)
+            #     showHomeButton = True
 
         if not internet:
             show("Data couldn't be sent to servers due", DARKBROWN,
