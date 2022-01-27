@@ -807,14 +807,15 @@ def delta_h():
         if petyr==377:
             stopper=True
     if stopper:
+        rate = 8
+        petyr = 0
         if non_cheater :
             if data['name']=='' or data['name']==None:
                 user = 'NewUser'
                 newUser_init()
             else:
                 user = 'Home'
-                rate = 8
-                petyr = 0
+                
         else:
             user='Cheater'
             try:
@@ -2584,8 +2585,8 @@ errorstart = 0
 
 def newuser(changename=False):
     LENGTH = pygame.display.get_surface().get_width()
-    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData, bigGame,fromLB,selected_items,SCREEN, savedDataDict, tempDataForLead, fromSD
-
+    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData, bigGame,fromLB,selected_items,SCREEN, savedDataDict, tempDataForLead, fromSD,rate
+    rate=8
     if not changename:
         SCREEN.fill(BLACKBROWN)
         pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -2812,7 +2813,7 @@ def cheater():
     show('COMPULSIVE EATER', WHITE, 10, 51, 30,'b')
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 100, LENGTH - 20, 345))
     SCREEN.blit(cheaterImage, (30, 135))
-    show('YOU CAN\'T CHEAT YOUR WAY TO THE TOP', RED, 30, 380, 23,'ib')
+    show('YOU CAN\'T CHEAT YOUR WAY TO THE TOP', RED, 30, 380, 20,'ib')
     if button('Home',
                   LENGTH - 154,
                   5,
