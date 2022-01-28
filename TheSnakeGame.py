@@ -438,7 +438,8 @@ def readSettings():
             'music': True,
             'sound': True,
             'arrow': True,
-            'fauna': True
+            'fauna': True,
+            'darkTheme': False,
         }
         with open(r'data\bin\userSettings.dat', 'wb') as file:
             pickle.dump(setData, file)
@@ -451,7 +452,6 @@ def updateSettings(setData):
     # print('Settings Updated')
 
 
-userSettings = readSettings()
 
 #constants
 LENGTH = 454
@@ -463,9 +463,6 @@ coin_2, point_2 = False, False
 sensitivity = 0
 #colours
 #Theme
-LIGHTBROWN = pygame.Color('#AD9157')
-DARKBROWN = pygame.Color('#4F3119')
-BLACKBROWN = pygame.Color('#11110F')
 WHITE = pygame.Color('#FFFFFF')
 BLACK = pygame.Color('#181818')
 
@@ -495,6 +492,28 @@ COL2 = pygame.Color('#f7c05a')
 
 VOILET = pygame.Color('#400080')
 
+def lightTheme():
+    global LIGHTBROWN, DARKBROWN, BLACKBROWN
+    LIGHTBROWN = pygame.Color('#AD9157')
+    DARKBROWN = pygame.Color('#4F3119')
+    BLACKBROWN = pygame.Color('#11110F')
+
+def darkTheme():
+    global LIGHTBROWN, DARKBROWN, BLACKBROWN
+    LIGHTBROWN = pygame.Color('#AD9157')
+    BLACKBROWN = pygame.Color('#4F3119')
+    DARKBROWN = pygame.Color('#11110F')  
+
+userSettings = readSettings()
+
+def updateTheme():
+    global userSettings
+    if userSettings['darkTheme']:
+        darkTheme()
+    else:
+        lightTheme()
+
+updateTheme()
 
 def loader(s):
     return pygame.transform.scale(
@@ -1255,10 +1274,12 @@ def emulator_params():
     popForLeadInit = True
 
 
+old_rank = None
+
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT, userSettings, sensitivity, petyr, internet, fromLB
+    global sortedData, Pop, PopT, userSettings, sensitivity, petyr, internet, fromLB, old_rank, sortedData
     global changeNameForLead, showHomeButton, tempDataForLead, popForLeadInit, dataSent, dataNotSent, dataUpdated, dataNotUpdated, errorButDataSaved
     gameover = False
     SCREEN.fill(Theme[0])
@@ -1575,6 +1596,10 @@ def emulator():
             internet = connect()
             if internet:
                 try:
+                    for i in len(sortedData):
+                        if sortedData[i][0] == data['name']:
+                            old_rank = i
+                    print(f'old rank : {old_rank}')
                     pushReturnDict = pushData(data['name'], score, t, bigGame)
                     changeNameForLead = pushReturnDict['thrives']
                     dataSent = pushReturnDict['sent']
@@ -1612,6 +1637,22 @@ def emulator():
             show("you don't qualify to be on leaderboard.", DARKBROWN,
                  LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
         elif dataUpdated:
+            # new_rank = 
+            # with open('missions.dat', 'rb') as file:
+            #     miss = pickle.load(file)
+            #     for i, m in enumerate(miss['missions']):
+            #         if m[0] == 'rank' :
+            #             complete=False
+            #             if m[1]=='prev':
+            #                 if new_rank>old_rank:
+            #                     complete=True
+            #             else:
+            #                 if new_rank>int(m[1]):
+            #                     complete=True
+            #             if complete:
+            #                 with open('missions.dat', 'wb') as f:
+            #                     miss['missions'][i][3] = True
+            #                     pickle.dump(miss, f)
             show("Your data on servers has been updated", DARKBROWN,
                  LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
         elif dataNotUpdated:
@@ -2414,7 +2455,7 @@ def inventory():
                             hover_width=1) else user
 
 
-openedSettings = [True, False, False, False]
+openedSettings = [True, False, False]
 
 namepop = False
 popinit = True
@@ -2440,7 +2481,7 @@ def settings():
               WHITE,
               hover_width=0,
               hover_col=LIGHTBROWN):
-        openedSettings = [True, False, False, False]
+        openedSettings = [True, False, False]
     if button("Account",
               10,
               80,
@@ -2451,7 +2492,7 @@ def settings():
               WHITE,
               hover_width=0,
               hover_col=LIGHTBROWN):
-        openedSettings = [False, True, False, False]
+        openedSettings = [False, True, False]
     if button("Themes",
               10,
               110,
@@ -2462,7 +2503,7 @@ def settings():
               WHITE,
               hover_col=LIGHTBROWN,
               hover_width=0):
-        openedSettings = [False, False, True, False]
+        openedSettings = [False, False, True]
 
     pygame.draw.rect(SCREEN, LIGHTBROWN,
                      (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
@@ -2552,8 +2593,44 @@ def settings():
                 newUser_init()
                 user = 'NewUser'
                 fromsetting = True
+    
     elif openedSettings[2]:
-        pass
+        pygame.draw.rect(SCREEN, pygame.Color('#11110F'),
+                     (mul + 30, 100, 170, 110))
+        pygame.draw.rect(SCREEN, pygame.Color('#4F3119'),
+                     (mul + 30, 100, 170, 12))
+        pygame.draw.rect(SCREEN, pygame.Color('#4F3119'),
+                     (mul + 30, 117, 30, 110 - 12 - 5))
+        pygame.draw.rect(SCREEN, pygame.Color('#AD9157'),
+                     (mul + 30 + 34, 117, 170 - 38, 110 - 12 - 10))
+        
+        pygame.draw.rect(SCREEN, BLACKBROWN,
+                     (mul + 220, 100, 170, 110))
+        pygame.draw.rect(SCREEN, DARKBROWN,
+                     (mul + 220, 100, 170, 12))
+        pygame.draw.rect(SCREEN, DARKBROWN,
+                     (mul + 220, 117, 30, 110 - 12 - 5))
+        pygame.draw.rect(SCREEN, LIGHTBROWN,
+                     (mul + 220 + 34, 117, 170 - 38, 110 - 12 - 10))       
+        
+        
+        if (button('', mul + 110, 225, 15, 15,
+                   WHITE if userSettings['darkTheme'] else DARKBROWN, 7,
+                   21, BLACK,
+                   WHITE if not userSettings['darkTheme'] else DARKBROWN)):
+            userSettings['darkTheme'] = not userSettings['darkTheme']
+            updateSettings(userSettings)
+            updateTheme()
+        if (button('', mul + 300, 225, 15, 15,
+                   WHITE if not userSettings['darkTheme'] else DARKBROWN, 7,
+                   21, BLACK,
+                   WHITE if userSettings['darkTheme'] else DARKBROWN)):
+            userSettings['darkTheme'] = not userSettings['darkTheme']
+            updateSettings(userSettings)
+            updateTheme()
+
+        
+
 
     user = 'Home' if button('Home',
                             LENGTH - 154,
