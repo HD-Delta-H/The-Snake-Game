@@ -450,6 +450,7 @@ def updateSettings(setData):
 
 
 userSettings = readSettings()
+quitpop=False
 
 #constants
 LENGTH = 454
@@ -507,7 +508,7 @@ cheaterImage = pygame.image.load(r'data\images\cheater.png').convert()
 deltaH = pygame.image.load(r'data\images\delta-h.PNG').convert()
 sideSnake = pygame.image.load(r'data\images\side-snake.png').convert_alpha()
 frontSnake = pygame.image.load(r'data\images\front-snake.png').convert_alpha()
-github = pygame.transform.scale(pygame.image.load(r'data\images\github.png'), (25, 25)).convert_alpha()
+github = pygame.transform.scale(pygame.image.load(r'data\images\github.png'), (20, 20)).convert_alpha()
 
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
@@ -661,19 +662,14 @@ def screen_animation(decreaser=False, r=25, color=BLACK, timer=0.01):
     return False
 
 
-breaker = False
 petyr = 0
 
 rate = 40
 w = 0
 h = 0
 
-breaker = False
 changeNamePop = False
 
-
-def home():
-    global i, decreaser, done, user, start, breaker, frontSnake, savedDataNameThrives, Pop, changeNamePop
 
 
 def circ(x1, x2, i, n, m, c):
@@ -834,7 +830,7 @@ def delta_h():
 
 
 def home():
-    global i, decreaser, done, user, start, breaker, frontSnake, petyr, changeNamePop
+    global i, decreaser, done, user, start, frontSnake, petyr, changeNamePop
     LENGTH = pygame.display.get_surface().get_width()
     HEIGHT = pygame.display.get_surface().get_height()
     SCREEN.fill(BLACKBROWN)
@@ -2910,9 +2906,14 @@ def info_screen():
     user = 'Home' if button('Home', 350, 370, 80, 30, DARKBROWN, 10, 20, WHITE,
                             DARKBROWN, 1, 'b') else user
 def anchor(x,y,name,url):
-    if button(name,x,y,150,30,LIGHTBROWN,30,20,BLACK,LIGHTBROWN,0,'ib'):
-        import webbrowser
-        webbrowser.open_new(url)
+    global Pop,Url
+    if button(name,x,y,150,30,LIGHTBROWN,20,16,BLACK,LIGHTBROWN,0,'b'):
+        try:
+            import webbrowser
+            webbrowser.open_new(url)
+        except:
+            Pop=True
+            Url=url
     SCREEN.blit(github,(x,y))
 def aboutus():
     global user
@@ -2924,11 +2925,13 @@ def aboutus():
     with open(r'data\aboutus.txt', 'r') as file:
         for i,line in enumerate(file.readlines()):
             show(line.replace('\n',''),BLACK,40,70+25*i,20)
+    show('Click on the links given below to contact us on Github', WHITE, 30,365, 10,'i')
     pygame.draw.line(SCREEN, DARKBROWN, (20, 380), (LENGTH-40, 380), 3)
     pygame.draw.line(SCREEN, DARKBROWN, (LENGTH//2, 385), (LENGTH//2,435), 1)
-    anchor(30,380,'DeltaH','https://github.com/HD-Delta-H')
-    anchor(LENGTH//2+10,380,'DeltaH','https://github.com/HD-Delta-H')
-    anchor(LENGTH//2+10,420,'DeltaH','https://github.com/HD-Delta-H')
+    anchor(30,385,'Delta H','https://github.com/HD-Delta-H')
+    anchor(30,410,'Public Repository','https://github.com/HD-Delta-H')
+    anchor(LENGTH//2+20,385,'Divij Mahajan','https://github.com/Divij-Mahajan')
+    anchor(LENGTH//2+20,410,'Harshit Rai Verma','https://github.com/Harshit-RV')
     user= 'Info' if button('Back',
               LENGTH - 154,
               5,
@@ -2940,7 +2943,8 @@ def aboutus():
               text_size=16,
               hover_col=BLACKBROWN,
               hover_width=1) else user
-
+    if Pop:
+        Popup('Couldn\'t open the link :\n'+Url)
 
 
 def cheaterlist():
@@ -2990,7 +2994,11 @@ def Popup(txt='A Popup', mode='ok'):
     SCREEN.blit(s, (0, 0))
     pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 150, LENGTH - 100, 200), 0, 1)
     if mode == 'ok':
-        show(txt, DARKBROWN, 70, 170, 20)
+        if '\n' in txt:
+            show(txt.split('\n')[0], DARKBROWN, 70, 165, 20)
+            show(txt.split('\n')[1], DARKBROWN, 70, 190, 20)
+        else:
+            show(txt, DARKBROWN, 70, 170, 20)
         if button('Ok',
                   350,
                   300,
@@ -3025,7 +3033,7 @@ def Popup(txt='A Popup', mode='ok'):
 
 
 def main():
-    global event_list, Text_Val
+    global event_list, Text_Val,quitpop
     SCREEN.fill(BLACK)
     while True:
         event_list = pygame.event.get()
@@ -3059,13 +3067,17 @@ def main():
             aboutus()
         for event in event_list:
             if event.type == pygame.QUIT:
+                quitpop=True
+        if quitpop:
+            response=Popup('Are you sure you want to exit?','yesno')
+            if response==True:
                 pygame.quit()
                 sys.exit()
-
+            elif response==False:
+                quitpop=False
+            
         pygame.display.update()
         CLOCK.tick(rate)
-        if breaker:
-            break
 
 
 if __name__ == '__main__':
