@@ -1,1 +1,1 @@
-pip install -r data\requirements.txt
+pip install -r data/requirements.txt
