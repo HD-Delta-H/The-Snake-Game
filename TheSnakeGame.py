@@ -239,6 +239,9 @@ def pushData(name, score, time, bigGameP):
                             writeBigGame(data['name'], True)
                             returnDict['updated'] = True
                             return returnDict
+                        else:
+                            returnDict['notUpdated'] = True
+                            return returnDict
                     else:
                         returnDict['notUpdated'] = True
                         return returnDict
@@ -384,7 +387,15 @@ sortedData = pullingSortedData()
 # print(sortedData)
 maintain10onleaderboard()
 savedDataNameThrives = False
+<<<<<<< HEAD
+
+tempDataForLead = {
+        'score':0,
+        'time':0
+    }
+=======
 tempDataForLead = {'score': 0, 'time': 0}
+>>>>>>> 40326d261144680c99f97bcb94131425a992b80d
 
 s = time.time()
 day = int(((s + 19800) / 3600) // 24)
@@ -395,6 +406,8 @@ with open(r'data\bin\daily.dat', 'rb') as file:
         update_obj()
 
 savedDataDict = {'score': 0, 'time': 0}
+
+savedDataSent, savedDataNotUpdated, savedDataNotSent, savedDataUpdated = False, False, False, False
 
 if internet and os.path.exists(r"data\bin\savedData.dat"):
     try:
@@ -411,8 +424,12 @@ if internet and os.path.exists(r"data\bin\savedData.dat"):
             savedDataNameThrives = True
             savedDataDict['score'] = data['score']
             savedDataDict['time'] = data['time']
+        savedDataSent = True if savedDataReturns['sent'] else savedDataSent
+        savedDataNotUpdated = True if savedDataReturns['notUpdated'] else savedDataNotUpdated
+        savedDataNotSent = True if savedDataReturns['notSent'] else savedDataNotSent
+        savedDataUpdated = True if savedDataReturns['updated'] else savedDataUpdated
         os.remove(r"data\bin\savedData.dat")
-        print('Saved data from previous games sent')
+        print('it\'s done')
     except:
         print(
             "Saved data from previous games couldn't be sent due to an unexpected error"
@@ -436,7 +453,8 @@ def readSettings():
             'music': True,
             'sound': True,
             'arrow': True,
-            'fauna': True
+            'fauna': True,
+            'darkTheme': False,
         }
         with open(r'data\bin\userSettings.dat', 'wb') as file:
             pickle.dump(setData, file)
@@ -449,8 +467,11 @@ def updateSettings(setData):
     # print('Settings Updated')
 
 
+<<<<<<< HEAD
+=======
 userSettings = readSettings()
 quitpop=False
+>>>>>>> 40326d261144680c99f97bcb94131425a992b80d
 
 #constants
 LENGTH = 454
@@ -462,9 +483,6 @@ coin_2, point_2 = False, False
 sensitivity = 0
 #colours
 #Theme
-LIGHTBROWN = pygame.Color('#AD9157')
-DARKBROWN = pygame.Color('#4F3119')
-BLACKBROWN = pygame.Color('#11110F')
 WHITE = pygame.Color('#FFFFFF')
 BLACK = pygame.Color('#181818')
 
@@ -494,6 +512,28 @@ COL2 = pygame.Color('#f7c05a')
 
 VOILET = pygame.Color('#400080')
 
+def lightTheme():
+    global LIGHTBROWN, DARKBROWN, BLACKBROWN
+    LIGHTBROWN = pygame.Color('#AD9157')
+    DARKBROWN = pygame.Color('#4F3119')
+    BLACKBROWN = pygame.Color('#11110F')
+
+def darkTheme():
+    global LIGHTBROWN, DARKBROWN, BLACKBROWN
+    LIGHTBROWN = pygame.Color('#AD9157')
+    BLACKBROWN = pygame.Color('#4F3119')
+    DARKBROWN = pygame.Color('#11110F')  
+
+userSettings = readSettings()
+
+def updateTheme():
+    global userSettings
+    if userSettings['darkTheme']:
+        darkTheme()
+    else:
+        lightTheme()
+
+updateTheme()
 
 def loader(s):
     return pygame.transform.scale(
@@ -1195,7 +1235,6 @@ def attentionChangeNamePopup():
         changeNamePop, savedDataNameThrives = False, False
         user = 'NewUser'
 
-
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
     global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley, m_counter, st, speed_checker, petyr
@@ -1291,10 +1330,12 @@ def emulator_params():
     popForLeadInit = True
 
 
+oldRank, newRank = None, None
+
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT, userSettings, sensitivity, petyr, internet, fromLB
+    global sortedData, Pop, PopT, userSettings, sensitivity, petyr, internet, fromLB, oldRank, newRank
     global changeNameForLead, showHomeButton, tempDataForLead, popForLeadInit, dataSent, dataNotSent, dataUpdated, dataNotUpdated, errorButDataSaved
     gameover = False
     SCREEN.fill(Theme[0])
@@ -1607,16 +1648,67 @@ def emulator():
                     obj['mission'][3] = True
             update_obj()
             update_data()
+            sortedData = pullingSortedData()
             bigGame = bigGameVar()
             internet = connect()
             if internet:
-                try:
+                try:            
                     pushReturnDict = pushData(data['name'], score, t, bigGame)
                     changeNameForLead = pushReturnDict['thrives']
                     dataSent = pushReturnDict['sent']
                     dataNotSent = pushReturnDict['notSent']
-                    dataUpdated = pushReturnDict['updated']
+                    dataUpdated = pushReturnDict['updated']                   
                     dataNotUpdated = pushReturnDict['notUpdated']
+
+                    if bigGame and dataUpdated:
+                        for i in range(len(sortedData)):
+                            if sortedData[i][0] == data['name']:                                
+                                oldRank = i + 1
+                                # print(f"{data['name']} = {sortedData[i][0]}")                 
+                        print(f'Old Rank : {oldRank}')
+
+                    sortedData = pullingSortedData()
+                    
+                    if dataUpdated:
+                        for i in range(len(sortedData)):
+                            if sortedData[i][0] == data['name']:
+                                newRank = i + 1
+                                # print(f"{data['name']} = {sortedData[i][0]}")
+                        print(f'New Rank : {newRank}')
+
+                        try:
+                            with open(r'data\bin\missions.dat', 'rb') as file:
+                                miss = pickle.load(file)
+                                for i, m in enumerate(miss['missions']):
+                                    if m[0] == 'rank' :
+                                        complete = False
+                                        if m[1]=='prev':
+                                            if newRank > oldRank:
+                                                complete=True
+                                        else:
+                                            if new_rank>int(m[1]):
+                                                complete=True
+                                        if complete:
+                                            with open('missions.dat', 'wb') as f:
+                                                miss['missions'][i][3] = True
+                                                pickle.dump(miss, f)
+                            print('Produced promotion boolean :)')
+                        except:
+                            print('Failed to produce promotion boolean :(')
+                    
+                    if dataSent:
+                        try:
+                            with open(r'data\bin\missions.dat', 'rb') as file:
+                                miss = pickle.load(file)
+                                for i, m in enumerate(miss['missions']):
+                                    if m[0] == 'leaderboard':
+                                        with open('missions.dat', 'wb') as f:
+                                            miss['missions'][i][3] = True
+                                            pickle.dump(miss, f)
+                            print('Produced the GotOnLeaderboard boolean :)')
+                        except:
+                            print('Failed to produce the GotOnLeaderboard boolean :(')
+
                     showHomeButton = not changeNameForLead
                 except:
                     print(
@@ -1647,9 +1739,8 @@ def emulator():
                  LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
             show("you don't qualify to be on leaderboard.", DARKBROWN,
                  LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
-        elif dataUpdated:
-            show("Your data on servers has been updated", DARKBROWN,
-                 LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
+        elif dataUpdated:            
+            show("Your data on servers has been updated", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
         elif dataNotUpdated:
             show("You already exist on the leaderboard. ", DARKBROWN,
                  LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
@@ -2463,7 +2554,7 @@ def inventory():
                             hover_width=1) else user
 
 
-openedSettings = [True, False, False, False]
+openedSettings = [True, False, False]
 
 namepop = False
 popinit = True
@@ -2489,7 +2580,7 @@ def settings():
               WHITE,
               hover_width=0,
               hover_col=LIGHTBROWN):
-        openedSettings = [True, False, False, False]
+        openedSettings = [True, False, False]
     if button("Account",
               10,
               80,
@@ -2500,7 +2591,7 @@ def settings():
               WHITE,
               hover_width=0,
               hover_col=LIGHTBROWN):
-        openedSettings = [False, True, False, False]
+        openedSettings = [False, True, False]
     if button("Themes",
               10,
               110,
@@ -2511,7 +2602,7 @@ def settings():
               WHITE,
               hover_col=LIGHTBROWN,
               hover_width=0):
-        openedSettings = [False, False, True, False]
+        openedSettings = [False, False, True]
 
     pygame.draw.rect(SCREEN, LIGHTBROWN,
                      (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
@@ -2601,8 +2692,44 @@ def settings():
                 newUser_init()
                 user = 'NewUser'
                 fromsetting = True
+    
     elif openedSettings[2]:
-        pass
+        pygame.draw.rect(SCREEN, pygame.Color('#11110F'),
+                     (mul + 30, 100, 170, 110))
+        pygame.draw.rect(SCREEN, pygame.Color('#4F3119'),
+                     (mul + 30, 100, 170, 12))
+        pygame.draw.rect(SCREEN, pygame.Color('#4F3119'),
+                     (mul + 30, 117, 30, 110 - 12 - 5))
+        pygame.draw.rect(SCREEN, pygame.Color('#AD9157'),
+                     (mul + 30 + 34, 117, 170 - 38, 110 - 12 - 10))
+        
+        pygame.draw.rect(SCREEN, BLACKBROWN,
+                     (mul + 220, 100, 170, 110))
+        pygame.draw.rect(SCREEN, DARKBROWN,
+                     (mul + 220, 100, 170, 12))
+        pygame.draw.rect(SCREEN, DARKBROWN,
+                     (mul + 220, 117, 30, 110 - 12 - 5))
+        pygame.draw.rect(SCREEN, LIGHTBROWN,
+                     (mul + 220 + 34, 117, 170 - 38, 110 - 12 - 10))       
+        
+        
+        if (button('', mul + 110, 225, 15, 15,
+                   WHITE if userSettings['darkTheme'] else DARKBROWN, 7,
+                   21, BLACK,
+                   WHITE if not userSettings['darkTheme'] else DARKBROWN)):
+            userSettings['darkTheme'] = not userSettings['darkTheme']
+            updateSettings(userSettings)
+            updateTheme()
+        if (button('', mul + 300, 225, 15, 15,
+                   WHITE if not userSettings['darkTheme'] else DARKBROWN, 7,
+                   21, BLACK,
+                   WHITE if userSettings['darkTheme'] else DARKBROWN)):
+            userSettings['darkTheme'] = not userSettings['darkTheme']
+            updateSettings(userSettings)
+            updateTheme()
+
+        
+
 
     user = 'Home' if button('Home',
                             LENGTH - 154,
