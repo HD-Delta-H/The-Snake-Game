@@ -1023,12 +1023,6 @@ def home():
     if changeNamePop:
         attentionChangeNamePopup()
 
-    # if not done:
-    #     d = screen_animation()
-    #     done = d
-    # if done:
-    #     d = screen_animation(True)
-    #     done = not d
 
 
 def arsenal():
@@ -1636,82 +1630,86 @@ def emulator():
                 if score >= obj['mission'][1]:
                     obj['mission'][3] = True
             update_obj()
-            update_data()
-            sortedData = pullingSortedData()
             bigGame = bigGameVar()
             internet = connect()
-            if internet:
-                try:            
-                    pushReturnDict = pushData(data['name'], score, t, bigGame)
-                    changeNameForLead = pushReturnDict['thrives']
-                    dataSent = pushReturnDict['sent']
-                    dataNotSent = pushReturnDict['notSent']
-                    dataUpdated = pushReturnDict['updated']                   
-                    dataNotUpdated = pushReturnDict['notUpdated']
+            if score==data['highscore']:
+                sortedData = pullingSortedData()
+                data['time']=t
+                if internet:
+                    try:            
+                        pushReturnDict = pushData(data['name'], score, t, bigGame)
+                        changeNameForLead = pushReturnDict['thrives']
+                        dataSent = pushReturnDict['sent']
+                        dataNotSent = pushReturnDict['notSent']
+                        dataUpdated = pushReturnDict['updated']                   
+                        dataNotUpdated = pushReturnDict['notUpdated']
 
-                    if bigGame and dataUpdated:
-                        for i in range(len(sortedData)):
-                            if sortedData[i][0] == data['name']:                                
-                                oldRank = i + 1
-                                # print(f"{data['name']} = {sortedData[i][0]}")                 
-                        print(f'Old Rank : {oldRank}')
+                        if bigGame and dataUpdated:
+                            for i in range(len(sortedData)):
+                                if sortedData[i][0] == data['name']:                                
+                                    oldRank = i + 1
+                                    # print(f"{data['name']} = {sortedData[i][0]}")                 
+                            print(f'Old Rank : {oldRank}')
 
-                    sortedData = pullingSortedData()
-                    
-                    if dataUpdated:
-                        for i in range(len(sortedData)):
-                            if sortedData[i][0] == data['name']:
-                                newRank = i + 1
-                                # print(f"{data['name']} = {sortedData[i][0]}")
-                        print(f'New Rank : {newRank}')
+                        sortedData = pullingSortedData()
+                        
+                        if dataUpdated:
+                            for i in range(len(sortedData)):
+                                if sortedData[i][0] == data['name']:
+                                    newRank = i + 1
+                                    # print(f"{data['name']} = {sortedData[i][0]}")
+                            print(f'New Rank : {newRank}')
 
-                        try:
-                            with open(r'data\bin\missions.dat', 'rb') as file:
-                                miss = pickle.load(file)
-                                for i, m in enumerate(miss['missions']):
-                                    if m[0] == 'rank' :
-                                        complete = False
-                                        if m[1]=='prev':
-                                            if newRank > oldRank:
-                                                complete=True
-                                        else:
-                                            if newRank>int(m[1]):
-                                                complete=True
-                                        if complete:
+                            try:
+                                with open(r'data\bin\missions.dat', 'rb') as file:
+                                    miss = pickle.load(file)
+                                    for i, m in enumerate(miss['missions']):
+                                        if m[0] == 'rank' :
+                                            complete = False
+                                            if m[1]=='prev':
+                                                if newRank < oldRank:
+                                                    complete=True
+                                            else:
+                                                if newRank>int(m[1]):
+                                                    complete=True
+                                            if complete:
+                                                with open(r'data\bin\missions.dat', 'wb') as f:
+                                                    miss['missions'][i][3] = True
+                                                    pickle.dump(miss, f)
+                                print('Produced promotion boolean :)')
+                            except:
+                                print('Failed to produce promotion boolean :(')
+                        
+                        if dataSent:
+                            try:
+                                with open(r'data\bin\missions.dat', 'rb') as file:
+                                    miss = pickle.load(file)
+                                    for i, m in enumerate(miss['missions']):
+                                        if m[0] == 'leaderboard':
                                             with open(r'data\bin\missions.dat', 'wb') as f:
                                                 miss['missions'][i][3] = True
                                                 pickle.dump(miss, f)
-                            print('Produced promotion boolean :)')
-                        except:
-                            print('Failed to produce promotion boolean :(')
-                    
-                    if dataSent:
-                        try:
-                            with open(r'data\bin\missions.dat', 'rb') as file:
-                                miss = pickle.load(file)
-                                for i, m in enumerate(miss['missions']):
-                                    if m[0] == 'leaderboard':
-                                        with open(r'data\bin\missions.dat', 'wb') as f:
-                                            miss['missions'][i][3] = True
-                                            pickle.dump(miss, f)
-                            print('Produced the GotOnLeaderboard boolean :)')
-                        except:
-                            print('Failed to produce the GotOnLeaderboard boolean :(')
+                                print('Produced the GotOnLeaderboard boolean :)')
+                            except:
+                                print('Failed to produce the GotOnLeaderboard boolean :(')
 
-                    showHomeButton = not changeNameForLead
-                except:
+                        showHomeButton = not changeNameForLead
+                    except:
+                        print(
+                            'Data not sent due to an unexpected error. The data is saved and will be sent when there is an internet connection and the game is opened.'
+                        )
+                        saveGameDataForLater(data['name'], score, t)
+                        errorButDataSaved = True
+                        showHomeButton = True
+                else:
                     print(
-                        'Data not sent due to an unexpected error. The data is saved and will be sent when there is an internet connection and the game is opened.'
+                        'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
                     )
                     saveGameDataForLater(data['name'], score, t)
-                    errorButDataSaved = True
                     showHomeButton = True
             else:
-                print(
-                    'Data not sent as there is no internet. The data is saved and will be sent when there is an internet connection and the game is opened.'
-                )
-                saveGameDataForLater(data['name'], score, t)
-                showHomeButton = True
+                showHomeButton=True
+            update_data()
 
         if not internet:
             show("Data couldn't be sent to servers due", DARKBROWN,
@@ -1797,8 +1795,12 @@ def emulator():
                 newUser_init()
                 user = 'NewUser'
                 fromLB = True
-
-        if not showHomeButton and not changeNameForLead:
+        if data['highscore']!=score:
+            show("Data hasn't been sent to servers as", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
+            show("you don't qualify to be on leaderboard.", DARKBROWN,
+                 LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
+        elif not showHomeButton and not changeNameForLead:
             show(f"Analysing and Sending", DARKBROWN, LENGTH // 2 - 120,
                  LENGTH // 2 + 56, 18)
             show(f"your data to cloud ....", DARKBROWN, LENGTH // 2 - 120,
@@ -1887,7 +1889,7 @@ def missions():
 
     if ((m[3] == True) if str(type(m[3])) == "<class 'bool'>" else
         (m[3].split('/')[0] == m[3].split('/')[1])) and not m[4]:
-        if button('Claim', LENGTH - 300, 67, 70, 17, DARKBROWN, 10, 13, WHITE,
+        if button('Claim', LENGTH - 300, 72, 70, 17, DARKBROWN, 10, 13, WHITE,
                   DARKBROWN, 0):
             with open(r'data\bin\missions.dat', 'rb') as file:
                 miss = pickle.load(file)
@@ -1906,7 +1908,7 @@ def missions():
                     update_data()
                     update_obj()
     if m[4]:
-        show('Claimed', BLACK, LENGTH - 300, 75, 13)
+        show('Claimed', BLACK, LENGTH - 300, 74, 13)
     show(f'{m[2][1]} coins', DARKBROWN, LENGTH - 80, 55, 13)
     M = m[2][0].replace('-', ' min 2x ')
     M += 'oins' if M[-1] == 'C' else 'oints'
@@ -1931,7 +1933,7 @@ def missions():
 
             if ((m[3] == True) if str(type(m[3])) == "<class 'bool'>" else
                 (m[3].split('/')[0] == m[3].split('/')[1])) and not m[4]:
-                if button('Claim', LENGTH - 300, 127 + i * 50, 70, 17,
+                if button('Claim', LENGTH - 300, 132 + i * 50, 70, 17,
                           DARKBROWN, 10, 13, WHITE, DARKBROWN, 0):
                     with open(r'data\bin\missions.dat', 'wb') as f:
                         miss['missions'][i][4] = True
@@ -1946,7 +1948,7 @@ def missions():
                         data['coin'] = str(int(data['coin']) + m[2][1])
                         update_data()
             if m[4]:
-                show('Claimed', BLACK, LENGTH - 300, 135 + i * 50, 13)
+                show('Claimed', BLACK, LENGTH - 300, 134 + i * 50, 13)
             show(f'{m[2][1]} coins', DARKBROWN, LENGTH - 80, 115 + i * 50, 13)
             M = m[2][0].replace('-', ' min 2x ')
             M += 'oins' if M[-1] == 'C' else 'oints'
@@ -1983,7 +1985,7 @@ pop = False
 
 
 def marketplace():
-    global user, start, SCREEN, LENGTH, opened, pop, q, Pop, sensitivity
+    global user, start, SCREEN, LENGTH, opened, pop, Q, Pop, sensitivity
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
     pygame.draw.rect(SCREEN, DARKBROWN, (0, 0, LENGTH, 40))
@@ -2064,7 +2066,7 @@ def marketplace():
                                     time.time() - sensitivity) > 0.1:
                                 sensitivity = time.time()
                                 pop = True
-                                q = i
+                                Q = i
                             s.set_alpha(60)
                     SCREEN.blit(s, (x, y))
 
@@ -2090,7 +2092,7 @@ def marketplace():
                                     time.time() - sensitivity) > 0.1:
                                 sensitivity = time.time()
                                 pop = True
-                                q = i
+                                Q = i
                             s.set_alpha(60)
                     SCREEN.blit(s, (x, y))
             if pop:
@@ -2098,13 +2100,13 @@ def marketplace():
                              mode='yesno')
                 if cont == True:
                     t = list_items['Powerups'][list(
-                        list_items['Powerups'].keys())[q]]
+                        list_items['Powerups'].keys())[Q]]
                     data['coin'] = str(int(data['coin']) - int(t[1]))
                     if int(data['coin']) >= 0:
                         update_data()
                         with open(r'data\bin\items.dat', 'wb') as f:
                             list_items['Powerups'][list(
-                                list_items['Powerups'].keys())[q]] = (
+                                list_items['Powerups'].keys())[Q]] = (
                                     str(int(t[0]) + 1), t[1])
                             pickle.dump(list_items, f)
                     else:
@@ -2144,7 +2146,7 @@ def marketplace():
                             if pygame.mouse.get_pressed(
                             )[0] and not D[0 if opened[0] else 1]:
                                 pop = True
-                                q = i
+                                Q = i
                             s.set_alpha(60)
                     if D[0 if opened[0] else 1]:
                         s.set_alpha(120)
@@ -2157,6 +2159,10 @@ def marketplace():
                     pygame.draw.rect(SCREEN, LIGHTBROWN,
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
+                    if Dic[0 if opened[0] else 1] == 'LIGHTBROWN':
+                        pygame.draw.rect(SCREEN, BLACK,
+                                         (x + 14, y + 14, width - 28, 67))
+
                     show(('25' if opened[0] else '15'), BLACK,
                          30 + (i - 2) * mul, 355, 18)
                     show(Dic[0 if opened[0] else 1], BLACK, 30 + (i - 2) * mul,
@@ -2173,7 +2179,7 @@ def marketplace():
                             if pygame.mouse.get_pressed(
                             )[0] and not D[0 if opened[0] else 1]:
                                 pop = True
-                                q = i
+                                Q = i
                             s.set_alpha(60)
                     if D[0 if opened[0] else 1]:
                         s.set_alpha(120)
@@ -2183,7 +2189,7 @@ def marketplace():
                              mode='yesno')
                 if cont:
                     t = list_items['Themes'][list(
-                        list_items['Themes'].keys())[q]]
+                        list_items['Themes'].keys())[Q]]
                     data['coin'] = str(
                         int(data['coin']) - (25 if opened[0] else 15))
                     if int(data['coin']) >= 0:
@@ -2191,7 +2197,7 @@ def marketplace():
                         with open(r'data\bin\items.dat', 'wb') as f:
                             t[list(t.keys())[0 if opened[0] else 1]] = True
                             list_items['Themes'][list(
-                                list_items['Themes'].keys())[q]] = t
+                                list_items['Themes'].keys())[Q]] = t
                             pickle.dump(list_items, f)
                     else:
                         Pop = True
@@ -2547,7 +2553,7 @@ popupClose = False
 
 
 def settings():
-    global user, start, SCREEN, LENGTH, openedSettings, pop, q
+    global user, start, SCREEN, LENGTH, openedSettings, pop, Q
     global data, namepop, popinit, fromsetting, popupClose, userSettings, sortedData, bigGame
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(BLACKBROWN)
