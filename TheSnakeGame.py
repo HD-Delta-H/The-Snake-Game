@@ -1678,7 +1678,7 @@ def emulator():
                                             if newRank>int(m[1]):
                                                 complete=True
                                         if complete:
-                                            with open('missions.dat', 'wb') as f:
+                                            with open(r'data\bin\missions.dat', 'wb') as f:
                                                 miss['missions'][i][3] = True
                                                 pickle.dump(miss, f)
                             print('Produced promotion boolean :)')
@@ -1691,7 +1691,7 @@ def emulator():
                                 miss = pickle.load(file)
                                 for i, m in enumerate(miss['missions']):
                                     if m[0] == 'leaderboard':
-                                        with open('missions.dat', 'wb') as f:
+                                        with open(r'data\bin\missions.dat', 'wb') as f:
                                             miss['missions'][i][3] = True
                                             pickle.dump(miss, f)
                             print('Produced the GotOnLeaderboard boolean :)')
