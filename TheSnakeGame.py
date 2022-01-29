@@ -239,6 +239,9 @@ def pushData(name, score, time, bigGameP):
                             writeBigGame(data['name'], True)
                             returnDict['updated'] = True
                             return returnDict
+                        else:
+                            returnDict['notUpdated'] = True
+                            return returnDict
                     else:
                         returnDict['notUpdated'] = True
                         return returnDict
@@ -396,6 +399,8 @@ with open(r'data\bin\daily.dat', 'rb') as file:
 
 savedDataDict = {'score': 0, 'time': 0}
 
+savedDataSent, savedDataNotUpdated, savedDataNotSent, savedDataUpdated = False, False, False, False
+
 if internet and os.path.exists(r"data\bin\savedData.dat"):
     try:
         fileR = open(r'data\bin\savedData.dat', "rb")
@@ -411,8 +416,12 @@ if internet and os.path.exists(r"data\bin\savedData.dat"):
             savedDataNameThrives = True
             savedDataDict['score'] = data['score']
             savedDataDict['time'] = data['time']
+        savedDataSent = True if savedDataReturns['sent'] else savedDataSent
+        savedDataNotUpdated = True if savedDataReturns['notUpdated'] else savedDataNotUpdated
+        savedDataNotSent = True if savedDataReturns['notSent'] else savedDataNotSent
+        savedDataUpdated = True if savedDataReturns['updated'] else savedDataUpdated
         os.remove(r"data\bin\savedData.dat")
-        print('Saved data from previous games sent')
+        print('it\'s done')
     except:
         print(
             "Saved data from previous games couldn't be sent due to an unexpected error"
@@ -436,7 +445,8 @@ def readSettings():
             'music': True,
             'sound': True,
             'arrow': True,
-            'fauna': True
+            'fauna': True,
+            'darkTheme': False,
         }
         with open(r'data\bin\userSettings.dat', 'wb') as file:
             pickle.dump(setData, file)
@@ -450,6 +460,7 @@ def updateSettings(setData):
 
 
 userSettings = readSettings()
+quitpop=False
 
 #constants
 LENGTH = 454
@@ -461,9 +472,6 @@ coin_2, point_2 = False, False
 sensitivity = 0
 #colours
 #Theme
-LIGHTBROWN = pygame.Color('#AD9157')
-DARKBROWN = pygame.Color('#4F3119')
-BLACKBROWN = pygame.Color('#11110F')
 WHITE = pygame.Color('#FFFFFF')
 BLACK = pygame.Color('#181818')
 
@@ -493,6 +501,28 @@ COL2 = pygame.Color('#f7c05a')
 
 VOILET = pygame.Color('#400080')
 
+def lightTheme():
+    global LIGHTBROWN, DARKBROWN, BLACKBROWN
+    LIGHTBROWN = pygame.Color('#AD9157')
+    DARKBROWN = pygame.Color('#4F3119')
+    BLACKBROWN = pygame.Color('#11110F')
+
+def darkTheme():
+    global LIGHTBROWN, DARKBROWN, BLACKBROWN
+    LIGHTBROWN = pygame.Color('#AD9157')
+    BLACKBROWN = pygame.Color('#4F3119')
+    DARKBROWN = pygame.Color('#11110F')  
+
+userSettings = readSettings()
+
+def updateTheme():
+    global userSettings
+    if userSettings['darkTheme']:
+        darkTheme()
+    else:
+        lightTheme()
+
+updateTheme()
 
 def loader(s):
     return pygame.transform.scale(
@@ -507,8 +537,7 @@ cheaterImage = pygame.image.load(r'data\images\cheater.png').convert()
 deltaH = pygame.image.load(r'data\images\delta-h.PNG').convert()
 sideSnake = pygame.image.load(r'data\images\side-snake.png').convert_alpha()
 frontSnake = pygame.image.load(r'data\images\front-snake.png').convert_alpha()
-github = pygame.transform.scale(pygame.image.load(r'data\images\github.png'),
-                                (25, 25)).convert_alpha()
+github = pygame.transform.scale(pygame.image.load(r'data\images\github.png'), (20, 20)).convert_alpha()
 
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
@@ -662,19 +691,14 @@ def screen_animation(decreaser=False, r=25, color=BLACK, timer=0.01):
     return False
 
 
-breaker = False
 petyr = 0
 
 rate = 40
 w = 0
 h = 0
 
-breaker = False
 changeNamePop = False
 
-
-def home():
-    global i, decreaser, done, user, start, breaker, frontSnake, savedDataNameThrives, Pop, changeNamePop
 
 
 def circ(x1, x2, i, n, m, c):
@@ -835,7 +859,7 @@ def delta_h():
 
 
 def home():
-    global i, decreaser, done, user, start, breaker, frontSnake, petyr, changeNamePop
+    global i, decreaser, done, user, start, frontSnake, petyr, changeNamePop
     LENGTH = pygame.display.get_surface().get_width()
     HEIGHT = pygame.display.get_surface().get_height()
     SCREEN.fill(BLACKBROWN)
@@ -1200,7 +1224,6 @@ def attentionChangeNamePopup():
         changeNamePop, savedDataNameThrives = False, False
         user = 'NewUser'
 
-
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
     global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley, m_counter, st, speed_checker, petyr
@@ -1296,10 +1319,12 @@ def emulator_params():
     popForLeadInit = True
 
 
+oldRank, newRank = None, None
+
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT, userSettings, sensitivity, petyr, internet, fromLB
+    global sortedData, Pop, PopT, userSettings, sensitivity, petyr, internet, fromLB, oldRank, newRank
     global changeNameForLead, showHomeButton, tempDataForLead, popForLeadInit, dataSent, dataNotSent, dataUpdated, dataNotUpdated, errorButDataSaved
     gameover = False
     SCREEN.fill(Theme[0])
@@ -1612,16 +1637,67 @@ def emulator():
                     obj['mission'][3] = True
             update_obj()
             update_data()
+            sortedData = pullingSortedData()
             bigGame = bigGameVar()
             internet = connect()
             if internet:
-                try:
+                try:            
                     pushReturnDict = pushData(data['name'], score, t, bigGame)
                     changeNameForLead = pushReturnDict['thrives']
                     dataSent = pushReturnDict['sent']
                     dataNotSent = pushReturnDict['notSent']
-                    dataUpdated = pushReturnDict['updated']
+                    dataUpdated = pushReturnDict['updated']                   
                     dataNotUpdated = pushReturnDict['notUpdated']
+
+                    if bigGame and dataUpdated:
+                        for i in range(len(sortedData)):
+                            if sortedData[i][0] == data['name']:                                
+                                oldRank = i + 1
+                                # print(f"{data['name']} = {sortedData[i][0]}")                 
+                        print(f'Old Rank : {oldRank}')
+
+                    sortedData = pullingSortedData()
+                    
+                    if dataUpdated:
+                        for i in range(len(sortedData)):
+                            if sortedData[i][0] == data['name']:
+                                newRank = i + 1
+                                # print(f"{data['name']} = {sortedData[i][0]}")
+                        print(f'New Rank : {newRank}')
+
+                        try:
+                            with open(r'data\bin\missions.dat', 'rb') as file:
+                                miss = pickle.load(file)
+                                for i, m in enumerate(miss['missions']):
+                                    if m[0] == 'rank' :
+                                        complete = False
+                                        if m[1]=='prev':
+                                            if newRank > oldRank:
+                                                complete=True
+                                        else:
+                                            if newRank>int(m[1]):
+                                                complete=True
+                                        if complete:
+                                            with open('missions.dat', 'wb') as f:
+                                                miss['missions'][i][3] = True
+                                                pickle.dump(miss, f)
+                            print('Produced promotion boolean :)')
+                        except:
+                            print('Failed to produce promotion boolean :(')
+                    
+                    if dataSent:
+                        try:
+                            with open(r'data\bin\missions.dat', 'rb') as file:
+                                miss = pickle.load(file)
+                                for i, m in enumerate(miss['missions']):
+                                    if m[0] == 'leaderboard':
+                                        with open('missions.dat', 'wb') as f:
+                                            miss['missions'][i][3] = True
+                                            pickle.dump(miss, f)
+                            print('Produced the GotOnLeaderboard boolean :)')
+                        except:
+                            print('Failed to produce the GotOnLeaderboard boolean :(')
+
                     showHomeButton = not changeNameForLead
                 except:
                     print(
@@ -1652,9 +1728,8 @@ def emulator():
                  LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
             show("you don't qualify to be on leaderboard.", DARKBROWN,
                  LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
-        elif dataUpdated:
-            show("Your data on servers has been updated", DARKBROWN,
-                 LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
+        elif dataUpdated:            
+            show("Your data on servers has been updated", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
         elif dataNotUpdated:
             show("You already exist on the leaderboard. ", DARKBROWN,
                  LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
@@ -2464,7 +2539,7 @@ def inventory():
                             hover_width=1) else user
 
 
-openedSettings = [True, False, False, False]
+openedSettings = [True, False, False]
 
 namepop = False
 popinit = True
@@ -2490,7 +2565,7 @@ def settings():
               WHITE,
               hover_width=0,
               hover_col=LIGHTBROWN):
-        openedSettings = [True, False, False, False]
+        openedSettings = [True, False, False]
     if button("Account",
               10,
               80,
@@ -2501,7 +2576,7 @@ def settings():
               WHITE,
               hover_width=0,
               hover_col=LIGHTBROWN):
-        openedSettings = [False, True, False, False]
+        openedSettings = [False, True, False]
     if button("Themes",
               10,
               110,
@@ -2512,7 +2587,7 @@ def settings():
               WHITE,
               hover_col=LIGHTBROWN,
               hover_width=0):
-        openedSettings = [False, False, True, False]
+        openedSettings = [False, False, True]
 
     pygame.draw.rect(SCREEN, LIGHTBROWN,
                      (mul + 5, 50, LENGTH - 10 - mul - 5, 390))
@@ -2602,8 +2677,44 @@ def settings():
                 newUser_init()
                 user = 'NewUser'
                 fromsetting = True
+    
     elif openedSettings[2]:
-        pass
+        pygame.draw.rect(SCREEN, pygame.Color('#11110F'),
+                     (mul + 30, 100, 170, 110))
+        pygame.draw.rect(SCREEN, pygame.Color('#4F3119'),
+                     (mul + 30, 100, 170, 12))
+        pygame.draw.rect(SCREEN, pygame.Color('#4F3119'),
+                     (mul + 30, 117, 30, 110 - 12 - 5))
+        pygame.draw.rect(SCREEN, pygame.Color('#AD9157'),
+                     (mul + 30 + 34, 117, 170 - 38, 110 - 12 - 10))
+        
+        pygame.draw.rect(SCREEN, BLACKBROWN,
+                     (mul + 220, 100, 170, 110))
+        pygame.draw.rect(SCREEN, DARKBROWN,
+                     (mul + 220, 100, 170, 12))
+        pygame.draw.rect(SCREEN, DARKBROWN,
+                     (mul + 220, 117, 30, 110 - 12 - 5))
+        pygame.draw.rect(SCREEN, LIGHTBROWN,
+                     (mul + 220 + 34, 117, 170 - 38, 110 - 12 - 10))       
+        
+        
+        if (button('', mul + 110, 225, 15, 15,
+                   WHITE if userSettings['darkTheme'] else DARKBROWN, 7,
+                   21, BLACK,
+                   WHITE if not userSettings['darkTheme'] else DARKBROWN)):
+            userSettings['darkTheme'] = not userSettings['darkTheme']
+            updateSettings(userSettings)
+            updateTheme()
+        if (button('', mul + 300, 225, 15, 15,
+                   WHITE if not userSettings['darkTheme'] else DARKBROWN, 7,
+                   21, BLACK,
+                   WHITE if userSettings['darkTheme'] else DARKBROWN)):
+            userSettings['darkTheme'] = not userSettings['darkTheme']
+            updateSettings(userSettings)
+            updateTheme()
+
+        
+
 
     user = 'Home' if button('Home',
                             LENGTH - 154,
@@ -2906,16 +3017,16 @@ def info_screen():
                                20, WHITE, DARKBROWN, 1, 'b') else user
     user = 'Home' if button('Home', 350, 370, 80, 30, DARKBROWN, 10, 20, WHITE,
                             DARKBROWN, 1, 'b') else user
-
-
-def anchor(x, y, name, url):
-    if button(name, x, y, 150, 30, LIGHTBROWN, 30, 20, BLACK, LIGHTBROWN, 0,
-              'ib'):
-        import webbrowser
-        webbrowser.open_new(url)
-    SCREEN.blit(github, (x, y))
-
-
+def anchor(x,y,name,url):
+    global Pop,Url
+    if button(name,x,y,150,30,LIGHTBROWN,20,16,BLACK,LIGHTBROWN,0,'b'):
+        try:
+            import webbrowser
+            webbrowser.open_new(url)
+        except:
+            Pop=True
+            Url=url
+    SCREEN.blit(github,(x,y))
 def aboutus():
     global user
     LENGTH = pygame.display.get_surface().get_width()
@@ -2924,25 +3035,28 @@ def aboutus():
     show('ABOUT US', WHITE, 10, 10, 20, 'b')
     pygame.draw.rect(SCREEN, LIGHTBROWN, (10, 50, LENGTH - 20, 390))
     with open(r'data\aboutus.txt', 'r') as file:
-        for i, line in enumerate(file.readlines()):
-            show(line.replace('\n', ''), BLACK, 40, 70 + 25 * i, 20)
-    pygame.draw.line(SCREEN, DARKBROWN, (20, 380), (LENGTH - 40, 380), 3)
-    pygame.draw.line(SCREEN, DARKBROWN, (LENGTH // 2, 385), (LENGTH // 2, 435),
-                     1)
-    anchor(30, 380, 'DeltaH', 'https://github.com/HD-Delta-H')
-    anchor(LENGTH // 2 + 10, 380, 'DeltaH', 'https://github.com/HD-Delta-H')
-    anchor(LENGTH // 2 + 10, 420, 'DeltaH', 'https://github.com/HD-Delta-H')
-    user = 'Info' if button('Back',
-                            LENGTH - 154,
-                            5,
-                            100,
-                            30,
-                            LIGHTBROWN,
-                            x_offset=10,
-                            text_col=DARKBROWN,
-                            text_size=16,
-                            hover_col=BLACKBROWN,
-                            hover_width=1) else user
+        for i,line in enumerate(file.readlines()):
+            show(line.replace('\n',''),BLACK,40,70+25*i,20)
+    show('Click on the links given below to contact us on Github', WHITE, 30,365, 10,'i')
+    pygame.draw.line(SCREEN, DARKBROWN, (20, 380), (LENGTH-40, 380), 3)
+    pygame.draw.line(SCREEN, DARKBROWN, (LENGTH//2, 385), (LENGTH//2,435), 1)
+    anchor(30,385,'Delta H','https://github.com/HD-Delta-H')
+    anchor(30,410,'Public Repository','https://github.com/HD-Delta-H')
+    anchor(LENGTH//2+20,385,'Divij Mahajan','https://github.com/Divij-Mahajan')
+    anchor(LENGTH//2+20,410,'Harshit Rai Verma','https://github.com/Harshit-RV')
+    user= 'Info' if button('Back',
+              LENGTH - 154,
+              5,
+              100,
+              30,
+              LIGHTBROWN,
+              x_offset=10,
+              text_col=DARKBROWN,
+              text_size=16,
+              hover_col=BLACKBROWN,
+              hover_width=1) else user
+    if Pop:
+        Popup('Couldn\'t open the link :\n'+Url)
 
 
 def cheaterlist():
@@ -2992,7 +3106,11 @@ def Popup(txt='A Popup', mode='ok'):
     SCREEN.blit(s, (0, 0))
     pygame.draw.rect(SCREEN, LIGHTBROWN, (50, 150, LENGTH - 100, 200), 0, 1)
     if mode == 'ok':
-        show(txt, DARKBROWN, 70, 170, 20)
+        if '\n' in txt:
+            show(txt.split('\n')[0], DARKBROWN, 70, 165, 20)
+            show(txt.split('\n')[1], DARKBROWN, 70, 190, 20)
+        else:
+            show(txt, DARKBROWN, 70, 170, 20)
         if button('Ok',
                   350,
                   300,
@@ -3027,7 +3145,7 @@ def Popup(txt='A Popup', mode='ok'):
 
 
 def main():
-    global event_list, Text_Val
+    global event_list, Text_Val,quitpop
     SCREEN.fill(BLACK)
     while True:
         event_list = pygame.event.get()
@@ -3061,13 +3179,17 @@ def main():
             aboutus()
         for event in event_list:
             if event.type == pygame.QUIT:
+                quitpop=True
+        if quitpop:
+            response=Popup('Are you sure you want to exit?','yesno')
+            if response==True:
                 pygame.quit()
                 sys.exit()
-
+            elif response==False:
+                quitpop=False
+            
         pygame.display.update()
         CLOCK.tick(rate)
-        if breaker:
-            break
 
 
 if __name__ == '__main__':
