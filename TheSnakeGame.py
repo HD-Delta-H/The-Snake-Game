@@ -238,6 +238,9 @@ def pushData(name, score, time, bigGameP):
                             writeBigGame(data['name'], True)
                             returnDict['updated'] = True
                             return returnDict
+                        else:
+                            returnDict['notUpdated'] = True
+                            return returnDict
                     else:
                         returnDict['notUpdated'] = True
                         return returnDict
@@ -383,6 +386,7 @@ sortedData = pullingSortedData()
 # print(sortedData)
 maintain10onleaderboard()
 savedDataNameThrives = False
+
 tempDataForLead = {
         'score':0,
         'time':0
@@ -397,6 +401,8 @@ with open(r'data\bin\daily.dat', 'rb') as file:
         update_obj()
 
 savedDataDict = {'score':0, 'time':0}
+
+savedDataSent, savedDataNotUpdated, savedDataNotSent, savedDataUpdated = False, False, False, False
 
 if internet and os.path.exists(r"data\bin\savedData.dat"):
     try:
@@ -413,8 +419,12 @@ if internet and os.path.exists(r"data\bin\savedData.dat"):
             savedDataNameThrives = True
             savedDataDict['score'] = data['score']
             savedDataDict['time'] = data['time']
+        savedDataSent = True if savedDataReturns['sent'] else savedDataSent
+        savedDataNotUpdated = True if savedDataReturns['notUpdated'] else savedDataNotUpdated
+        savedDataNotSent = True if savedDataReturns['notSent'] else savedDataNotSent
+        savedDataUpdated = True if savedDataReturns['updated'] else savedDataUpdated
         os.remove(r"data\bin\savedData.dat")
-        print('Saved data from previous games sent')
+        print('it\'s done')
     except:
         print(
             "Saved data from previous games couldn't be sent due to an unexpected error"
@@ -1178,7 +1188,6 @@ def attentionChangeNamePopup():
         user = 'NewUser'
              
 
-
 def emulator_params():
     global Blocks, snake, direction, body, Apple, random_cord, Bomb, SpeedUp, SpeedDown, counter, rnt, score, ee_dec, ee_done, realm
     global Theme, blocks, LENGTH, rate, start, SCREEN, popup, applex, appley, m_counter, st, speed_checker, petyr
@@ -1274,12 +1283,12 @@ def emulator_params():
     popForLeadInit = True
 
 
-old_rank = None
+oldRank, newRank = None, None
 
 def emulator():
     global direction, Apple, Bomb, SpeedUp, SpeedDown, counter, rnt, Theme, event_list, realm, t0, start, selected_items, blocks, popup, coin_2, point_2
     global applex, appley, bombx, bomby, speedupx, speedupy, speeddownx, speeddowny, score, rate, ee_dec, ee_done, user, data, coins, t, SCREEN
-    global sortedData, Pop, PopT, userSettings, sensitivity, petyr, internet, fromLB, old_rank, sortedData
+    global sortedData, Pop, PopT, userSettings, sensitivity, petyr, internet, fromLB, oldRank, newRank
     global changeNameForLead, showHomeButton, tempDataForLead, popForLeadInit, dataSent, dataNotSent, dataUpdated, dataNotUpdated, errorButDataSaved
     gameover = False
     SCREEN.fill(Theme[0])
@@ -1592,20 +1601,67 @@ def emulator():
                     obj['mission'][3] = True
             update_obj()
             update_data()
+            sortedData = pullingSortedData()
             bigGame = bigGameVar()
             internet = connect()
             if internet:
-                try:
-                    for i in len(sortedData):
-                        if sortedData[i][0] == data['name']:
-                            old_rank = i
-                    print(f'old rank : {old_rank}')
+                try:            
                     pushReturnDict = pushData(data['name'], score, t, bigGame)
                     changeNameForLead = pushReturnDict['thrives']
                     dataSent = pushReturnDict['sent']
                     dataNotSent = pushReturnDict['notSent']
-                    dataUpdated = pushReturnDict['updated']
+                    dataUpdated = pushReturnDict['updated']                   
                     dataNotUpdated = pushReturnDict['notUpdated']
+
+                    if bigGame and dataUpdated:
+                        for i in range(len(sortedData)):
+                            if sortedData[i][0] == data['name']:                                
+                                oldRank = i + 1
+                                # print(f"{data['name']} = {sortedData[i][0]}")                 
+                        print(f'Old Rank : {oldRank}')
+
+                    sortedData = pullingSortedData()
+                    
+                    if dataUpdated:
+                        for i in range(len(sortedData)):
+                            if sortedData[i][0] == data['name']:
+                                newRank = i + 1
+                                # print(f"{data['name']} = {sortedData[i][0]}")
+                        print(f'New Rank : {newRank}')
+
+                        try:
+                            with open(r'data\bin\missions.dat', 'rb') as file:
+                                miss = pickle.load(file)
+                                for i, m in enumerate(miss['missions']):
+                                    if m[0] == 'rank' :
+                                        complete = False
+                                        if m[1]=='prev':
+                                            if newRank > oldRank:
+                                                complete=True
+                                        else:
+                                            if new_rank>int(m[1]):
+                                                complete=True
+                                        if complete:
+                                            with open('missions.dat', 'wb') as f:
+                                                miss['missions'][i][3] = True
+                                                pickle.dump(miss, f)
+                            print('Produced promotion boolean :)')
+                        except:
+                            print('Failed to produce promotion boolean :(')
+                    
+                    if dataSent:
+                        try:
+                            with open(r'data\bin\missions.dat', 'rb') as file:
+                                miss = pickle.load(file)
+                                for i, m in enumerate(miss['missions']):
+                                    if m[0] == 'leaderboard':
+                                        with open('missions.dat', 'wb') as f:
+                                            miss['missions'][i][3] = True
+                                            pickle.dump(miss, f)
+                            print('Produced the GotOnLeaderboard boolean :)')
+                        except:
+                            print('Failed to produce the GotOnLeaderboard boolean :(')
+
                     showHomeButton = not changeNameForLead
                 except:
                     print(
@@ -1636,25 +1692,8 @@ def emulator():
                  LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
             show("you don't qualify to be on leaderboard.", DARKBROWN,
                  LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
-        elif dataUpdated:
-            # new_rank = 
-            # with open('missions.dat', 'rb') as file:
-            #     miss = pickle.load(file)
-            #     for i, m in enumerate(miss['missions']):
-            #         if m[0] == 'rank' :
-            #             complete=False
-            #             if m[1]=='prev':
-            #                 if new_rank>old_rank:
-            #                     complete=True
-            #             else:
-            #                 if new_rank>int(m[1]):
-            #                     complete=True
-            #             if complete:
-            #                 with open('missions.dat', 'wb') as f:
-            #                     miss['missions'][i][3] = True
-            #                     pickle.dump(miss, f)
-            show("Your data on servers has been updated", DARKBROWN,
-                 LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
+        elif dataUpdated:            
+            show("Your data on servers has been updated", DARKBROWN, LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
         elif dataNotUpdated:
             show("You already exist on the leaderboard. ", DARKBROWN,
                  LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
