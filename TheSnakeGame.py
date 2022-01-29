@@ -387,15 +387,7 @@ sortedData = pullingSortedData()
 # print(sortedData)
 maintain10onleaderboard()
 savedDataNameThrives = False
-<<<<<<< HEAD
-
-tempDataForLead = {
-        'score':0,
-        'time':0
-    }
-=======
 tempDataForLead = {'score': 0, 'time': 0}
->>>>>>> 40326d261144680c99f97bcb94131425a992b80d
 
 s = time.time()
 day = int(((s + 19800) / 3600) // 24)
@@ -467,11 +459,8 @@ def updateSettings(setData):
     # print('Settings Updated')
 
 
-<<<<<<< HEAD
-=======
 userSettings = readSettings()
 quitpop=False
->>>>>>> 40326d261144680c99f97bcb94131425a992b80d
 
 #constants
 LENGTH = 454
@@ -1689,7 +1678,7 @@ def emulator():
                                             if new_rank>int(m[1]):
                                                 complete=True
                                         if complete:
-                                            with open('missions.dat', 'wb') as f:
+                                            with open(r'data\bin\missions.dat', 'wb') as f:
                                                 miss['missions'][i][3] = True
                                                 pickle.dump(miss, f)
                             print('Produced promotion boolean :)')
@@ -1702,7 +1691,7 @@ def emulator():
                                 miss = pickle.load(file)
                                 for i, m in enumerate(miss['missions']):
                                     if m[0] == 'leaderboard':
-                                        with open('missions.dat', 'wb') as f:
+                                        with open(r'data\bin\missions.dat', 'wb') as f:
                                             miss['missions'][i][3] = True
                                             pickle.dump(miss, f)
                             print('Produced the GotOnLeaderboard boolean :)')
