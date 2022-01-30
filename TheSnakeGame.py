@@ -26,7 +26,6 @@ except:
     import urllib.request
 pygame.init()
 
-
 def connect(host='http://google.com'):
     try:
         urllib.request.urlopen(host)
@@ -150,16 +149,14 @@ def pushData(name, score, time, bigGameP):
                 if name == i[0]:
                     if score > i[1]:
                         deleteDoc(collection='testcollection', refid=i[4])
-                        pushDictData(collection='testcollection',
-                                     data=dataDict)
+                        pushDictData(collection='testcollection',data=dataDict)
                         writeBigGame(data['name'], True)
                         returnDict['updated'] = True
                         return returnDict
                     elif score == i[1]:
                         if time < i[2]:
                             deleteDoc(collection='testcollection', refid=i[4])
-                            pushDictData(collection='testcollection',
-                                         data=dataDict)
+                            pushDictData(collection='testcollection',data=dataDict)
                             writeBigGame(data['name'], True)
                             returnDict['updated'] = True
                             return returnDict
@@ -204,7 +201,6 @@ def pullingSortedData():
         except:
             data = []
             return data
-
 
 def saveGameDataForLater(name, score, time):
     try:
@@ -2114,8 +2110,7 @@ def newuser(changename=False):
                                           refid=i[4])
                                 pushDictData('testcollection', dataDict)
                     except:pass
-                else:
-                    print('Player doesn\'t exist on the leaderboard')
+                else:pass
                 data['name'] = Text_Val[:-1]
             update_data()
             writeBigGame(data['name'], bigGame)
@@ -2146,7 +2141,6 @@ def newuser(changename=False):
             errormsg = False
     if Pop:
         Popup("Username must be between 3 to 10 letters.")
-
 
 def cheater():
     global user
@@ -2235,7 +2229,6 @@ def cheaterlist():
     if petyr == 3:
         listOfCheaters = cheaterlistData()
     petyr += 1
-
 
 def Popup(txt='A Popup', mode='ok'):
     global Pop
