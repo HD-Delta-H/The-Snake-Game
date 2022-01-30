@@ -491,7 +491,7 @@ def daily():
 def button(text,x,y,width,height,bg_color=text1_col,x_offset=10,text_size=10,text_col=text1_col,hover_col=BLUE,hover_width=2,mode='n'):
     global buttonSound, sensitivity
     pos = pygame.mouse.get_pos()
-    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height:
+    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height and not quitpop:
         pygame.draw.rect(SCREEN, hover_col,
                          (x - hover_width, y - hover_width,
                           width + hover_width * 2, height + hover_width * 2))
@@ -1339,11 +1339,11 @@ def leaderboard():
     if len(sortedData) > 0:
         for i, dt in enumerate(sortedData):
             if i < 10:
-                show(dt[0], text1_col, 30, 78 + i * 35, 30, 'ib')
-                show(str(dt[1]), text1_col, 305, 78 + i * 35, 30, 'ib')
-                show(str(dt[2]), text1_col, 420, 78 + i * 35, 30, 'ib')
+                show(dt[0], text2_col, 30, 78 + i * 35, 30, 'ib')
+                show(str(dt[1]), text2_col, 305, 78 + i * 35, 30, 'ib')
+                show(str(dt[2]), text2_col, 420, 78 + i * 35, 30, 'ib')
     else:
-        show('Oops! No Data Available', text1_col, 50, 200, 30, 'b')
+        show('Oops! No Data Available', text2_col, 50, 200, 30, 'b')
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
         petyr = 0
     if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
