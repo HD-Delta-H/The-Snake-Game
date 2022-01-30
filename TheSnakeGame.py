@@ -298,6 +298,52 @@ if internet and os.path.exists(r"data\bin\savedData.dat"):
         savedDataNotSent = True if savedDataReturns['notSent'] else savedDataNotSent
         savedDataUpdated = True if savedDataReturns['updated'] else savedDataUpdated
         os.remove(r"data\bin\savedData.dat")
+        
+        if bigGame and savedDataUpdated:
+            for i in range(len(sortedData)):
+                if sortedData[i][0] == data['name']:                                
+                    oldRank = i + 1
+        
+        sortedData = pullingSortedData()
+        
+        if savedDataUpdated:
+            for i in range(len(sortedData)):
+                if sortedData[i][0] == data['name']:
+                    newRank = i + 1
+            try:
+                with open(r'data\bin\missions.dat', 'rb') as file:
+                    miss = pickle.load(file)
+                    for i, m in enumerate(miss['missions']):
+                        if m[0] == 'rank' :
+                            complete = False
+                            if m[1] == 'prev':
+                                if newRank < oldRank:
+                                    complete=True
+                            else:
+                                if newRank > int(m[1]):
+                                    complete=True
+                            if complete:
+                                with open(r'data\bin\missions.dat', 'wb') as f:
+                                    miss['missions'][i][3] = True
+                                    pickle.dump(miss, f)
+            except:
+                print('Failed to produce promotion boolean :(')
+                # pass
+        
+        if savedDataSent:
+            try:
+                with open(r'data\bin\missions.dat', 'rb') as file:
+                    miss = pickle.load(file)
+                    for i, m in enumerate(miss['missions']):
+                        if m[0] == 'leaderboard':
+                            with open(r'data\bin\missions.dat', 'wb') as f:
+                                miss['missions'][i][3] = True
+                                pickle.dump(miss, f)
+            except:
+                print('Failed to produce GotOnLeaderboard boolean :(')
+                # pass
+
+
     except:pass
 
 def readSettings():
@@ -680,8 +726,11 @@ def delta_h():
             except:
                 pass
 
+baelish = True
+
 def home():
     global i, decreaser, done, user, start, frontSnake, petyr, changeNamePop
+    global savedDataSent, savedDataNotUpdated, savedDataNotSent, savedDataUpdated, baelish
     LENGTH = pygame.display.get_surface().get_width()
     HEIGHT = pygame.display.get_surface().get_height()
     SCREEN.fill(bb_col)
@@ -690,25 +739,30 @@ def home():
     usualWidth, margin = 120, 65
     scaledFrontSnake = pygame.transform.scale(frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
     frontSnakeSize = scaledFrontSnake.get_size()
+
     SCREEN.blit(scaledFrontSnake,
                 ((LENGTH - frontSnakeSize[0]) / 2, 30 +
                  (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
+    
     scaledSideSnake = pygame.transform.scale(sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
     sideSnakeSize = scaledSideSnake.get_size()
     flippedScaledSideSnake = pygame.transform.flip(scaledSideSnake, True,False)
     scaledSideSnake.set_alpha(55), flippedScaledSideSnake.set_alpha(55)
+    
     SCREEN.blit(scaledSideSnake,
         (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2, 40 +
          (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
     SCREEN.blit(flippedScaledSideSnake,(LENGTH -(margin +
           (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15), 40 +
          (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
+    
     show('playing as ', bg_col, 20, 16, 16)
     show(data['name'], text1_col, 110, 9, 24, 'ib')
     show(data['coin'] + ' coin(s)', text1_col, 275, 9, 24)
     user = 'Settings' if button('Settings',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
     user = 'Arsenal' if button('Play Game',(LENGTH - (170 * LENGTH / 554)) / 2,265 * HEIGHT / 454 - 10,170 * LENGTH / 554,55 * HEIGHT / 454,h_col,x_offset=30 + (10**(LENGTH / 554)) / 5,text_col=text1_col,text_size=int(28 * LENGTH / 700),hover_col=bb_col,hover_width=1,mode='b') else user
     newUser = button('New User',margin,380 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1)
+    
     if newUser:
         newUser_init()
         user = 'NewUser'
@@ -718,10 +772,24 @@ def home():
     if button('Missions',margin,340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1):
         user = 'Missions'
         daily()
+    
     user = 'Inventory' if button('Inventory',LENGTH - (margin + usualWidth * LENGTH / 554),300 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
     user = 'MarketPlace' if button('Shop',LENGTH -(margin + usualWidth * LENGTH / 554),340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=35 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
     user = 'Cheaterlist' if button('Cheaters\' list',LENGTH -(margin + usualWidth * LENGTH / 554),380 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=7 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
     user = 'Info' if button('SEE INFO',(LENGTH - (140 * LENGTH / 554)) / 2 + 15,380 * HEIGHT / 454,100 * LENGTH / 554,30 * HEIGHT / 454,bg_col,x_offset=(10**(LENGTH / 554)) / 3,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+    
+    if baelish:
+        if savedDataSent:
+            show('Your Game Data sent to the servers.', text2_col, 20, HEIGHT - 37, 16)
+        elif savedDataNotUpdated:
+            show('You exist on the leaderboard. Beat previous score to get promoted.', text2_col, 18, HEIGHT - 37, 16)
+        elif savedDataNotSent:
+            show('Your data from previous games doesn\'t qualify to be leaderboard.', text2_col, 20, HEIGHT - 37, 16)
+        elif savedDataUpdated:
+            show('Leaderboard updated with your data from previous games.', text2_col, 20, HEIGHT - 37, 16)
+
+        baelish = False
+
     if savedDataNameThrives:
         if button('Attention',LENGTH - (margin + usualWidth * LENGTH / 554) + 50,70 * HEIGHT / 454,100,30,RED,x_offset=10,text_col=text1_col,text_size=17,hover_col=bb_col,hover_width=1):
             changeNamePop = True
@@ -1339,11 +1407,11 @@ def leaderboard():
     if len(sortedData) > 0:
         for i, dt in enumerate(sortedData):
             if i < 10:
-                show(dt[0], text1_col, 30, 78 + i * 35, 30, 'ib')
-                show(str(dt[1]), text1_col, 305, 78 + i * 35, 30, 'ib')
-                show(str(dt[2]), text1_col, 420, 78 + i * 35, 30, 'ib')
+                show(dt[0], text2_col, 30, 78 + i * 35, 30, 'ib')
+                show(str(dt[1]), text2_col, 305, 78 + i * 35, 30, 'ib')
+                show(str(dt[2]), text2_col, 420, 78 + i * 35, 30, 'ib')
     else:
-        show('Oops! No Data Available', text1_col, 50, 200, 30, 'b')
+        show('Oops! No Data Available', text2_col, 50, 200, 30, 'b')
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
         petyr = 0
     if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
