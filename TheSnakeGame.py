@@ -709,7 +709,7 @@ def delta_h():
             stopper = True
     if stopper:
         rate = 8
-        petyr = 0
+        petyr = -20
         if non_cheater:
             if data['name'] == '' or data['name'] == None:
                 user = 'NewUser'
@@ -726,7 +726,6 @@ def delta_h():
             except:
                 pass
 
-baelish = True
 
 def home():
     global i, decreaser, done, user, start, frontSnake, petyr, changeNamePop
@@ -789,8 +788,7 @@ def home():
                  (margin + usualWidth * LENGTH / 554),
                  (300 + 40 * j) * HEIGHT / 454,
                  usualWidth * LENGTH / 554, 30 * HEIGHT / 454))
-
-    if baelish:
+    if petyr<0:
         if savedDataSent:
             show('Your Game Data sent to the servers.', text2_col, 20, HEIGHT - 37, 16)
         elif savedDataNotUpdated:
@@ -799,8 +797,7 @@ def home():
             show('Your data from previous games doesn\'t qualify to be leaderboard.', text2_col, 20, HEIGHT - 37, 16)
         elif savedDataUpdated:
             show('Leaderboard updated with your data from previous games.', text2_col, 20, HEIGHT - 37, 16)
-
-        baelish = False
+        petyr+=1
 
     if savedDataNameThrives:
         if button('Attention',LENGTH - (margin + usualWidth * LENGTH / 554) + 50,70 * HEIGHT / 454,100,30,RED,x_offset=10,text_col=text1_col,text_size=17,hover_col=bb_col,hover_width=1):
@@ -1402,7 +1399,7 @@ def emulator():
                 newUser_init()
                 user = 'NewUser'
                 fromLB = True
-        if data['highscore']!=score:
+        if data['highscore']!=score and internet:
             show("Data hasn't been sent to servers as", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
             show("you don't qualify to be on leaderboard.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
         elif not showHomeButton and not changeNameForLead:
