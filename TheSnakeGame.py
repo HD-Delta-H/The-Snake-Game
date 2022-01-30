@@ -491,7 +491,7 @@ def daily():
 def button(text,x,y,width,height,bg_color=text1_col,x_offset=10,text_size=10,text_col=text1_col,hover_col=BLUE,hover_width=2,mode='n'):
     global buttonSound, sensitivity
     pos = pygame.mouse.get_pos()
-    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height and not quitpop:
+    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height :
         pygame.draw.rect(SCREEN, hover_col,
                          (x - hover_width, y - hover_width,
                           width + hover_width * 2, height + hover_width * 2))
@@ -706,22 +706,36 @@ def home():
     show('playing as ', bg_col, 20, 16, 16)
     show(data['name'], text1_col, 110, 9, 24, 'ib')
     show(data['coin'] + ' coin(s)', text1_col, 275, 9, 24)
-    user = 'Settings' if button('Settings',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
-    user = 'Arsenal' if button('Play Game',(LENGTH - (170 * LENGTH / 554)) / 2,265 * HEIGHT / 454 - 10,170 * LENGTH / 554,55 * HEIGHT / 454,h_col,x_offset=30 + (10**(LENGTH / 554)) / 5,text_col=text1_col,text_size=int(28 * LENGTH / 700),hover_col=bb_col,hover_width=1,mode='b') else user
-    newUser = button('New User',margin,380 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1)
-    if newUser:
-        newUser_init()
-        user = 'NewUser'
-    if button('LeaderBoard',margin,300 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=7 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) and not quitpop:
-        user = 'LeaderBoard'
-        petyr = 4
-    if button('Missions',margin,340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1):
-        user = 'Missions'
-        daily()
-    user = 'Inventory' if button('Inventory',LENGTH - (margin + usualWidth * LENGTH / 554),300 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
-    user = 'MarketPlace' if button('Shop',LENGTH -(margin + usualWidth * LENGTH / 554),340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=35 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
-    user = 'Cheaterlist' if button('Cheaters\' list',LENGTH -(margin + usualWidth * LENGTH / 554),380 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=7 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
-    user = 'Info' if button('SEE INFO',(LENGTH - (140 * LENGTH / 554)) / 2 + 15,380 * HEIGHT / 454,100 * LENGTH / 554,30 * HEIGHT / 454,bg_col,x_offset=(10**(LENGTH / 554)) / 3,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+    if not quitpop:
+        user = 'Settings' if button('Settings',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+        user = 'Arsenal' if button('Play Game',(LENGTH - (170 * LENGTH / 554)) / 2,265 * HEIGHT / 454 - 10,170 * LENGTH / 554,55 * HEIGHT / 454,h_col,x_offset=30 + (10**(LENGTH / 554)) / 5,text_col=text1_col,text_size=int(28 * LENGTH / 700),hover_col=bb_col,hover_width=1,mode='b') else user
+        newUser = button('New User',margin,380 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1)
+        if newUser:
+            newUser_init()
+            user = 'NewUser'
+        if button('LeaderBoard',margin,300 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=7 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) and not quitpop:
+            user = 'LeaderBoard'
+            petyr = 4
+        if button('Missions',margin,340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1):
+            user = 'Missions'
+            daily()
+        user = 'Inventory' if button('Inventory',LENGTH - (margin + usualWidth * LENGTH / 554),300 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+        user = 'MarketPlace' if button('Shop',LENGTH -(margin + usualWidth * LENGTH / 554),340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=35 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+        user = 'Cheaterlist' if button('Cheaters\' list',LENGTH -(margin + usualWidth * LENGTH / 554),380 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=7 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+        user = 'Info' if button('SEE INFO',(LENGTH - (140 * LENGTH / 554)) / 2 + 15,380 * HEIGHT / 454,100 * LENGTH / 554,30 * HEIGHT / 454,bg_col,x_offset=(10**(LENGTH / 554)) / 3,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+    else:
+        for j in range(3):
+                    pygame.draw.rect(
+                        SCREEN, h_col,
+                        ( margin,
+                         (300 + 40 * j) * HEIGHT / 454,
+                         usualWidth * LENGTH / 554, 30 * HEIGHT / 454))
+                    pygame.draw.rect(
+                        SCREEN, h_col,
+                        ( LENGTH -
+                         (margin + usualWidth * LENGTH / 554),
+                         (300 + 40 * j) * HEIGHT / 454,
+                         usualWidth * LENGTH / 554, 30 * HEIGHT / 454))
     if savedDataNameThrives:
         if button('Attention',LENGTH - (margin + usualWidth * LENGTH / 554) + 50,70 * HEIGHT / 454,100,30,RED,x_offset=10,text_col=text1_col,text_size=17,hover_col=bb_col,hover_width=1):
             changeNamePop = True
@@ -755,7 +769,7 @@ def arsenal():
                 s = pygame.Surface((width, height))
                 s.set_colorkey(GREY)
                 s.set_alpha(0)
-                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height and not Pop:
+                if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height and not Pop and not quitpop:
                     if pygame.mouse.get_pressed()[0] and (time.time() -sensitivity) > 0.1:
                         sensitivity = time.time()
                         if item[1][0] != '0' or selected_items[i]:
@@ -782,7 +796,7 @@ def arsenal():
                 s.set_colorkey(GREY)
                 s.set_alpha(0)
                 if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[
-                        1] <= y + height and not Pop:
+                        1] <= y + height and not Pop and not quitpop:
                     if pygame.mouse.get_pressed()[0] and (time.time() -sensitivity) > 0.1:
                         sensitivity = time.time()
                         if item[1][0] != '0' or selected_items[i]:
@@ -1509,7 +1523,7 @@ def marketplace():
                     s.set_alpha(0)
                     if not pop or not Pop:
                         if pos[0] >= x and pos[0] <= x + width and pos[
-                                1] >= y and pos[1] <= y + height:
+                                1] >= y and pos[1] <= y + height and not quitpop:
                             if pygame.mouse.get_pressed()[0] and (
                                     time.time() - sensitivity) > 0.1:
                                 sensitivity = time.time()
@@ -1531,7 +1545,7 @@ def marketplace():
                     s.set_alpha(0)
                     if not pop or not Pop:
                         if pos[0] >= x and pos[0] <= x + width and pos[
-                                1] >= y and pos[1] <= y + height:
+                                1] >= y and pos[1] <= y + height and not quitpop:
                             if pygame.mouse.get_pressed()[0] and (time.time() - sensitivity) > 0.1:
                                 sensitivity = time.time()
                                 pop = True
@@ -1798,7 +1812,7 @@ def inventory():
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height:
+                    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height and not quitpop:
                         if pygame.mouse.get_pressed()[0] and (
                                 time.time() - sensitivity) > 0.1:
                             sensitivity = time.time()
@@ -1830,7 +1844,7 @@ def inventory():
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height:
+                    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height and not quitpop:
                         if pygame.mouse.get_pressed()[0] and (
                                 time.time() - sensitivity) > 0.1:
                             sensitivity = time.time()
