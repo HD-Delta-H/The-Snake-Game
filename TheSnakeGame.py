@@ -2260,7 +2260,7 @@ def info_screen():
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
     show('INFORMATION', text1_col, 10, 10, 20, 'b')
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
-    with open(r'data\acknowledgement.txt', 'r') as file:
+    with open(r'data\info.txt', 'r') as file:
         for i, line in enumerate(file.readlines()):
             show(line.replace('\n', ''), text1_col, 40, 70 + 21 * i, 18)
     user = 'AboutUs' if button('About Us', 100, 370, 120, 30, h_col, 10,20, text1_col, h_col, 1, 'b') else user
