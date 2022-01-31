@@ -1,10 +1,10 @@
 import pickle
 
-# with open('userData.dat', 'wb') as file:
-#     obj = {'name': 'Divij', 'highscore': 0, 'coin': '0', 'time': ''}
-#     pickle.dump(obj, file)
+with open('data/bin/userData.dat', 'wb') as file:
+    obj = {'name': 'Divij', 'highscore': 11700, 'coin': '543', 'time': '187.41'}
+    pickle.dump(obj, file)
 
-with open('items.dat', 'wb') as file:
+with open('data/bin/items.dat', 'wb') as file:
     obj = {
         "Themes": {
             "Theme1": {
@@ -12,24 +12,24 @@ with open('items.dat', 'wb') as file:
                 'DARKRED': True
             },
             "Theme2": {
-                'DARKCYAN': True,
-                'ORANGE': True
+                'DARKCYAN': False,
+                'ORANGE': False
             },
             "Theme3": {
-                'GRAY': True,
-                'CADET': True
+                'GRAY': False,
+                'CADET': False
             },
             "Theme4": {
-                'DARKGREEN': True,
-                'PINK': True
+                'DARKGREEN': False,
+                'PINK': False
             },
             "Theme5": {
-                'DARKBLUE': True,
-                'GOLD': True
+                'DARKBLUE': False,
+                'GOLD': False
             },
             "Theme6": {
-                'DARKBROWN': True,
-                'LIGHTBROWN': True
+                'DARKBROWN': False,
+                'LIGHTBROWN': False
             }
         },
         "Powerups": {
@@ -73,7 +73,7 @@ with open('items.dat', 'wb') as file:
         }
     }
     pickle.dump(obj, file)
-with open('missions.dat', 'wb') as file:
+with open('data/bin/missions.dat', 'wb') as file:
     obj = {
         "missions": [['points', 1000, ('5-C', 3), False, False],
                      ['up', 20, ('5-P', 3), '0/20', False],
@@ -99,6 +99,6 @@ with open('missions.dat', 'wb') as file:
 # import time
 # s = time.time()
 
-# with open('daily.dat', 'wb') as file:
+# with open('data/bin/daily.dat', 'wb') as file:
 #     obj = {'mission': '', 'offer1': '', 'offer2': '', 'time': 0, 'day': (((time.time() + 19800) / 3600) // 24)-1}
 #     pickle.dump(obj, file)
