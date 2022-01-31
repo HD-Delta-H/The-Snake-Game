@@ -406,12 +406,13 @@ DARKYELLOW = pygame.Color('#b8860b')
 VOILET = pygame.Color('#400080')
 
 def lightTheme():
-    global bg_col, h_col, bb_col,text1_col,text2_col
+    global bg_col, h_col, bb_col,text1_col,text2_col, appBarButtonCol
     bg_col=LIGHTBROWN
     h_col=DARKBROWN
     bb_col=BLACKBROWN
     text1_col=WHITE
     text2_col=BLACK
+    appBarButtonCol = LIGHTBROWN
 
 def darkTheme():
     global bg_col, h_col, bb_col,text1_col,text2_col
@@ -421,12 +422,22 @@ def darkTheme():
     text1_col=WHITE
     text2_col=WHITE
 
+def newTheme():
+    global bg_col, h_col, bb_col, text1_col, text2_col, appBarButtonCol
+    bg_col = pygame.Color('#110B06')
+    h_col = pygame.Color('#9B0000')
+    bb_col = pygame.Color('#525E57')
+    text1_col=WHITE
+    text2_col=WHITE
+    appBarButtonCol = WHITE
+
 userSettings = readSettings()
 
 def updateTheme():
     global userSettings
     if userSettings['darkTheme']:
-        darkTheme()
+        # darkTheme()
+        newTheme()
     else:
         lightTheme()
 updateTheme()
@@ -709,7 +720,7 @@ def delta_h():
             stopper = True
     if stopper:
         rate = 8
-        petyr = -20
+        petyr = 0
         if non_cheater:
             if data['name'] == '' or data['name'] == None:
                 user = 'NewUser'
@@ -726,6 +737,7 @@ def delta_h():
             except:
                 pass
 
+baelish = True
 
 def home():
     global i, decreaser, done, user, start, frontSnake, petyr, changeNamePop
@@ -759,7 +771,7 @@ def home():
     show(data['name'], text1_col, 110, 9, 24, 'ib')
     show(data['coin'] + ' coin(s)', text1_col, 275, 9, 24)
     if not quitpop:
-        user = 'Settings' if button('Settings',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+        user = 'Settings' if button('Settings',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
         user = 'Arsenal' if button('Play Game',(LENGTH - (170 * LENGTH / 554)) / 2,265 * HEIGHT / 454 - 10,170 * LENGTH / 554,55 * HEIGHT / 454,h_col,x_offset=30 + (10**(LENGTH / 554)) / 5,text_col=text1_col,text_size=int(28 * LENGTH / 700),hover_col=bb_col,hover_width=1,mode='b') else user
         newUser = button('New User',margin,380 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1)
         if newUser:
@@ -788,7 +800,8 @@ def home():
                  (margin + usualWidth * LENGTH / 554),
                  (300 + 40 * j) * HEIGHT / 454,
                  usualWidth * LENGTH / 554, 30 * HEIGHT / 454))
-    if petyr<0:
+
+    if baelish:
         if savedDataSent:
             show('Your Game Data sent to the servers.', text2_col, 20, HEIGHT - 37, 16)
         elif savedDataNotUpdated:
@@ -797,7 +810,8 @@ def home():
             show('Your data from previous games doesn\'t qualify to be leaderboard.', text2_col, 20, HEIGHT - 37, 16)
         elif savedDataUpdated:
             show('Leaderboard updated with your data from previous games.', text2_col, 20, HEIGHT - 37, 16)
-        petyr+=1
+
+        baelish = False
 
     if savedDataNameThrives:
         if button('Attention',LENGTH - (margin + usualWidth * LENGTH / 554) + 50,70 * HEIGHT / 454,100,30,RED,x_offset=10,text_col=text1_col,text_size=17,hover_col=bb_col,hover_width=1):
@@ -900,7 +914,7 @@ def arsenal():
             pygame.mixer.music.set_volume(userSettings['volume'] / 100)
             pygame.mixer.music.play(loops=-1)
         user = 'Emulator'
-    if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
+    if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
         user = 'Home'
         with open(r'data\bin\items.dat', 'rb') as file:
             list_items = pickle.load(file)
@@ -1399,7 +1413,7 @@ def emulator():
                 newUser_init()
                 user = 'NewUser'
                 fromLB = True
-        if data['highscore']!=score and internet:
+        if data['highscore']!=score:
             show("Data hasn't been sent to servers as", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
             show("you don't qualify to be on leaderboard.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
         elif not showHomeButton and not changeNameForLead:
@@ -1423,7 +1437,7 @@ def leaderboard():
         show('Oops! No Data Available', text2_col, 50, 200, 30, 'b')
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
         petyr = 0
-    if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
+    if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
         user = 'Home'
         petyr = 0
     if petyr == 2:
@@ -1529,7 +1543,7 @@ def missions():
             M = m[2][0].replace('-', ' min 2x ')
             M += 'oins' if M[-1] == 'C' else 'oints'
             show(f'{M} ', h_col, LENGTH - 150, 133 + i * 50, 13)
-    if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
+    if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
         user = 'Home'
         petyr = 0
     if petyr == 1:
@@ -1712,7 +1726,7 @@ def marketplace():
     if Pop:
         Popup('Not enough coins')
 
-    user = 'Home' if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+    user = 'Home' if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
     show(str(data['coin']) + ' coin(s)', bg_col, LENGTH - 270, 10, 19)
 
 def inventory():
@@ -1926,7 +1940,7 @@ def inventory():
                     SCREEN.blit(s, (x, y))
     if Pop:
         Popup('Theme not purchased')
-    user = 'Home' if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+    user = 'Home' if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
 openedSettings = [True, False, False]
 namepop = False
 popinit = True
@@ -2027,7 +2041,7 @@ def settings():
             userSettings['darkTheme'] = not userSettings['darkTheme']
             updateSettings(userSettings)
             updateTheme()
-    user = 'Home' if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+    user = 'Home' if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
     if namepop:
         if popinit:
             newUser_init()
@@ -2229,7 +2243,7 @@ def cheater():
     pygame.draw.rect(SCREEN, bg_col, (10, 100, LENGTH - 20, 345))
     SCREEN.blit(cheaterImage, (30, 135))
     show('YOU CAN\'T CHEAT YOUR WAY TO THE TOP', RED, 30, 380, 20, 'ib')
-    if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
+    if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
         user = 'NewUser'
     with open(r'data\bin\userData.dat', 'wb') as file:
         pickle.dump({
@@ -2298,7 +2312,7 @@ def cheaterlist():
             show('Oops! No Data Available', text1_col, 50, 200, 30)
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
         petyr = 0
-    if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
+    if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
         user = 'Home'
         petyr = 0
     if petyr == 2:
