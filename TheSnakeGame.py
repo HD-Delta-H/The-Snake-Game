@@ -453,7 +453,7 @@ cheaterImage = pygame.image.load(r'data\images\cheater.png').convert()
 deltaH = pygame.image.load(r'data\images\delta-h.PNG').convert()
 sideSnake = pygame.image.load(r'data\images\side-snake.png').convert_alpha()
 frontSnake = pygame.image.load(r'data\images\front-snake.png').convert_alpha()
-frontSnake2 = pygame.image.load(r'data\images\front-snake2.png').convert_alpha()
+frontSnake2 = pygame.image.load(r'data\images\front-snake-new.png').convert_alpha()
 github = pygame.transform.scale(pygame.image.load(r'data\images\github.png'), (20, 20)).convert_alpha()
 
 A = "".join([chr(x) for x in range(65, 91)])
@@ -751,22 +751,18 @@ def home():
     usualWidth, margin = 120, 65
     scaledFrontSnake = pygame.transform.scale((frontSnake if not userSettings['darkTheme'] else frontSnake2), (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
     frontSnakeSize = scaledFrontSnake.get_size()
-
     
     scaledSideSnake = pygame.transform.scale(sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
     sideSnakeSize = scaledSideSnake.get_size()
     flippedScaledSideSnake = pygame.transform.flip(scaledSideSnake, True,False)
     scaledSideSnake.set_alpha(55), flippedScaledSideSnake.set_alpha(55)
-    
+     
     SCREEN.blit(scaledSideSnake,
         (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2, 40 +
          (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
     SCREEN.blit(flippedScaledSideSnake,(LENGTH -(margin +
           (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15), 40 +
          (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
-    SCREEN.blit(scaledFrontSnake,
-                ((LENGTH - frontSnakeSize[0]) / 2, 30 +
-                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
     
     show('playing as ', bg_col, 20, 11, 16)
     show(data['name'], text1_col, 110, 4, 24, 'ib')
@@ -801,7 +797,11 @@ def home():
                  (margin + usualWidth * LENGTH / 554),
                  (300 + 40 * j) * HEIGHT / 454,
                  usualWidth * LENGTH / 554, 30 * HEIGHT / 454))
-
+   
+    SCREEN.blit(scaledFrontSnake,
+                ((LENGTH - frontSnakeSize[0]) / 2, 30 +
+                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
+    
     if baelish:
         if savedDataSent:
             show('Your Game Data sent to the servers.', text2_col, 20, HEIGHT - 37, 16)
@@ -2020,17 +2020,16 @@ def settings():
         pygame.draw.rect(SCREEN, LIGHTBROWN,(mul + 30 + 34, 117, 170 - 38, 110 - 12 - 10))
         show('Text 1',WHITE,mul+31,102,8,'b')
         show('Text 2',BLACK,mul+65,119,7)
-        pygame.draw.rect(SCREEN, BLACKBROWN,#bb_col
+        pygame.draw.rect(SCREEN, pygame.Color('#525E57'),#bb_col
                      (mul + 220, 100, 170, 110))
-        pygame.draw.rect(SCREEN, DARKGRAY,#h_col
+        pygame.draw.rect(SCREEN, pygame.Color('#9B0000'),#h_col
                      (mul + 220, 100, 170, 12))
-        pygame.draw.rect(SCREEN, DARKGRAY,#h_col
+        pygame.draw.rect(SCREEN, pygame.Color('#9B0000'),#h_col
                      (mul + 220, 117, 30, 110 - 12 - 5))
-        pygame.draw.rect(SCREEN, BLACK,#bg_col
+        pygame.draw.rect(SCREEN, pygame.Color('#110B06'),#bg_col
                      (mul + 220 + 34, 117, 170 - 38, 110 - 12 - 10))       
-        show('Text 1',GRAY,mul+221,102,8,'b')# text1_col
-        show('Text 2',WHITE,mul+255,119,7)#test2_col
-        
+        show('Text 1',WHITE,mul+221,102,8,'b')# text1_col
+        show('Text 2',WHITE,mul+255,119,7)#test2_col        
         
         if (button('', mul + 110, 225, 15, 15,
                    text1_col if userSettings['darkTheme'] else h_col, 7,
@@ -2044,6 +2043,7 @@ def settings():
             userSettings['darkTheme'] = not userSettings['darkTheme']
             updateSettings(userSettings)
             updateTheme()
+    
     user = 'Home' if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
     if namepop:
         if popinit:
