@@ -1,12 +1,5 @@
-We would like to express our special thanks of gratitude to our subject 
-teacher Ms. Niti Arora as well as our principal Ms .Sneh Verma who gave 
-us the golden opportunity to work on this wonderful coding project using 
-Python. Our teacher has been our guiding light in this journey and her 
-valuable insights have helped us improve and make this project a success. 
+We would like to express our special thanks of gratitude to our subject teacher Ms. Niti Arora as well as our principal Ms .Sneh Verma who gave us the golden opportunity to work on this wonderful coding project using Python. Our teacher has been our guiding light in this journey and her valuable insights have helped us improve and make this project a success. 
 
-This project helped us explore and research about a lot of new topics in 
-this domain. 
+This project helped us explore and research about a lot of new topics in this domain. 
 
-At last, we would like to thank our friends and family who supported us 
-during the entirety of this project and helped us in finalizing it within 
-the limited time frame.
+At last, we would like to thank our friends and family who supported us during the entirety of this project and helped us in finalizing it within the limited time frame.
