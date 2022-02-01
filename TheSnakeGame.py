@@ -453,7 +453,7 @@ cheaterImage = pygame.image.load(r'data\images\cheater.png').convert()
 deltaH = pygame.image.load(r'data\images\delta-h.PNG').convert()
 sideSnake = pygame.image.load(r'data\images\side-snake.png').convert_alpha()
 frontSnake = pygame.image.load(r'data\images\front-snake.png').convert_alpha()
-frontSnake2 = pygame.image.load(r'data\images\front-snake2.png').convert_alpha()
+frontSnake2 = pygame.image.load(r'data\images\front-snake-new.png').convert_alpha()
 github = pygame.transform.scale(pygame.image.load(r'data\images\github.png'), (20, 20)).convert_alpha()
 
 A = "".join([chr(x) for x in range(65, 91)])
@@ -750,26 +750,22 @@ def home():
     usualWidth, margin = 120, 65
     scaledFrontSnake = pygame.transform.scale((frontSnake if not userSettings['darkTheme'] else frontSnake2), (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
     frontSnakeSize = scaledFrontSnake.get_size()
-
     
     scaledSideSnake = pygame.transform.scale(sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
     sideSnakeSize = scaledSideSnake.get_size()
     flippedScaledSideSnake = pygame.transform.flip(scaledSideSnake, True,False)
     scaledSideSnake.set_alpha(55), flippedScaledSideSnake.set_alpha(55)
-    
+     
     SCREEN.blit(scaledSideSnake,
         (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2, 40 +
          (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
     SCREEN.blit(flippedScaledSideSnake,(LENGTH -(margin +
           (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15), 40 +
          (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
-    SCREEN.blit(scaledFrontSnake,
-                ((LENGTH - frontSnakeSize[0]) / 2, 30 +
-                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
     
-    show('playing as ', bg_col, 20, 16, 16)
-    show(data['name'], text1_col, 110, 9, 24, 'ib')
-    show(data['coin'] + ' coin(s)', text1_col, 275, 9, 24)
+    show('playing as ', bg_col, 20, 11, 16)
+    show(data['name'], text1_col, 110, 4, 24, 'ib')
+    show(data['coin'] + ' coin(s)', text1_col, 275, 4, 21)
     if not quitpop:
         user = 'Settings' if button('Settings',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
         user = 'Arsenal' if button('Play Game',(LENGTH - (170 * LENGTH / 554)) / 2,265 * HEIGHT / 454 - 10,170 * LENGTH / 554,55 * HEIGHT / 454,h_col,x_offset=30 + (10**(LENGTH / 554)) / 5,text_col=text1_col,text_size=int(28 * LENGTH / 700),hover_col=bb_col,hover_width=1,mode='b') else user
@@ -823,7 +819,7 @@ def arsenal():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('Your Arsenel for the game', text1_col, 10, 10, 20, 'b')
+    show('Your Arsenel for the game', text1_col, 12, 5, 20, 'b')
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     with open(r'data\bin\items.dat', 'rb') as file:
         list_items = pickle.load(file)
@@ -1431,14 +1427,14 @@ def leaderboard():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('LEADERBOARDS', text1_col, 10, 10, 20, 'b')
+    show('LEADERBOARDS', text1_col, 15, 5, 20, 'b')
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     if len(sortedData) > 0:
         for i, dt in enumerate(sortedData):
             if i < 10:
-                show(dt[0], text2_col, 30, 78 + i * 35, 30, 'ib')
-                show(str(dt[1]), text2_col, 305, 78 + i * 35, 30, 'ib')
-                show(str(dt[2]), text2_col, 420, 78 + i * 35, 30, 'ib')
+                show(dt[0], text2_col, 30, 75 + i * 35, 30, 'ib')
+                show(str(dt[1]), text2_col, 305, 75 + i * 35, 30, 'ib')
+                show(str(dt[2]), text2_col, 420, 75 + i * 35, 30, 'ib')
     else:
         show('Oops! No Data Available', text2_col, 50, 200, 30, 'b')
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
@@ -1452,14 +1448,15 @@ def leaderboard():
         sortedData = pullingSortedData()
     petyr += 1
 
+
 def missions():
     global user, obj, petyr
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('MISSIONS', text1_col, 10, 10, 20, 'b')
+    show('MISSIONS', text1_col, 15, 5, 20, 'b')
     show(data['coin'] + ' coin(s)', text1_col, 275, 9, 24)
-    pygame.draw.rect(SCREEN, bg_col, (20, 50, LENGTH - 40, 40), 0, 8)
+    pygame.draw.rect(SCREEN, bg_col, (20, 50, LENGTH - 40, 43), 0, 8)
     def miss_txt(m):
         txt = ''
         if m[0] == 'points':
@@ -1517,20 +1514,20 @@ def missions():
         miss = pickle.load(file)
         for i, m in enumerate(miss['missions']):
             pygame.draw.rect(SCREEN, bg_col,
-                             (20, 110 + i * 50, LENGTH - 40, 40), 0, 8)
-            show(f"Mission {i+1} :", text1_col, 30, 110 + i * 50, 16)
+                             (10, 107 + i * 50, LENGTH - 20, 43), 0, 8)
+            show(f"Mission {i+1} :", text1_col, 30, 110 + i * 50, 18)
             txt = miss_txt(m)
-            show(txt, text1_col, 35, 134 + i * 50, 12)
-            show('Rewards :', h_col, LENGTH - 150, 115 + i * 50, 13)
+            show(txt, text1_col, 35, 132 + i * 50, 12)
+            show('Rewards :', h_col, LENGTH - 150, 113 + i * 50, 13)
             if m[0] in ('up', 'down', 'apple'):
-                show('Status : ' + m[3], h_col, LENGTH - 300, 115 + i * 50,
+                show('Status : ' + m[3], h_col, LENGTH - 300, 113 + i * 50,
                      13)
             else:
                 show('Status : ' + ('Completed' if m[3] else 'Pending'),
-                     h_col, LENGTH - 300, 115 + i * 50, 13)
+                     h_col, LENGTH - 300, 113 + i * 50, 13)
             if ((m[3] == True) if str(type(m[3])) == "<class 'bool'>" else
                 (m[3].split('/')[0] == m[3].split('/')[1])) and not m[4]:
-                if button('Claim', LENGTH - 300, 132 + i * 50, 70, 17,
+                if button('Claim', LENGTH - 300, 130 + i * 50, 70, 17,
                           h_col, 10, 13, text1_col, h_col, 0):
                     with open(r'data\bin\missions.dat', 'wb') as f:
                         miss['missions'][i][4] = True
@@ -1544,11 +1541,11 @@ def missions():
                         data['coin'] = str(int(data['coin']) + m[2][1])
                         update_data()
             if m[4]:
-                show('Claimed', text1_col, LENGTH - 300, 134 + i * 50, 13)
-            show(f'{m[2][1]} coins', h_col, LENGTH - 80, 115 + i * 50, 13)
+                show('Claimed', text1_col, LENGTH - 300, 132 + i * 50, 13)
+            show(f'{m[2][1]} coins', h_col, LENGTH - 80, 113 + i * 50, 13)
             M = m[2][0].replace('-', ' min 2x ')
             M += 'oins' if M[-1] == 'C' else 'oints'
-            show(f'{M} ', h_col, LENGTH - 150, 133 + i * 50, 13)
+            show(f'{M} ', h_col, LENGTH - 150, 131 + i * 50, 13)
     if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
         user = 'Home'
         petyr = 0
@@ -1561,6 +1558,7 @@ def missions():
         pushDictData(collection='dailymissions', data=obj)
         obj = pullOBJ()
     petyr += 1
+
 opened = [True, False, False, False]
 pop = False
 
@@ -1569,7 +1567,7 @@ def marketplace():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('MARKET PLACE', text1_col, 10, 10, 20, 'b')
+    show('MARKET PLACE', text1_col, 15, 5, 20, 'b')
     mul = (LENGTH - 30) // 4
     pygame.draw.rect(SCREEN, h_col, (10, 50, mul - 10, 390))
     if button("Background",10,50,mul - 10,30, (bg_col if opened[0] else h_col),3,20,text1_col,hover_width=0,hover_col=bg_col):
@@ -1740,7 +1738,7 @@ def inventory():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('INVENTORY', text1_col, 10, 10, 20, 'b')
+    show('INVENTORY', text1_col, 15, 5, 20, 'b')
     mul = (LENGTH - 30) // 4
     pygame.draw.rect(SCREEN, h_col, (10, 50, mul - 10, 390))
     if button("Background",10,50,mul - 10,30, (bg_col if opened[0] else h_col),3,20,text1_col,hover_width=0,hover_col=bg_col):
@@ -1957,7 +1955,7 @@ def settings():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('SETTINGS', text1_col, 10, 10, 20, 'b')
+    show('SETTINGS', text1_col, 15, 5, 20, 'b')
     mul = (LENGTH - 30) // 4
     pygame.draw.rect(SCREEN, h_col, (10, 50, mul - 10, 390))
     if button("Basic",10,50,mul - 10,30, (bg_col if openedSettings[0] else h_col),3,20,text1_col,hover_width=0,hover_col=bg_col):
@@ -2023,17 +2021,16 @@ def settings():
         pygame.draw.rect(SCREEN, LIGHTBROWN,(mul + 30 + 34, 117, 170 - 38, 110 - 12 - 10))
         show('Text 1',WHITE,mul+31,102,8,'b')
         show('Text 2',BLACK,mul+65,119,7)
-        pygame.draw.rect(SCREEN, BLACKBROWN,#bb_col
+        pygame.draw.rect(SCREEN, pygame.Color('#525E57'),#bb_col
                      (mul + 220, 100, 170, 110))
-        pygame.draw.rect(SCREEN, DARKGRAY,#h_col
+        pygame.draw.rect(SCREEN, pygame.Color('#9B0000'),#h_col
                      (mul + 220, 100, 170, 12))
-        pygame.draw.rect(SCREEN, DARKGRAY,#h_col
+        pygame.draw.rect(SCREEN, pygame.Color('#9B0000'),#h_col
                      (mul + 220, 117, 30, 110 - 12 - 5))
-        pygame.draw.rect(SCREEN, BLACK,#bg_col
+        pygame.draw.rect(SCREEN, pygame.Color('#110B06'),#bg_col
                      (mul + 220 + 34, 117, 170 - 38, 110 - 12 - 10))       
-        show('Text 1',GRAY,mul+221,102,8,'b')# text1_col
-        show('Text 2',WHITE,mul+255,119,7)#test2_col
-        
+        show('Text 1',WHITE,mul+221,102,8,'b')# text1_col
+        show('Text 2',WHITE,mul+255,119,7)#test2_col        
         
         if (button('', mul + 110, 225, 15, 15,
                    text1_col if userSettings['darkTheme'] else h_col, 7,
@@ -2047,6 +2044,7 @@ def settings():
             userSettings['darkTheme'] = not userSettings['darkTheme']
             updateSettings(userSettings)
             updateTheme()
+    
     user = 'Home' if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
     if namepop:
         if popinit:
@@ -2067,9 +2065,9 @@ def newuser(changename=False):
         pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
         pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
         if fromLB or fromSD:
-            show('CHANGE NAME', text1_col, 10, 10, 20)
+            show('CHANGE NAME', text1_col, 15, 5, 20)
         else:
-            show('SIGN UP', text1_col, 10, 10, 20, 'b')
+            show('SIGN UP', text1_col, 15, 5, 20, 'b')
     if changename:
         s = pygame.Surface((LENGTH * 2, LENGTH * 2))
         s.set_colorkey(GREY)
@@ -2088,7 +2086,7 @@ def newuser(changename=False):
             Cursor = False
         iterrr += 1
     if not fromsetting:
-        if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
+        if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
             user = 'Home'
             Text_Val = ''
     else:
@@ -2264,7 +2262,7 @@ def info_screen():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('INFORMATION', text1_col, 10, 10, 20, 'b')
+    show('INFORMATION', text1_col, 15, 5, 20, 'b')
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     with open(r'data\info.txt', 'r') as file:
         for i, line in enumerate(file.readlines()):
@@ -2286,7 +2284,7 @@ def aboutus():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('ABOUT US', text1_col, 10, 10, 20, 'b')
+    show('ABOUT US', text1_col, 15, 5, 20, 'b')
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     with open(r'data\aboutus.txt', 'r') as file:
         for i,line in enumerate(file.readlines()):
@@ -2298,7 +2296,7 @@ def aboutus():
     anchor(30,410,'Public Repository','https://github.com/HD-Delta-H')
     anchor(LENGTH//2+20,385,'Divij Mahajan','https://github.com/Divij-Mahajan')
     anchor(LENGTH//2+20,410,'Harshit Rai Verma','https://github.com/Harshit-RV')
-    user= 'Info' if button('Back',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+    user= 'Info' if button('Back',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
     if Pop:
         Popup('Couldn\'t open the link :\n'+Url)
 
@@ -2307,7 +2305,7 @@ def cheaterlist():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('Cheaters\' List', text1_col, 10, 10, 20)
+    show('CHEATERS\' LIST', text1_col, 15, 5, 20)
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     if petyr > 3:
         if len(listOfCheaters) > 0:
