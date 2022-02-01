@@ -762,7 +762,9 @@ def home():
     SCREEN.blit(flippedScaledSideSnake,(LENGTH -(margin +
           (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15), 40 +
          (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
-    
+    SCREEN.blit(scaledFrontSnake,
+        ((LENGTH - frontSnakeSize[0]) / 2, 30 +
+        (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
     show('playing as ', bg_col, 20, 11, 16)
     show(data['name'], text1_col, 110, 4, 24, 'ib')
     show(data['coin'] + ' coin(s)', text1_col, 275, 4, 21)
@@ -1033,7 +1035,7 @@ def emulator():
     global changeNameForLead, showHomeButton, tempDataForLead, popForLeadInit, dataSent, dataNotSent, dataUpdated, dataNotUpdated, errorButDataSaved
     gameover = False
     SCREEN.fill(Theme[0])
-    pygame.draw.rect(SCREEN, bb_col, (2, 32, LENGTH - 4, LENGTH - 35))
+    pygame.draw.rect(SCREEN, BLACKBROWN, (2, 32, LENGTH - 4, LENGTH - 35))
     body.insert(0, tuple(snake))
     body.pop(-1)
     if not popup:
@@ -1284,11 +1286,11 @@ def emulator():
         pygame.draw.rect(SCREEN, bg_col,
             (LENGTH // 2 - 180 + 5, LENGTH // 2 - 150 + 5, 350, 290), 0, 1)
         if petyr<0:
-            show('Speed 0 Realm', h_col, LENGTH // 2 - 130, LENGTH // 2 - 130, 40)
-            show('The laws of Physics',h_col,LENGTH // 2 - 130, LENGTH // 2 - 80, 22)
-            show('tends to bend when', h_col, LENGTH // 2 - 130,LENGTH // 2 - 50, 22)
-            show('someone enters the', h_col, LENGTH // 2 - 130,LENGTH // 2 - 20, 22)
-            show('speed 0 realm', h_col, LENGTH // 2 - 130,LENGTH // 2 +10, 22)
+            show('Speed 0 Realm', text1_col, LENGTH // 2 - 130, LENGTH // 2 - 130, 40)
+            show('The laws of Physics',h_col,LENGTH // 2 - 110, LENGTH // 2 - 70, 22)
+            show('tends to bend when', h_col, LENGTH // 2 - 110,LENGTH // 2 - 40, 22)
+            show('someone enters the', h_col, LENGTH // 2 - 110,LENGTH // 2 - 10, 22)
+            show('speed 0 realm', h_col, LENGTH // 2 - 110,LENGTH // 2 +20, 22)
         else:
             show('Game Over', h_col, LENGTH // 2 - 120, LENGTH // 2 - 130, 40)
             show("Score :" + str(score), text1_col, LENGTH // 2 - 100,LENGTH // 2 - 80, 20)
