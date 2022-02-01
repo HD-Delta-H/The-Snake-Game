@@ -768,9 +768,9 @@ def home():
                 ((LENGTH - frontSnakeSize[0]) / 2, 30 +
                  (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
     
-    show('playing as ', bg_col, 20, 16, 16)
-    show(data['name'], text1_col, 110, 9, 24, 'ib')
-    show(data['coin'] + ' coin(s)', text1_col, 275, 9, 24)
+    show('playing as ', bg_col, 20, 11, 16)
+    show(data['name'], text1_col, 110, 4, 24, 'ib')
+    show(data['coin'] + ' coin(s)', text1_col, 275, 4, 21)
     if not quitpop:
         user = 'Settings' if button('Settings',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
         user = 'Arsenal' if button('Play Game',(LENGTH - (170 * LENGTH / 554)) / 2,265 * HEIGHT / 454 - 10,170 * LENGTH / 554,55 * HEIGHT / 454,h_col,x_offset=30 + (10**(LENGTH / 554)) / 5,text_col=text1_col,text_size=int(28 * LENGTH / 700),hover_col=bb_col,hover_width=1,mode='b') else user
@@ -825,7 +825,7 @@ def arsenal():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('Your Arsenel for the game', text1_col, 10, 10, 20, 'b')
+    show('Your Arsenel for the game', text1_col, 12, 5, 20, 'b')
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     with open(r'data\bin\items.dat', 'rb') as file:
         list_items = pickle.load(file)
@@ -1426,7 +1426,7 @@ def leaderboard():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('LEADERBOARDS', text1_col, 10, 10, 20, 'b')
+    show('LEADERBOARDS', text1_col, 15, 5, 20, 'b')
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     if len(sortedData) > 0:
         for i, dt in enumerate(sortedData):
@@ -1452,7 +1452,7 @@ def missions():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('MISSIONS', text1_col, 10, 10, 20, 'b')
+    show('MISSIONS', text1_col, 15, 5, 20, 'b')
     show(data['coin'] + ' coin(s)', text1_col, 275, 9, 24)
     pygame.draw.rect(SCREEN, bg_col, (20, 50, LENGTH - 40, 40), 0, 8)
     def miss_txt(m):
@@ -1564,7 +1564,7 @@ def marketplace():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('MARKET PLACE', text1_col, 10, 10, 20, 'b')
+    show('MARKET PLACE', text1_col, 15, 5, 20, 'b')
     mul = (LENGTH - 30) // 4
     pygame.draw.rect(SCREEN, h_col, (10, 50, mul - 10, 390))
     if button("Background",10,50,mul - 10,30, (bg_col if opened[0] else h_col),3,20,text1_col,hover_width=0,hover_col=bg_col):
@@ -1735,7 +1735,7 @@ def inventory():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('INVENTORY', text1_col, 10, 10, 20, 'b')
+    show('INVENTORY', text1_col, 15, 5, 20, 'b')
     mul = (LENGTH - 30) // 4
     pygame.draw.rect(SCREEN, h_col, (10, 50, mul - 10, 390))
     if button("Background",10,50,mul - 10,30, (bg_col if opened[0] else h_col),3,20,text1_col,hover_width=0,hover_col=bg_col):
@@ -1952,7 +1952,7 @@ def settings():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('SETTINGS', text1_col, 10, 10, 20, 'b')
+    show('SETTINGS', text1_col, 15, 5, 20, 'b')
     mul = (LENGTH - 30) // 4
     pygame.draw.rect(SCREEN, h_col, (10, 50, mul - 10, 390))
     if button("Basic",10,50,mul - 10,30, (bg_col if openedSettings[0] else h_col),3,20,text1_col,hover_width=0,hover_col=bg_col):
@@ -2062,9 +2062,9 @@ def newuser(changename=False):
         pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
         pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
         if fromLB or fromSD:
-            show('CHANGE NAME', text1_col, 10, 10, 20)
+            show('CHANGE NAME', text1_col, 15, 5, 20)
         else:
-            show('SIGN UP', text1_col, 10, 10, 20, 'b')
+            show('SIGN UP', text1_col, 15, 5, 20, 'b')
     if changename:
         s = pygame.Surface((LENGTH * 2, LENGTH * 2))
         s.set_colorkey(GREY)
@@ -2083,7 +2083,7 @@ def newuser(changename=False):
             Cursor = False
         iterrr += 1
     if not fromsetting:
-        if button('Home',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
+        if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
             user = 'Home'
             Text_Val = ''
     else:
@@ -2259,7 +2259,7 @@ def info_screen():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('INFORMATION', text1_col, 10, 10, 20, 'b')
+    show('INFORMATION', text1_col, 15, 5, 20, 'b')
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     with open(r'data\info.txt', 'r') as file:
         for i, line in enumerate(file.readlines()):
@@ -2281,7 +2281,7 @@ def aboutus():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('ABOUT US', text1_col, 10, 10, 20, 'b')
+    show('ABOUT US', text1_col, 15, 5, 20, 'b')
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     with open(r'data\aboutus.txt', 'r') as file:
         for i,line in enumerate(file.readlines()):
@@ -2293,7 +2293,7 @@ def aboutus():
     anchor(30,410,'Public Repository','https://github.com/HD-Delta-H')
     anchor(LENGTH//2+20,385,'Divij Mahajan','https://github.com/Divij-Mahajan')
     anchor(LENGTH//2+20,410,'Harshit Rai Verma','https://github.com/Harshit-RV')
-    user= 'Info' if button('Back',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+    user= 'Info' if button('Back',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
     if Pop:
         Popup('Couldn\'t open the link :\n'+Url)
 
@@ -2302,7 +2302,7 @@ def cheaterlist():
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
-    show('Cheaters\' List', text1_col, 10, 10, 20)
+    show('CHEATERS\' LIST', text1_col, 15, 5, 20)
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     if petyr > 3:
         if len(listOfCheaters) > 0:
