@@ -721,7 +721,7 @@ def delta_h():
             stopper = True
     if stopper:
         rate = 8
-        petyr = 0
+        petyr = -20
         if non_cheater:
             if data['name'] == '' or data['name'] == None:
                 user = 'NewUser'
@@ -738,11 +738,10 @@ def delta_h():
             except:
                 pass
 
-baelish = True
 
 def home():
     global i, decreaser, done, user, start, frontSnake, petyr, changeNamePop
-    global savedDataSent, savedDataNotUpdated, savedDataNotSent, savedDataUpdated, baelish
+    global savedDataSent, savedDataNotUpdated, savedDataNotSent, savedDataUpdated
     LENGTH = pygame.display.get_surface().get_width()
     HEIGHT = pygame.display.get_surface().get_height()
     SCREEN.fill(bb_col)
@@ -802,7 +801,7 @@ def home():
                  (300 + 40 * j) * HEIGHT / 454,
                  usualWidth * LENGTH / 554, 30 * HEIGHT / 454))
 
-    if baelish:
+    if petyr<0:
         if savedDataSent:
             show('Your Game Data sent to the servers.', text2_col, 20, HEIGHT - 37, 16)
         elif savedDataNotUpdated:
@@ -811,8 +810,7 @@ def home():
             show('Your data from previous games doesn\'t qualify to be leaderboard.', text2_col, 20, HEIGHT - 37, 16)
         elif savedDataUpdated:
             show('Leaderboard updated with your data from previous games.', text2_col, 20, HEIGHT - 37, 16)
-
-        baelish = False
+        petyr+=1
 
     if savedDataNameThrives:
         if button('Attention',LENGTH - (margin + usualWidth * LENGTH / 554) + 50,70 * HEIGHT / 454,100,30,RED,x_offset=10,text_col=text1_col,text_size=17,hover_col=bb_col,hover_width=1):
@@ -1086,136 +1084,136 @@ def emulator():
             snake[1] = 17 if snake[1] > 453 else (
                 452 if snake[1] < 17 else snake[1])
         #Collision Logics
-        if tuple(snake) == (applex, appley):
-            if userSettings['sound']:appleMusic.play(loops=0)
-            body.append(body[-1])
-            Apple = True
-            for i, c in enumerate(m_counter['apple']):
-                C = c.split('/')
-                m_counter['apple'][i] = str(int(C[0]) +
-                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
-            if obj['mission'][0] == 'apple':
-                c = obj['mission'][3]
-                C = c.split('/')
-                obj['mission'][3] = str(int(C[0]) +
-                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
-            score += 100 if point_2 else 50
-            for pair in st:
-                if (time.time() - start) <= pair[1] and score == pair[0]:
-                    with open(r'data\bin\missions.dat', 'rb') as file:
-                        miss = pickle.load(file)
-                        for i, m in enumerate(miss['missions']):
-                            if m[0] == 'st' and pair == m[1]:
-                                with open(r'data\bin\missions.dat', 'wb') as f:
-                                    miss['missions'][i][3] = True
-                                    pickle.dump(miss, f)
-        elif tuple(snake) == (bombx, bomby):
-            if userSettings['sound']:
-                bombMusic.play(loops=0)
-            bombx, bomby = -1, -1
-            score -= 100
-        elif tuple(snake) == (speedupx, speedupy):
-            if userSettings['sound']:
-                speedupMusic.play(loops=0)
-            speedupx, speedupy = -1, -1
-            rate += 2
-            body.append(body[-1])
-            for i, c in enumerate(m_counter['up']):
-                C = c.split('/')
-                m_counter['up'][i] = str(int(C[0]) +
-                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
-            if obj['mission'][0] == 'up':
-                c = obj['mission'][3]
-                C = c.split('/')
-                obj['mission'][3] = str(int(C[0]) +
-                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
-            score += 300 if point_2 else 150
-            for pair in st:
-                if (time.time() - start) <= pair[1] and score == pair[0]:
-                    with open(r'data\bin\missions.dat', 'rb') as file:
-                        miss = pickle.load(file)
-                        for i, m in enumerate(miss['missions']):
-                            if m[0] == 'st' and pair == m[1]:
-                                with open(r'data\bin\missions.dat', 'wb') as f:
-                                    miss['missions'][i][3] = True
-                                    pickle.dump(miss, f)
-            for v in speed_checker:
-                if rate == v:
-                    with open(r'data\bin\missions.dat', 'rb') as file:
-                        miss = pickle.load(file)
-                        for i, m in enumerate(miss['missions']):
-                            if m[0] == 'speed' and m[1] == v:
-                                with open(r'data\bin\missions.dat', 'wb') as f:
-                                    miss['missions'][i][3] = True
-                                    pickle.dump(miss, f)
-            if obj['mission'][0] == 'speed':
-                if rate == obj['mission'][1]:
-                    obj['mission'][3] = True
-        elif tuple(snake) == (speeddownx, speeddowny):
-            if userSettings['sound']:
-                speeddownMusic.play(loops=0)
-            speeddownx, speeddowny = -1, -1
-            body.append(body[-1])
-            for i, c in enumerate(m_counter['down']):
-                C = c.split('/')
-                m_counter['down'][i] = str(
-                    int(C[0]) +
-                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
-            if obj['mission'][0] == 'down':
-                c = obj['mission'][3]
-                C = c.split('/')
-                obj['mission'][3] = str(int(C[0]) +
-                    (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
-            rate -= 2
-            score += 300 if point_2 else 150
-            for pair in st:
-                if (time.time() - start) <= pair[1] and score == pair[0]:
-                    with open(r'data\bin\missions.dat', 'rb') as file:
-                        miss = pickle.load(file)
-                        for i, m in enumerate(miss['missions']):
-                            if m[0] == 'st' and pair == m[1]:
-                                with open(r'data\bin\missions.dat', 'wb') as f:
-                                    miss['missions'][i][3] = True
-                                    pickle.dump(miss, f)
-            for v in speed_checker:
-                if rate == v:
-                    with open(r'data\bin\missions.dat', 'rb') as file:
-                        miss = pickle.load(file)
-                        for i, m in enumerate(miss['missions']):
-                            if m[0] == 'speed' and m[1] == v:
-                                with open(r'data\bin\missions.dat', 'wb') as f:
-                                    miss['missions'][i][3] = True
-                                    pickle.dump(miss, f)
-            if obj['mission'][0] == 'speed':
-                if rate == obj['mission'][1]:
-                    obj['mission'][3] = True
-        if Apple == True:
-            applex, appley = random_cord(blocks)
-            Apple = False
-        if (tuple(snake) in body[1::]):
-            gameover = True
-        if (not (-10 <= snake[0] <= 450)or not (20 <= snake[1] <= 450)) and not selected_items[5]:
-            gameover = True
+        if rate!=200:
+            if tuple(snake) == (applex, appley):
+                if userSettings['sound']:appleMusic.play(loops=0)
+                body.append(body[-1])
+                Apple = True
+                for i, c in enumerate(m_counter['apple']):
+                    C = c.split('/')
+                    m_counter['apple'][i] = str(int(C[0]) +
+                        (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
+                if obj['mission'][0] == 'apple':
+                    c = obj['mission'][3]
+                    C = c.split('/')
+                    obj['mission'][3] = str(int(C[0]) +
+                        (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
+                score += 100 if point_2 else 50
+                for pair in st:
+                    if (time.time() - start) <= pair[1] and score == pair[0]:
+                        with open(r'data\bin\missions.dat', 'rb') as file:
+                            miss = pickle.load(file)
+                            for i, m in enumerate(miss['missions']):
+                                if m[0] == 'st' and pair == m[1]:
+                                    with open(r'data\bin\missions.dat', 'wb') as f:
+                                        miss['missions'][i][3] = True
+                                        pickle.dump(miss, f)
+            elif tuple(snake) == (bombx, bomby):
+                if userSettings['sound']:
+                    bombMusic.play(loops=0)
+                bombx, bomby = -1, -1
+                score -= 100
+            elif tuple(snake) == (speedupx, speedupy):
+                if userSettings['sound']:
+                    speedupMusic.play(loops=0)
+                speedupx, speedupy = -1, -1
+                rate += 2
+                body.append(body[-1])
+                for i, c in enumerate(m_counter['up']):
+                    C = c.split('/')
+                    m_counter['up'][i] = str(int(C[0]) +
+                        (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
+                if obj['mission'][0] == 'up':
+                    c = obj['mission'][3]
+                    C = c.split('/')
+                    obj['mission'][3] = str(int(C[0]) +
+                        (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
+                score += 300 if point_2 else 150
+                for pair in st:
+                    if (time.time() - start) <= pair[1] and score == pair[0]:
+                        with open(r'data\bin\missions.dat', 'rb') as file:
+                            miss = pickle.load(file)
+                            for i, m in enumerate(miss['missions']):
+                                if m[0] == 'st' and pair == m[1]:
+                                    with open(r'data\bin\missions.dat', 'wb') as f:
+                                        miss['missions'][i][3] = True
+                                        pickle.dump(miss, f)
+                for v in speed_checker:
+                    if rate == v:
+                        with open(r'data\bin\missions.dat', 'rb') as file:
+                            miss = pickle.load(file)
+                            for i, m in enumerate(miss['missions']):
+                                if m[0] == 'speed' and m[1] == v:
+                                    with open(r'data\bin\missions.dat', 'wb') as f:
+                                        miss['missions'][i][3] = True
+                                        pickle.dump(miss, f)
+                if obj['mission'][0] == 'speed':
+                    if rate == obj['mission'][1]:
+                        obj['mission'][3] = True
+            elif tuple(snake) == (speeddownx, speeddowny):
+                if userSettings['sound']:
+                    speeddownMusic.play(loops=0)
+                speeddownx, speeddowny = -1, -1
+                body.append(body[-1])
+                for i, c in enumerate(m_counter['down']):
+                    C = c.split('/')
+                    m_counter['down'][i] = str(
+                        int(C[0]) +
+                        (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
+                if obj['mission'][0] == 'down':
+                    c = obj['mission'][3]
+                    C = c.split('/')
+                    obj['mission'][3] = str(int(C[0]) +
+                        (1 if int(C[0]) < int(C[1]) else 0)) + '/' + C[1]
+                rate -= 2
+                score += 300 if point_2 else 150
+                for pair in st:
+                    if (time.time() - start) <= pair[1] and score == pair[0]:
+                        with open(r'data\bin\missions.dat', 'rb') as file:
+                            miss = pickle.load(file)
+                            for i, m in enumerate(miss['missions']):
+                                if m[0] == 'st' and pair == m[1]:
+                                    with open(r'data\bin\missions.dat', 'wb') as f:
+                                        miss['missions'][i][3] = True
+                                        pickle.dump(miss, f)
+                for v in speed_checker:
+                    if rate == v:
+                        with open(r'data\bin\missions.dat', 'rb') as file:
+                            miss = pickle.load(file)
+                            for i, m in enumerate(miss['missions']):
+                                if m[0] == 'speed' and m[1] == v:
+                                    with open(r'data\bin\missions.dat', 'wb') as f:
+                                        miss['missions'][i][3] = True
+                                        pickle.dump(miss, f)
+                if obj['mission'][0] == 'speed':
+                    if rate == obj['mission'][1]:
+                        obj['mission'][3] = True
+            if Apple == True:
+                applex, appley = random_cord(blocks)
+                Apple = False
+            if (tuple(snake) in body[1::]):
+                gameover = True
+            if (not (-10 <= snake[0] <= 450)or not (20 <= snake[1] <= 450)) and not selected_items[5]:
+                gameover = True
         # 0 speed Realm
         if rate == 0:
             realm = True
             t0 = time.time()
             rate = 200
         if realm:
-            selected_items[5] = True
             Theme[2], Theme[7] = Theme[7], Theme[2]
             Theme[4] = Theme[0]
             Theme[5], Theme[3], Theme[6], Theme[1] = VOILET, VOILET, VOILET, VOILET
-            if counter[0] % 5 == 0:
+            if counter[0] % 5 == 0:# increase snake len
                 body.append(body[-1])
-            if counter[0] % 2 == 0:
+            if counter[0] % 2 == 0:# towards center
                 direction = 'up' if snake[1] > 250 else 'down'
             else:
                 direction = 'left' if snake[0] > 250 else 'right'
-            if time.time() - t0 > 3:
-                SCREEN.fill((0, 0, 0))
-                show('The laws of Physics tends to bend when', (200, 200, 200),20, 210, 22)
-                show('someone enters the speed 0 realm', (200, 200, 200), 45,240, 22)
+            if time.time() - t0 > 2.5:
+                petyr=-40
+                gameover=True
+                rate=8
             else:
                 if not ee_done:
                     ee_dec = screen_animation(False, 5, Theme[7], 0.001)
@@ -1289,137 +1287,144 @@ def emulator():
         pygame.draw.rect(SCREEN, h_col,(LENGTH // 2 - 180, LENGTH // 2 - 150, 360, 300), 0,1)
         pygame.draw.rect(SCREEN, bg_col,
             (LENGTH // 2 - 180 + 5, LENGTH // 2 - 150 + 5, 350, 290), 0, 1)
-        show('Game Over', h_col, LENGTH // 2 - 120, LENGTH // 2 - 130, 40)
-        show("Score :" + str(score), text1_col, LENGTH // 2 - 100,LENGTH // 2 - 80, 20)
-        show("High Score :" + str(data['highscore']), text1_col, LENGTH // 2 - 100,LENGTH // 2 - 50, 20)
-        show("Time :" + t, text1_col, LENGTH // 2 - 100, LENGTH // 2 - 20, 20)
-        show("Coins :" + str(coins), text1_col, LENGTH // 2 - 100,LENGTH // 2 + 10, 20)
-        if petyr == 3:
-            data['coin'] = f"{int(data['coin'])+coins}"
-            with open(r'data\bin\missions.dat', 'rb') as file:
-                miss = pickle.load(file)
-                for i, m in enumerate(miss['missions']):
-                    if m[0] == 'points' and m[1] <= score:
-                        with open(r'data\bin\missions.dat', 'wb') as f:
-                            miss['missions'][i][3] = True
-                            pickle.dump(miss, f)
-                    if m[0] in ('apple', 'up', 'down'):
-                        for k in m_counter[m[0]]:
-                            if m[3].split('/')[1] == k.split('/')[1]:
-                                with open(r'data\bin\missions.dat', 'wb') as f:
-                                    miss['missions'][i][3] = k
-                                    pickle.dump(miss, f)
-            if obj['mission'][0] == 'points':
-                if score >= obj['mission'][1]:
-                    obj['mission'][3] = True
-            update_obj()
-            bigGame = bigGameVar()
-            internet = connect()
-            if score==data['highscore']:
-                sortedData = pullingSortedData()
-                data['time']=t
-                if internet:
-                    try:            
-                        pushReturnDict = pushData(data['name'], score, t, bigGame)
-                        changeNameForLead = pushReturnDict['thrives']
-                        dataSent = pushReturnDict['sent']
-                        dataNotSent = pushReturnDict['notSent']
-                        dataUpdated = pushReturnDict['updated']                   
-                        dataNotUpdated = pushReturnDict['notUpdated']
-                        if bigGame and dataUpdated:
-                            for i in range(len(sortedData)):
-                                if sortedData[i][0] == data['name']:                                
-                                    oldRank = i + 1
-                        sortedData = pullingSortedData()
-                        if dataUpdated:
-                            for i in range(len(sortedData)):
-                                if sortedData[i][0] == data['name']:
-                                    newRank = i + 1
-                            try:
-                                with open(r'data\bin\missions.dat', 'rb') as file:
-                                    miss = pickle.load(file)
-                                    for i, m in enumerate(miss['missions']):
-                                        if m[0] == 'rank' :
-                                            complete = False
-                                            if m[1]=='prev':
-                                                if newRank < oldRank:
-                                                    complete=True
-                                            else:
-                                                if newRank>int(m[1]):
-                                                    complete=True
-                                            if complete:
+        if petyr<0:
+            show('Speed 0 Realm', h_col, LENGTH // 2 - 130, LENGTH // 2 - 130, 40)
+            show('The laws of Physics',h_col,LENGTH // 2 - 130, LENGTH // 2 - 80, 22)
+            show('tends to bend when', h_col, LENGTH // 2 - 130,LENGTH // 2 - 50, 22)
+            show('someone enters the', h_col, LENGTH // 2 - 130,LENGTH // 2 - 20, 22)
+            show('speed 0 realm', h_col, LENGTH // 2 - 130,LENGTH // 2 +10, 22)
+        else:
+            show('Game Over', h_col, LENGTH // 2 - 120, LENGTH // 2 - 130, 40)
+            show("Score :" + str(score), text1_col, LENGTH // 2 - 100,LENGTH // 2 - 80, 20)
+            show("High Score :" + str(data['highscore']), text1_col, LENGTH // 2 - 100,LENGTH // 2 - 50, 20)
+            show("Time :" + t, text1_col, LENGTH // 2 - 100, LENGTH // 2 - 20, 20)
+            show("Coins :" + str(coins), text1_col, LENGTH // 2 - 100,LENGTH // 2 + 10, 20)
+            if petyr == 3:
+                data['coin'] = f"{int(data['coin'])+coins}"
+                with open(r'data\bin\missions.dat', 'rb') as file:
+                    miss = pickle.load(file)
+                    for i, m in enumerate(miss['missions']):
+                        if m[0] == 'points' and m[1] <= score:
+                            with open(r'data\bin\missions.dat', 'wb') as f:
+                                miss['missions'][i][3] = True
+                                pickle.dump(miss, f)
+                        if m[0] in ('apple', 'up', 'down'):
+                            for k in m_counter[m[0]]:
+                                if m[3].split('/')[1] == k.split('/')[1]:
+                                    with open(r'data\bin\missions.dat', 'wb') as f:
+                                        miss['missions'][i][3] = k
+                                        pickle.dump(miss, f)
+                if obj['mission'][0] == 'points':
+                    if score >= obj['mission'][1]:
+                        obj['mission'][3] = True
+                update_obj()
+                bigGame = bigGameVar()
+                internet = connect()
+                if score==data['highscore']:
+                    sortedData = pullingSortedData()
+                    data['time']=t
+                    if internet:
+                        try:            
+                            pushReturnDict = pushData(data['name'], score, t, bigGame)
+                            changeNameForLead = pushReturnDict['thrives']
+                            dataSent = pushReturnDict['sent']
+                            dataNotSent = pushReturnDict['notSent']
+                            dataUpdated = pushReturnDict['updated']                   
+                            dataNotUpdated = pushReturnDict['notUpdated']
+                            if bigGame and dataUpdated:
+                                for i in range(len(sortedData)):
+                                    if sortedData[i][0] == data['name']:                                
+                                        oldRank = i + 1
+                            sortedData = pullingSortedData()
+                            if dataUpdated:
+                                for i in range(len(sortedData)):
+                                    if sortedData[i][0] == data['name']:
+                                        newRank = i + 1
+                                try:
+                                    with open(r'data\bin\missions.dat', 'rb') as file:
+                                        miss = pickle.load(file)
+                                        for i, m in enumerate(miss['missions']):
+                                            if m[0] == 'rank' :
+                                                complete = False
+                                                if m[1]=='prev':
+                                                    if newRank < oldRank:
+                                                        complete=True
+                                                else:
+                                                    if newRank>int(m[1]):
+                                                        complete=True
+                                                if complete:
+                                                    with open(r'data\bin\missions.dat', 'wb') as f:
+                                                        miss['missions'][i][3] = True
+                                                        pickle.dump(miss, f)
+                                except:pass
+                            
+                            if dataSent:
+                                try:
+                                    with open(r'data\bin\missions.dat', 'rb') as file:
+                                        miss = pickle.load(file)
+                                        for i, m in enumerate(miss['missions']):
+                                            if m[0] == 'leaderboard':
                                                 with open(r'data\bin\missions.dat', 'wb') as f:
                                                     miss['missions'][i][3] = True
                                                     pickle.dump(miss, f)
-                            except:pass
-                        
-                        if dataSent:
-                            try:
-                                with open(r'data\bin\missions.dat', 'rb') as file:
-                                    miss = pickle.load(file)
-                                    for i, m in enumerate(miss['missions']):
-                                        if m[0] == 'leaderboard':
-                                            with open(r'data\bin\missions.dat', 'wb') as f:
-                                                miss['missions'][i][3] = True
-                                                pickle.dump(miss, f)
-                            except:pass
+                                except:pass
 
-                        showHomeButton = not changeNameForLead
-                    except:
+                            showHomeButton = not changeNameForLead
+                        except:
+                            saveGameDataForLater(data['name'], score, t)
+                            errorButDataSaved = True
+                            showHomeButton = True
+                    else:
                         saveGameDataForLater(data['name'], score, t)
-                        errorButDataSaved = True
                         showHomeButton = True
                 else:
-                    saveGameDataForLater(data['name'], score, t)
+                    showHomeButton=True
+                update_data()
+        if petyr>=0:
+            if not internet:
+                show("Data couldn't be sent to servers due", h_col,LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
+                show("to an internet error. It's saved and ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
+                show("will be sent next time you open game.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
+            elif dataSent:
+                show("Your Game Data sent to the servers.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
+            elif dataNotSent:
+                show("Data hasn't been sent to servers as", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
+                show("you don't qualify to be on leaderboard.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
+            elif dataUpdated:            
+                show("Your data on servers has been updated", h_col, LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
+            elif dataNotUpdated:
+                show("You already exist on the leaderboard. ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
+                show("Beat your previous score to be promoted.", h_col,LENGTH // 2 - 165, LENGTH // 2 + 103, 17)
+            elif errorButDataSaved:
+                show("Your data couldn't be sent to servers ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
+                show("due to an unexpected error. It is saved ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
+                show("and will be sent next time you open game.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
+
+            if showHomeButton:
+                if button('Home',LENGTH // 2 - 100,LENGTH // 2 + 40,100,30,text1_col,x_offset=10,text_col=h_col,text_size=16,hover_col=GREY,hover_width=1):
+                    user = 'Home'
+                    selected_items = [False, False, False, False, False, False]
+                    SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
+
+            if changeNameForLead:
+                show("Unable to send data to cloud as a player", h_col,LENGTH // 2 - 163, LENGTH // 2 + 38, 17)
+                show("already thrives on the leadername by the", h_col,LENGTH // 2 - 163, LENGTH // 2 + 56, 17)
+                show(f"name of {data['name']}", h_col, LENGTH // 2 - 163,LENGTH // 2 + 74, 17)
+                if button('Don\'t Send Data',LENGTH // 2 - 140,LENGTH // 2 + 100,140,25,text1_col,x_offset=10,text_col=h_col,text_size=15,hover_col=GREY,hover_width=1):
                     showHomeButton = True
-            else:
-                showHomeButton=True
-            update_data()
-
-        if not internet:
-            show("Data couldn't be sent to servers due", h_col,LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
-            show("to an internet error. It's saved and ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
-            show("will be sent next time you open game.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
-        elif dataSent:
-            show("Your Game Data sent to the servers.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
-        elif dataNotSent:
-            show("Data hasn't been sent to servers as", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
-            show("you don't qualify to be on leaderboard.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
-        elif dataUpdated:            
-            show("Your data on servers has been updated", h_col, LENGTH // 2 - 160, LENGTH // 2 + 87, 17)
-        elif dataNotUpdated:
-            show("You already exist on the leaderboard. ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
-            show("Beat your previous score to be promoted.", h_col,LENGTH // 2 - 165, LENGTH // 2 + 103, 17)
-        elif errorButDataSaved:
-            show("Your data couldn't be sent to servers ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
-            show("due to an unexpected error. It is saved ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
-            show("and will be sent next time you open game.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
-
-        if showHomeButton:
-            if button('Home',LENGTH // 2 - 100,LENGTH // 2 + 40,100,30,text1_col,x_offset=10,text_col=h_col,text_size=16,hover_col=GREY,hover_width=1):
-                user = 'Home'
-                selected_items = [False, False, False, False, False, False]
-                SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
-
-        if changeNameForLead:
-            show("Unable to send data to cloud as a player", h_col,LENGTH // 2 - 163, LENGTH // 2 + 38, 17)
-            show("already thrives on the leadername by the", h_col,LENGTH // 2 - 163, LENGTH // 2 + 56, 17)
-            show(f"name of {data['name']}", h_col, LENGTH // 2 - 163,LENGTH // 2 + 74, 17)
-            if button('Don\'t Send Data',LENGTH // 2 - 140,LENGTH // 2 + 100,140,25,text1_col,x_offset=10,text_col=h_col,text_size=15,hover_col=GREY,hover_width=1):
-                showHomeButton = True
-                changeNameForLead = False
-            if button('Change Name',LENGTH // 2 + 10,LENGTH // 2 + 100,130,25,h_col,x_offset=10,text_col=text1_col,text_size=15,hover_col=GREY,hover_width=1):
-                tempDataForLead['score'] = score
-                tempDataForLead['time'] = t
-                newUser_init()
-                user = 'NewUser'
-                fromLB = True
-        if data['highscore']!=score:
-            show("Data hasn't been sent to servers as", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
-            show("you don't qualify to be on leaderboard.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
-        elif not showHomeButton and not changeNameForLead:
-            show(f"Analysing and Sending", h_col, LENGTH // 2 - 120,LENGTH // 2 + 56, 18)
-            show(f"your data to cloud ....", h_col, LENGTH // 2 - 120,LENGTH // 2 + 78, 18)
+                    changeNameForLead = False
+                if button('Change Name',LENGTH // 2 + 10,LENGTH // 2 + 100,130,25,h_col,x_offset=10,text_col=text1_col,text_size=15,hover_col=GREY,hover_width=1):
+                    tempDataForLead['score'] = score
+                    tempDataForLead['time'] = t
+                    newUser_init()
+                    user = 'NewUser'
+                    fromLB = True
+            if data['highscore']!=score:
+                show("Data hasn't been sent to servers as", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
+                show("you don't qualify to be on leaderboard.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
+            elif not showHomeButton and not changeNameForLead:
+                show(f"Analysing and Sending", h_col, LENGTH // 2 - 120,LENGTH // 2 + 56, 18)
+                show(f"your data to cloud ....", h_col, LENGTH // 2 - 120,LENGTH // 2 + 78, 18)
 
 def leaderboard():
     global sortedData, user, petyr
