@@ -1431,9 +1431,9 @@ def leaderboard():
     if len(sortedData) > 0:
         for i, dt in enumerate(sortedData):
             if i < 10:
-                show(dt[0], text2_col, 30, 78 + i * 35, 30, 'ib')
-                show(str(dt[1]), text2_col, 305, 78 + i * 35, 30, 'ib')
-                show(str(dt[2]), text2_col, 420, 78 + i * 35, 30, 'ib')
+                show(dt[0], text2_col, 30, 75 + i * 35, 30, 'ib')
+                show(str(dt[1]), text2_col, 305, 75 + i * 35, 30, 'ib')
+                show(str(dt[2]), text2_col, 420, 75 + i * 35, 30, 'ib')
     else:
         show('Oops! No Data Available', text2_col, 50, 200, 30, 'b')
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
