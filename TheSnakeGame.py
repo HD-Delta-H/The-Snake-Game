@@ -453,6 +453,7 @@ cheaterImage = pygame.image.load(r'data\images\cheater.png').convert()
 deltaH = pygame.image.load(r'data\images\delta-h.PNG').convert()
 sideSnake = pygame.image.load(r'data\images\side-snake.png').convert_alpha()
 frontSnake = pygame.image.load(r'data\images\front-snake.png').convert_alpha()
+frontSnake2 = pygame.image.load(r'data\images\front-snake2.png').convert_alpha()
 github = pygame.transform.scale(pygame.image.load(r'data\images\github.png'), (20, 20)).convert_alpha()
 
 A = "".join([chr(x) for x in range(65, 91)])
@@ -637,7 +638,7 @@ def delta_h():
             usualWidth, margin = 120, 65
             if petyr < 270:
                 scaledFrontSnake = pygame.transform.scale(
-                    frontSnake,
+                    (frontSnake if not userSettings['darkTheme'] else frontSnake2),
                     (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
                 frontSnakeSize = scaledFrontSnake.get_size()
                 scaledFrontSnake.set_alpha(
@@ -748,12 +749,9 @@ def home():
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, HEIGHT - 60))
     usualWidth, margin = 120, 65
-    scaledFrontSnake = pygame.transform.scale(frontSnake, (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
+    scaledFrontSnake = pygame.transform.scale((frontSnake if not userSettings['darkTheme'] else frontSnake2), (int(250 * HEIGHT / 400), int(250 * HEIGHT / 400)))
     frontSnakeSize = scaledFrontSnake.get_size()
 
-    SCREEN.blit(scaledFrontSnake,
-                ((LENGTH - frontSnakeSize[0]) / 2, 30 +
-                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
     
     scaledSideSnake = pygame.transform.scale(sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
     sideSnakeSize = scaledSideSnake.get_size()
@@ -766,6 +764,9 @@ def home():
     SCREEN.blit(flippedScaledSideSnake,(LENGTH -(margin +
           (usualWidth * LENGTH / 554) / 2 + sideSnakeSize[0] / 2 + 15), 40 +
          (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2 + frontSnakeSize[1] / 4))
+    SCREEN.blit(scaledFrontSnake,
+                ((LENGTH - frontSnakeSize[0]) / 2, 30 +
+                 (265 * HEIGHT / 454 - frontSnakeSize[1]) / 2))
     
     show('playing as ', bg_col, 20, 16, 16)
     show(data['name'], text1_col, 110, 9, 24, 'ib')
