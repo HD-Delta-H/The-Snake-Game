@@ -372,8 +372,8 @@ quitpop=False
 
 #constants
 LENGTH = 454
+SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
 PIXEL = 15
-SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH), pygame.RESIZABLE)
 
 CLOCK = pygame.time.Clock()
 coin_2, point_2 = False, False
@@ -652,11 +652,11 @@ def delta_h():
                     (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
                 sideSnakeSize = scaledSideSnake.get_size()
                 scaledSideSnake.set_alpha(
-                    55 * ((petyr - 270) if petyr <= 300 else 30) / 30)
+                    (55 if not userSettings['darkTheme'] else 100) * ((petyr - 270) if petyr <= 300 else 30) / 30)
                 flippedScaledSideSnake = pygame.transform.flip(
                     scaledSideSnake, True, False)
                 flippedScaledSideSnake.set_alpha(
-                    55 * ((petyr - 270) if petyr <= 300 else 30) / 30)
+                    (55 if not userSettings['darkTheme'] else 100) * ((petyr - 270) if petyr <= 300 else 30) / 30)
                 SCREEN.blit(
                     scaledSideSnake,
                     ((LENGTH - sideSnakeSize[0]) / 2 +
@@ -740,7 +740,7 @@ def delta_h():
 
 
 def home():
-    global i, decreaser, done, user, start, frontSnake, petyr, changeNamePop
+    global i, decreaser, done, user, start, frontSnake, petyr, changeNamePop,SCREEN
     global savedDataSent, savedDataNotUpdated, savedDataNotSent, savedDataUpdated
     LENGTH = pygame.display.get_surface().get_width()
     HEIGHT = pygame.display.get_surface().get_height()
@@ -754,7 +754,7 @@ def home():
     scaledSideSnake = pygame.transform.scale(sideSnake, (int(250 * HEIGHT / 454), int(250 * HEIGHT / 454)))
     sideSnakeSize = scaledSideSnake.get_size()
     flippedScaledSideSnake = pygame.transform.flip(scaledSideSnake, True,False)
-    scaledSideSnake.set_alpha(55), flippedScaledSideSnake.set_alpha(55)
+    scaledSideSnake.set_alpha(55 if not userSettings['darkTheme'] else 100), flippedScaledSideSnake.set_alpha(55 if not userSettings['darkTheme'] else 100)
      
     SCREEN.blit(scaledSideSnake,
         (margin + (usualWidth * LENGTH / 554 - sideSnakeSize[0]) / 2, 40 +
@@ -778,13 +778,15 @@ def home():
         if button('LeaderBoard',margin,300 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=7 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) and not quitpop:
             user = 'LeaderBoard'
             petyr = 4
-        if button('Missions',margin,340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1):
-            user = 'Missions'
-            daily()
         user = 'Inventory' if button('Inventory',LENGTH - (margin + usualWidth * LENGTH / 554),300 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
         user = 'MarketPlace' if button('Shop',LENGTH -(margin + usualWidth * LENGTH / 554),340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=35 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
         user = 'Cheaterlist' if button('Cheaters\' list',LENGTH -(margin + usualWidth * LENGTH / 554),380 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=7 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
         user = 'Info' if button('SEE INFO',(LENGTH - (140 * LENGTH / 554)) / 2 + 15,380 * HEIGHT / 454,100 * LENGTH / 554,30 * HEIGHT / 454,bg_col,x_offset=(10**(LENGTH / 554)) / 3,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+        if button('Missions',margin,340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1):
+            user = 'Missions'
+            LENGTH=454
+            SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH+50))
+            daily()
     else:
         for j in range(3):
             pygame.draw.rect(
@@ -1452,7 +1454,7 @@ def leaderboard():
 
 
 def missions():
-    global user, obj, petyr
+    global user, obj, petyr,SCREEN
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
@@ -1550,6 +1552,8 @@ def missions():
             show(f'{M} ', h_col, LENGTH - 150, 131 + i * 50, 13)
     if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
         user = 'Home'
+        LENGTH = 454
+        SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
         petyr = 0
     if petyr == 1:
         Popup(mode='loading')
