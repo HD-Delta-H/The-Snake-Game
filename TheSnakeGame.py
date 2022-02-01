@@ -1447,6 +1447,7 @@ def leaderboard():
         sortedData = pullingSortedData()
     petyr += 1
 
+
 def missions():
     global user, obj, petyr
     LENGTH = pygame.display.get_surface().get_width()
@@ -1454,7 +1455,7 @@ def missions():
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
     show('MISSIONS', text1_col, 15, 5, 20, 'b')
     show(data['coin'] + ' coin(s)', text1_col, 275, 9, 24)
-    pygame.draw.rect(SCREEN, bg_col, (20, 50, LENGTH - 40, 40), 0, 8)
+    pygame.draw.rect(SCREEN, bg_col, (20, 50, LENGTH - 40, 43), 0, 8)
     def miss_txt(m):
         txt = ''
         if m[0] == 'points':
@@ -1512,20 +1513,20 @@ def missions():
         miss = pickle.load(file)
         for i, m in enumerate(miss['missions']):
             pygame.draw.rect(SCREEN, bg_col,
-                             (20, 110 + i * 50, LENGTH - 40, 40), 0, 8)
-            show(f"Mission {i+1} :", text1_col, 30, 110 + i * 50, 16)
+                             (10, 107 + i * 50, LENGTH - 20, 43), 0, 8)
+            show(f"Mission {i+1} :", text1_col, 30, 110 + i * 50, 18)
             txt = miss_txt(m)
-            show(txt, text1_col, 35, 134 + i * 50, 12)
-            show('Rewards :', h_col, LENGTH - 150, 115 + i * 50, 13)
+            show(txt, text1_col, 35, 132 + i * 50, 12)
+            show('Rewards :', h_col, LENGTH - 150, 113 + i * 50, 13)
             if m[0] in ('up', 'down', 'apple'):
-                show('Status : ' + m[3], h_col, LENGTH - 300, 115 + i * 50,
+                show('Status : ' + m[3], h_col, LENGTH - 300, 113 + i * 50,
                      13)
             else:
                 show('Status : ' + ('Completed' if m[3] else 'Pending'),
-                     h_col, LENGTH - 300, 115 + i * 50, 13)
+                     h_col, LENGTH - 300, 113 + i * 50, 13)
             if ((m[3] == True) if str(type(m[3])) == "<class 'bool'>" else
                 (m[3].split('/')[0] == m[3].split('/')[1])) and not m[4]:
-                if button('Claim', LENGTH - 300, 132 + i * 50, 70, 17,
+                if button('Claim', LENGTH - 300, 130 + i * 50, 70, 17,
                           h_col, 10, 13, text1_col, h_col, 0):
                     with open(r'data\bin\missions.dat', 'wb') as f:
                         miss['missions'][i][4] = True
@@ -1539,11 +1540,11 @@ def missions():
                         data['coin'] = str(int(data['coin']) + m[2][1])
                         update_data()
             if m[4]:
-                show('Claimed', text1_col, LENGTH - 300, 134 + i * 50, 13)
-            show(f'{m[2][1]} coins', h_col, LENGTH - 80, 115 + i * 50, 13)
+                show('Claimed', text1_col, LENGTH - 300, 132 + i * 50, 13)
+            show(f'{m[2][1]} coins', h_col, LENGTH - 80, 113 + i * 50, 13)
             M = m[2][0].replace('-', ' min 2x ')
             M += 'oins' if M[-1] == 'C' else 'oints'
-            show(f'{M} ', h_col, LENGTH - 150, 133 + i * 50, 13)
+            show(f'{M} ', h_col, LENGTH - 150, 131 + i * 50, 13)
     if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
         user = 'Home'
         petyr = 0
@@ -1556,6 +1557,7 @@ def missions():
         pushDictData(collection='dailymissions', data=obj)
         obj = pullOBJ()
     petyr += 1
+
 opened = [True, False, False, False]
 pop = False
 
