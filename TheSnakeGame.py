@@ -414,14 +414,6 @@ def lightTheme():
     text2_col=BLACK
     appBarButtonCol = LIGHTBROWN
 
-def darkTheme():
-    global bg_col, h_col, bb_col,text1_col,text2_col
-    bg_col = (25,25,25)
-    h_col = BLACK
-    bb_col = DARKGRAY
-    text1_col=WHITE
-    text2_col=WHITE
-
 def newTheme():
     global bg_col, h_col, bb_col, text1_col, text2_col, appBarButtonCol
     bg_col = pygame.Color('#110B06')
@@ -474,13 +466,21 @@ def newUser_init():
     Text_Val = ''
 
 fromsetting = False
+fileNotFound=False
 try:
     with open(r'data\bin\userData.dat', 'rb') as file:
-        data = pickle.load(file)
+        data=pickle.load(file)
+    with open(r'data\bin\missions.dat', 'rb') as file:
+        pickle.load(file)
+    with open(r'data\bin\items.dat', 'rb') as file:
+        pickle.load(file)
     non_cheater = True
 except pickle.UnpicklingError:
     non_cheater = False
-user = 'DeltaH'
+except FileNotFoundError:
+    fileNotFound=True
+user ='Pseudo' if fileNotFound else 'DeltaH' 
+
 
 def show(msg, color, x, y, size, mode='n'):
     f = r'data\font\design.graffiti.comicsansmsgras.ttf' if mode == 'b' else (
@@ -780,7 +780,9 @@ def home():
             petyr = 4
         user = 'Inventory' if button('Inventory',LENGTH - (margin + usualWidth * LENGTH / 554),300 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
         user = 'MarketPlace' if button('Shop',LENGTH -(margin + usualWidth * LENGTH / 554),340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=35 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
-        user = 'Cheaterlist' if button('Cheaters\' list',LENGTH -(margin + usualWidth * LENGTH / 554),380 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=7 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1) else user
+        if button('Cheaters\' list',LENGTH -(margin + usualWidth * LENGTH / 554),380 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=7 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1):
+            user = 'Cheaterlist' 
+            petyr=0
         user = 'Info' if button('SEE INFO',(LENGTH - (140 * LENGTH / 554)) / 2 + 15,380 * HEIGHT / 454,100 * LENGTH / 554,30 * HEIGHT / 454,bg_col,x_offset=(10**(LENGTH / 554)) / 3,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
         if button('Missions',margin,340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1):
             user = 'Missions'
@@ -838,10 +840,10 @@ def arsenal():
                 SCREEN.blit(powerup_img[i], (60 + i * mul, 80))
                 if i == 1:
                     show(item[0], text1_col, 30 + i * mul, 165, 14)
-                    show(f'{item[1][0]} in stock', text1_col, 30 + i * mul, 185,12, 'i')
+                    show(f'{item[1][0]} in stock', text2_col, 30 + i * mul, 185,12, 'i')
                 else:
                     show(item[0], text1_col, (65 if i == 2 else 35) + i * mul, 165,16)
-                    show(f'{item[1][0]} in stock', text1_col, 30 + i * mul, 185,12, 'i')
+                    show(f'{item[1][0]} in stock', text2_col, 30 + i * mul, 185,12, 'i')
                 s = pygame.Surface((width, height))
                 s.set_colorkey(GREY)
                 s.set_alpha(0)
@@ -866,7 +868,7 @@ def arsenal():
                 pygame.draw.rect(SCREEN, bg_col,(x + 5, y + 5, width - 10, height - 10))
                 SCREEN.blit(powerup_img[i], (60 + (i - 3) * mul, 240))
                 show(item[0], text1_col, (45 if i == 4 else 65) + (i - 3) * mul,325, 16)
-                show(f'{item[1][0]} in stock', text1_col, 30 + (i - 3) * mul, 345,12, 'i')
+                show(f'{item[1][0]} in stock', text2_col, 30 + (i - 3) * mul, 345,12, 'i')
                 s = pygame.Surface((width, height))
                 pos = pygame.mouse.get_pos()
                 s.set_colorkey(GREY)
@@ -906,8 +908,8 @@ def arsenal():
                                 list_items['coins']['points'] = False
                             pickle.dump(list_items, f)
 
-    show('2x Coins :' + ('Activated' if coin_2 else 'Not Activated'), text1_col,25, 375, 18)
-    show('2x Points :' + ('Activated' if point_2 else 'Not Activated'), text1_col,305, 375, 18)
+    show('2x Coins :' + ('Activated' if coin_2 else 'Not Activated'), text2_col,25, 375, 18)
+    show('2x Points :' + ('Activated' if point_2 else 'Not Activated'), text2_col,305, 375, 18)
     if button('Start Game',LENGTH // 2 - 55,410,110,32,h_col,text_col=text1_col,text_size=16,hover_width=0):
         if userSettings['music']:
             pygame.mixer.music.set_volume(userSettings['volume'] / 100)
@@ -1297,7 +1299,7 @@ def emulator():
             show('Game Over', h_col, LENGTH // 2 - 120, LENGTH // 2 - 130, 40)
             show("Score :" + str(score), text1_col, LENGTH // 2 - 100,LENGTH // 2 - 80, 20)
             show("High Score :" + str(data['highscore']), text1_col, LENGTH // 2 - 100,LENGTH // 2 - 50, 20)
-            show("Time :" + t, text1_col, LENGTH // 2 - 100, LENGTH // 2 - 20, 20)
+            show("Time :" + str(int(float(t)))+'s', text1_col, LENGTH // 2 - 100, LENGTH // 2 - 20, 20)
             show("Coins :" + str(coins), text1_col, LENGTH // 2 - 100,LENGTH // 2 + 10, 20)
             if petyr == 3:
                 data['coin'] = f"{int(data['coin'])+coins}"
@@ -1440,7 +1442,7 @@ def leaderboard():
             if i < 10:
                 show(dt[0], text2_col, 30, 75 + i * 35, 30, 'ib')
                 show(str(dt[1]), text2_col, 305, 75 + i * 35, 30, 'ib')
-                show(str(dt[2]), text2_col, 420, 75 + i * 35, 30, 'ib')
+                show(str(int(float(dt[2]))), text2_col, 420, 75 + i * 35, 30, 'ib')
     else:
         show('Oops! No Data Available', text2_col, 50, 200, 30, 'b')
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
@@ -1484,7 +1486,7 @@ def missions():
             txt = f'Collect {m[1]} normal apples in total.'
         return txt
 
-    show("Today's Special Mission :", text1_col, 30, 50, 16)
+    show("Today's Special Mission :", text2_col, 30, 50, 16)
     m = obj['mission']
     txt = miss_txt(m)
     show(txt, text1_col, 35, 74, 12)
@@ -1510,7 +1512,7 @@ def missions():
                     update_data()
                     update_obj()
     if m[4]:
-        show('Claimed', text1_col, LENGTH - 300, 74, 13)
+        show('Claimed', text2_col, LENGTH - 300, 74, 13)
     show(f'{m[2][1]} coins', h_col, LENGTH - 80, 55, 13)
     M = m[2][0].replace('-', ' min 2x ')
     M += 'oins' if M[-1] == 'C' else 'oints'
@@ -1521,7 +1523,7 @@ def missions():
         for i, m in enumerate(miss['missions']):
             pygame.draw.rect(SCREEN, bg_col,
                              (10, 107 + i * 50, LENGTH - 20, 43), 0, 8)
-            show(f"Mission {i+1} :", text1_col, 30, 110 + i * 50, 18)
+            show(f"Mission {i+1} :", text2_col, 30, 110 + i * 50, 18)
             txt = miss_txt(m)
             show(txt, text1_col, 35, 132 + i * 50, 12)
             show('Rewards :', h_col, LENGTH - 150, 113 + i * 50, 13)
@@ -1547,7 +1549,7 @@ def missions():
                         data['coin'] = str(int(data['coin']) + m[2][1])
                         update_data()
             if m[4]:
-                show('Claimed', text1_col, LENGTH - 300, 132 + i * 50, 13)
+                show('Claimed', text2_col, LENGTH - 300, 132 + i * 50, 13)
             show(f'{m[2][1]} coins', h_col, LENGTH - 80, 113 + i * 50, 13)
             M = m[2][0].replace('-', ' min 2x ')
             M += 'oins' if M[-1] == 'C' else 'oints'
@@ -1597,20 +1599,20 @@ def marketplace():
                     pygame.draw.rect(SCREEN, bg_col,(x + 5, y + 5, width - 10, height - 10))
                     SCREEN.blit(powerup_img[i], (37 + (i + 1) * mul, 80))
                     if i == 1:
-                        show(str(item[1][1]), text1_col, 30 + (i + 1) * mul, 165,18)
+                        show(str(item[1][1]), text2_col, 30 + (i + 1) * mul, 165,18)
                         show(item[0], text1_col, 25 + (i + 1) * mul, 185, 11)
-                        show(f'{item[1][0]} in stock', text1_col,30 + (i + 1) * mul, 210, 10, 'i')
+                        show(f'{item[1][0]} in stock', text2_col,30 + (i + 1) * mul, 210, 10, 'i')
                     else:
-                        show(str(item[1][1]), text1_col,(85 if
+                        show(str(item[1][1]), text2_col,(85 if
                               (i + 1) == 2 else 30) + (i + 1) * mul, 165, 18)
                         show(item[0], text1_col,(85 if
                               (i + 1) == 2 else 30) + (i + 1) * mul, 185, 12)
-                        show(f'{item[1][0]} in stock', text1_col,
+                        show(f'{item[1][0]} in stock', text2_col,
                              30 + (i + 1) * mul, 210, 10, 'i')
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if not pop or not Pop:
+                    if not pop and not Pop and not quitpop:
                         if pos[0] >= x and pos[0] <= x + width and pos[
                                 1] >= y and pos[1] <= y + height and not quitpop:
                             if pygame.mouse.get_pressed()[0] and (
@@ -1625,14 +1627,14 @@ def marketplace():
                     pygame.draw.rect(SCREEN, h_col, (x, y, width, height))
                     pygame.draw.rect(SCREEN, bg_col,(x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
-                    show(str(item[1][1]), text1_col, 30 + (i - 2) * mul, 355, 18)
+                    show(str(item[1][1]), text2_col, 30 + (i - 2) * mul, 355, 18)
                     show(item[0], text1_col, 30 + (i - 2) * mul, 375, 12)
-                    show(f'{item[1][0]} in stock', text1_col, 30 + (i - 2) * mul,400, 10, 'i')
+                    show(f'{item[1][0]} in stock', text2_col, 30 + (i - 2) * mul,400, 10, 'i')
                     SCREEN.blit(powerup_img[i], (37 + (i - 2) * mul, 270))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if not pop or not Pop:
+                    if not pop and not Pop and not quitpop:
                         if pos[0] >= x and pos[0] <= x + width and pos[
                                 1] >= y and pos[1] <= y + height and not quitpop:
                             if pygame.mouse.get_pressed()[0] and (time.time() - sensitivity) > 0.1:
@@ -1671,14 +1673,14 @@ def marketplace():
                     pygame.draw.rect(SCREEN, bg_col,(x + 5, y + 5, width - 10, height - 10))
                     pygame.draw.rect(SCREEN,globals()[Dic[0 if opened[0] else 1]],
                                      (x + 15, y + 15, width - 30, 65))
-                    show(('25' if opened[0] else '15'), text1_col,30 + (i + 1) * mul, 165, 18)
+                    show(('25' if opened[0] else '15'), text2_col,30 + (i + 1) * mul, 165, 18)
                     if Dic[0 if opened[0] else 1] == 'LIGHTBROWN':
                         pygame.draw.rect(SCREEN, h_col,(x + 14, y + 14, width - 28, 68))
                     show(Dic[0 if opened[0] else 1], text1_col, 32 + (i + 1) * mul,185, 14)
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if not pop or not Pop:
+                    if not pop and not Pop and not quitpop:
                         if pos[0] >= x and pos[0] <= x + width and pos[
                                 1] >= y and pos[1] <= y + height:
                             if pygame.mouse.get_pressed()[0] and not D[0 if opened[0] else 1]:
@@ -1697,15 +1699,15 @@ def marketplace():
                                      (x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
                     if Dic[0 if opened[0] else 1] == 'LIGHTBROWN':
-                        pygame.draw.rect(SCREEN, text1_col,(x + 14, y + 14, width - 28, 67))
-                    show(('25' if opened[0] else '15'), text1_col,30 + (i - 2) * mul, 355, 18)
-                    show(Dic[0 if opened[0] else 1], text1_col, 30 + (i - 2) * mul,375, 13)
+                        pygame.draw.rect(SCREEN, text2_col,(x + 14, y + 14, width - 28, 67))
+                    show(('25' if opened[0] else '15'), text2_col,30 + (i - 2) * mul, 355, 18)
+                    show(Dic[0 if opened[0] else 1], text1_col, 25 + (i - 2) * mul,375, 13)
                     pygame.draw.rect(SCREEN,globals()[Dic[0 if opened[0] else 1]],
                                      (x + 15, y + 15, width - 30, 65))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if not pop or not Pop:
+                    if not pop and not Pop and not quitpop:
                         if pos[0] >= x and pos[0] <= x + width and pos[
                                 1] >= y and pos[1] <= y + height:
                             if pygame.mouse.get_pressed(
@@ -1771,11 +1773,11 @@ def inventory():
                     SCREEN.blit(powerup_img[i], (37 + (i + 1) * mul, 80))
                     if i == 1:
                         show(item[0], text1_col, 25 + (i + 1) * mul, 200, 11)
-                        show(f'{item[1][0] } left ', text1_col, 50 + (i + 1) * mul,165, 24, 'i')
+                        show(f'{item[1][0] } left ', text2_col, 50 + (i + 1) * mul,165, 24, 'i')
                     else:
                         show(item[0], text1_col,(85 if
                               (i + 1) == 2 else 30) + (i + 1) * mul, 200, 12)
-                        show(f'{item[1][0] } left', text1_col, 50 + (i + 1) * mul,165, 24, 'i')
+                        show(f'{item[1][0] } left', text2_col, 50 + (i + 1) * mul,165, 24, 'i')
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
@@ -1790,7 +1792,7 @@ def inventory():
                     pygame.draw.rect(SCREEN, bg_col,(x + 5, y + 5, width - 10, height - 10))
                     pos = pygame.mouse.get_pos()
                     show(item[0], text1_col, 30 + (i - 2) * mul, 390, 12)
-                    show(f'{item[1][0] } left', text1_col, 50 + (i - 2) * mul, 355,24, 'i')
+                    show(f'{item[1][0] } left', text2_col, 50 + (i - 2) * mul, 355,24, 'i')
                     SCREEN.blit(powerup_img[i], (37 + (i - 2) * mul, 270))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
@@ -1812,10 +1814,10 @@ def inventory():
                         SCREEN.blit(powerup_img[6], (37 + (i + 1) * mul, 80))
                         if i == 1:
                             show(item[0], text1_col, 25 + (i + 1) * mul, 210, 12)
-                            show(f'{item[1][0]} left', text1_col,50 + (i + 1) * mul, 160, 20, 'i')
+                            show(f'{item[1][0]} left', text2_col,50 + (i + 1) * mul, 160, 20, 'i')
                         else:
                             show(item[0], text1_col,(85 if (i + 1) == 2 else 30) + (i + 1) * mul,210, 12)
-                            show(f'{item[1][0]} left', text1_col,50 + (i + 1) * mul, 160, 20, 'i')
+                            show(f'{item[1][0]} left', text2_col,50 + (i + 1) * mul, 160, 20, 'i')
                         if item[1][1]:
                             t = float(f"{(time.time()-item[1][2]):.2f}")
                             T = float(item[0].split()[2]) * 60 - t
@@ -1828,7 +1830,7 @@ def inventory():
                                     pickle.dump(list_items, f)
                         elif item[1][0] != '0' and not list_items['coins']['coins']:
                             if button('Activate', 35 + (i + 1) * mul, 187, 80,
-                                      22, h_col, 10, 13, text1_col, h_col,0):
+                                      22, h_col, 10, 13, text1_col, h_col,0) and not quitpop:
                                 with open(r'data\bin\missions.dat', 'wb') as f:
                                     list_items['coins'][item[0]][0] = str(int(item[1][0]) - 1)
                                     list_items['coins'][item[0]][1] = True
@@ -1852,7 +1854,7 @@ def inventory():
                             (x + 5, y + 5, width - 10, height - 10))
                         pos = pygame.mouse.get_pos()
                         show(item[0], text1_col, 30 + (i - 2) * mul, 400, 12)
-                        show(f'{item[1][0]} left', text1_col, 50 + (i - 2) * mul,350, 20, 'i')
+                        show(f'{item[1][0]} left', text2_col, 50 + (i - 2) * mul,350, 20, 'i')
                         SCREEN.blit(powerup_img[7], (37 + (i - 2) * mul, 270))
                         if item[1][1]:
                             t = float(f"{(time.time()-item[1][2]):.2f}")
@@ -1892,16 +1894,16 @@ def inventory():
                     pygame.draw.rect(SCREEN, h_col, (x, y, width, height))
                     pygame.draw.rect(SCREEN, bg_col,(x + 5, y + 5, width - 10, height - 10))
                     if Dic[0 if opened[0] else 1] == 'LIGHTBROWN':
-                        pygame.draw.rect(SCREEN, h_col,(x + 14, y + 14, width - 28, 68))
+                        pygame.draw.rect(SCREEN, text2_col,(x + 14, y + 14, width - 28, 68))
                     pygame.draw.rect(SCREEN,globals()[Dic[0 if opened[0] else 1]],
                                      (x + 15, y + 15, width - 30, 65))
-                    show(Dic[0 if opened[0] else 1], text1_col, 32 + (i + 1) * mul,170, 14)
+                    show(Dic[0 if opened[0] else 1], text1_col, 25 + (i + 1) * mul,170, 14)
                     show('Purchased' if D[0 if opened[0] else 1] else
                         'Not Purchased', text1_col, 32 + (i + 1) * mul, 210, 10)
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height and not quitpop:
+                    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height and not quitpop and not Pop:
                         if pygame.mouse.get_pressed()[0] and (
                                 time.time() - sensitivity) > 0.1:
                             sensitivity = time.time()
@@ -1915,7 +1917,7 @@ def inventory():
                         s.set_alpha(60)
                     if item[0] == list_items['Offers']['pseudo'][
                             'background' if opened[0] else 'snake']:
-                        show('In Use', text1_col, 40 + (i + 1) * mul, 190, 16)
+                        show('In Use', text2_col, 40 + (i + 1) * mul, 190, 16)
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
                 elif i <= 5:
@@ -1927,13 +1929,13 @@ def inventory():
                     show('Purchased' if D[0 if opened[0] else 1] else
                         'Not Purchased', text1_col, 32 + (i - 2) * mul, 400, 10)
                     if Dic[0 if opened[0] else 1] == 'LIGHTBROWN':
-                        pygame.draw.rect(SCREEN, text1_col,(x + 14, y + 14, width - 28, 67))
+                        pygame.draw.rect(SCREEN, text2_col,(x + 14, y + 14, width - 28, 67))
                     pygame.draw.rect(SCREEN,globals()[Dic[0 if opened[0] else 1]],
                                      (x + 15, y + 15, width - 30, 65))
                     s = pygame.Surface((width, height))
                     s.set_colorkey(GREY)
                     s.set_alpha(0)
-                    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height and not quitpop:
+                    if pos[0] >= x and pos[0] <= x + width and pos[1] >= y and pos[1] <= y + height and not quitpop and not Pop:
                         if pygame.mouse.get_pressed()[0] and (
                                 time.time() - sensitivity) > 0.1:
                             sensitivity = time.time()
@@ -1947,7 +1949,7 @@ def inventory():
                                 Pop = True
                         s.set_alpha(60)
                     if item[0] == list_items['Offers']['pseudo']['background' if opened[0] else 'snake']:
-                        show('In Use', text1_col, 40 + (i - 2) * mul, 380, 16)
+                        show('In Use', text2_col, 40 + (i - 2) * mul, 380, 16)
                         s.set_alpha(120)
                     SCREEN.blit(s, (x, y))
     if Pop:
@@ -1999,11 +2001,11 @@ def settings():
                 updateSettings(userSettings)
         pygame.draw.line(SCREEN,h_col, (mul + 20, 210), (LENGTH - 30, 210),width=3)
         show('PREFERRED CONTROLS: ', h_col, mul + 35, 220, 20)
-        show('Arrow Keys ', text1_col, mul + 55, 270, 21)
+        show('Arrow Keys ', text2_col, mul + 55, 270, 21)
         if (button('', mul + 100, 300, 20, 20,text1_col if userSettings['arrow'] == False else h_col, 7,21, text1_col,text1_col if userSettings['arrow'] == True else h_col)):
             userSettings['arrow'] = not userSettings['arrow']
             updateSettings(userSettings)
-        show('AWSD Keys ', text1_col, mul + 225, 270, 21)
+        show('AWSD Keys ', text2_col, mul + 225, 270, 21)
         if (button('', mul + 270, 300, 20, 20,text1_col if userSettings['arrow'] == True else h_col, 7,
                    21, text1_col,text1_col if userSettings['arrow'] == False else h_col)):
             userSettings['arrow'] = not userSettings['arrow']
@@ -2012,7 +2014,7 @@ def settings():
     elif openedSettings[1]:
         pygame.draw.line(SCREEN,h_col, (mul + 20, 100), (LENGTH - 30, 100),width=3)
         show('currently playing as: ', h_col, mul + 30, 125, 19)
-        show(data['name'], text1_col, mul + 40, 157, 30, mode='ib')
+        show(data['name'], text2_col, mul + 40, 157, 30, mode='ib')
         pygame.draw.line(SCREEN,h_col, (mul + 20, 210), (LENGTH - 30, 210),width=3)
         pygame.draw.line(SCREEN,h_col, (mul + 20, 280), (LENGTH - 30, 280),width=3)
         if not namepop:
@@ -2278,12 +2280,12 @@ def info_screen():
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     with open(r'data\info.txt', 'r') as file:
         for i, line in enumerate(file.readlines()):
-            show(line.replace('\n', ''), text1_col, 40, 70 + 21 * i, 18)
+            show(line.replace('\n', ''), text2_col, 40, 70 + 21 * i, 18)
     user = 'AboutUs' if button('About Us', 100, 370, 120, 30, h_col, 10,20, text1_col, h_col, 1, 'b') else user
     user = 'Home' if button('Home', 350, 370, 80, 30, h_col, 10, 20, text1_col,h_col, 1, 'b') else user
 def anchor(x,y,name,url):
     global Pop,Url
-    if button(name,x,y,150,30,bg_col,20,16,text1_col,bg_col,0,'b'):
+    if button(name,x,y,150,30,bg_col,20,16,text2_col,bg_col,0,'b'):
         try:
             import webbrowser
             webbrowser.open_new(url)
@@ -2300,12 +2302,12 @@ def aboutus():
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     with open(r'data\aboutus.txt', 'r') as file:
         for i,line in enumerate(file.readlines()):
-            show(line.replace('\n',''),text1_col,40,70+25*i,20)
+            show(line.replace('\n',''),text2_col,40,70+25*i,20)
     show('Click on the links given below to contact us on Github', text1_col, 30,365, 10,'i')
     pygame.draw.line(SCREEN, h_col, (20, 380), (LENGTH-40, 380), 3)
     pygame.draw.line(SCREEN, h_col, (LENGTH//2, 385), (LENGTH//2,435), 1)
     anchor(30,385,'Delta H','https://github.com/HD-Delta-H')
-    anchor(30,410,'Public Repository','https://github.com/HD-Delta-H')
+    anchor(30,410,'Public Repository','https://github.com/HD-Delta-H/The-Snake-Game')
     anchor(LENGTH//2+20,385,'Divij Mahajan','https://github.com/Divij-Mahajan')
     anchor(LENGTH//2+20,410,'Harshit Rai Verma','https://github.com/Harshit-RV')
     user= 'Info' if button('Back',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1) else user
@@ -2325,7 +2327,7 @@ def cheaterlist():
         if len(listOfCheaters) > 0:
             for i, dt in enumerate(listOfCheaters):
                 if i < 10:
-                    show(dt, text1_col, 40, 78 + i * 35, 30)
+                    show(dt, text2_col, 40, 78 + i * 35, 30)
         else:
             show('Oops! No Data Available', text1_col, 50, 200, 30)
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
@@ -2340,7 +2342,7 @@ def cheaterlist():
     petyr += 1
 
 def Popup(txt='A Popup', mode='ok'):
-    global Pop
+    global Pop,fileNotFound
     LENGTH = pygame.display.get_surface().get_width()
     s = pygame.Surface((LENGTH * 2, LENGTH * 2))
     s.set_colorkey(GREY)
@@ -2351,10 +2353,13 @@ def Popup(txt='A Popup', mode='ok'):
         if '\n' in txt:
             show(txt.split('\n')[0], h_col, 70, 165, 20)
             show(txt.split('\n')[1], h_col, 70, 190, 20)
+            if fileNotFound:
+                anchor(70,220,'Public Repository','https://github.com/HD-Delta-H/The-Snake-Game')
         else:
             show(txt, h_col, 70, 170, 20)
-        if button('Ok',350,300,100,30,h_col,text_col=text1_col,hover_col=h_col):
-            Pop = False
+        if not fileNotFound:
+            if button('Ok',350,300,100,30,h_col,text_col=text1_col,hover_col=h_col):
+                Pop = False
     elif mode == 'yesno':
         show(txt, h_col, 70, 170, 20)
         if button('No',(250 if user=='Emulator' else 350),300,100,30,h_col,text_col=text1_col,hover_col=h_col):
@@ -2397,6 +2402,8 @@ def main():
             info_screen()
         elif user == 'AboutUs':
             aboutus()
+        elif user == 'Pseudo':
+            Popup('File Not Found. Please Go to the below\nlink and get required file from data/bin')
         for event in event_list:
             if event.type == pygame.QUIT:
                 quitpop=True
