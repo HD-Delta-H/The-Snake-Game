@@ -2248,7 +2248,7 @@ def newuser(changename=False):
         Popup("Username must be between 3 to 10 letters.")
 
 def cheater():
-    global user
+    global user,noHomeButton
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 90))
@@ -2258,6 +2258,8 @@ def cheater():
     SCREEN.blit(cheaterImage, (30, 135))
     show('YOU CAN\'T CHEAT YOUR WAY TO THE TOP', RED, 30, 380, 20, 'ib')
     if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
+        noHomeButton = True
+        newUser_init()
         user = 'NewUser'
     with open(r'data\bin\userData.dat', 'wb') as file:
         pickle.dump({
@@ -2328,10 +2330,8 @@ def cheaterlist():
             show('Oops! No Data Available', text1_col, 50, 200, 30)
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
         petyr = 0
-    if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
-        noHomeButton = True
-        newUser_init()
-        user = 'NewUser'        
+    if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):        
+        user = 'Home'        
         petyr = 0
     if petyr == 2:
         Popup(mode='loading')
