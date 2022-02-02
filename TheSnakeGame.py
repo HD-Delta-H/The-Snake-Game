@@ -1380,8 +1380,11 @@ def emulator():
                 else:
                     showHomeButton=True
                 update_data()
-        if petyr>=0:
-            if not internet:
+        if petyr>=0:            
+            if data['highscore']!=score:
+                show("Data hasn't been sent to servers as", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
+                show("you don't qualify to be on leaderboard.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
+            elif not internet:
                 show("Data couldn't be sent to servers due", h_col,LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
                 show("to an internet error. It's saved and ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
                 show("will be sent next time you open game.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
@@ -1399,6 +1402,7 @@ def emulator():
                 show("Your data couldn't be sent to servers ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
                 show("due to an unexpected error. It is saved ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
                 show("and will be sent next time you open game.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 116, 17)
+
 
             if showHomeButton:
                 if button('Home',LENGTH // 2 - 100,LENGTH // 2 + 40,100,30,text1_col,x_offset=10,text_col=h_col,text_size=16,hover_col=GREY,hover_width=1):
@@ -1419,9 +1423,7 @@ def emulator():
                     newUser_init()
                     user = 'NewUser'
                     fromLB = True
-            if data['highscore']!=score:
-                show("Data hasn't been sent to servers as", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
-                show("you don't qualify to be on leaderboard.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
+            
             elif not showHomeButton and not changeNameForLead:
                 show(f"Analysing and Sending", h_col, LENGTH // 2 - 120,LENGTH // 2 + 56, 18)
                 show(f"your data to cloud ....", h_col, LENGTH // 2 - 120,LENGTH // 2 + 78, 18)
@@ -2171,7 +2173,7 @@ def newuser(changename=False):
                         if i in ('coins', 'points'):
                             miss['coins'][i] = False
                         else:
-                            miss['coins'][i] = ['10', False, 0]
+                            miss['coins'][i] = ['0', False, 0]
                 with open(r'data\bin\missions.dat', 'wb') as f:
                     pickle.dump(miss, f)
                 with open(r'data\bin\items.dat', 'rb') as f:
