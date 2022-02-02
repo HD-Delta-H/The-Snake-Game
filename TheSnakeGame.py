@@ -2066,7 +2066,7 @@ errorstart = 0
 
 def newuser(changename=False):
     LENGTH = pygame.display.get_surface().get_width()
-    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData, bigGame, fromLB, selected_items, SCREEN, savedDataDict, tempDataForLead, fromSD, rate
+    global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData, bigGame, fromLB, selected_items, SCREEN, savedDataDict, tempDataForLead, fromSD, rate, noHomeButton
     rate = 8
     if not changename:
         SCREEN.fill(bb_col)
@@ -2094,9 +2094,10 @@ def newuser(changename=False):
             Cursor = False
         iterrr += 1
     if not fromsetting:
-        if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
-            user = 'Home'
-            Text_Val = ''
+        if not noHomeButton:
+            if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
+                user = 'Home'
+                Text_Val = ''
     else:
         if button('Settings',LENGTH - 154,5,100,30,bg_col,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
             user = 'Settings'
@@ -2123,6 +2124,7 @@ def newuser(changename=False):
     else:
         allowed_name = False
     if Text_Ent:
+        noHomeButton = False
         if allowed_name:
             if fromLB:
                 data['name'] = Text_Val[:-1]
@@ -2308,8 +2310,10 @@ def aboutus():
     if Pop:
         Popup('Couldn\'t open the link :\n'+Url)
 
+noHomeButton = False
+
 def cheaterlist():
-    global user, petyr, listOfCheaters
+    global user, petyr, listOfCheaters, noHomeButton
     LENGTH = pygame.display.get_surface().get_width()
     SCREEN.fill(bb_col)
     pygame.draw.rect(SCREEN, h_col, (0, 0, LENGTH, 40))
@@ -2325,7 +2329,9 @@ def cheaterlist():
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
         petyr = 0
     if button('Home',LENGTH - 154,5,100,30,appBarButtonCol,x_offset=10,text_col=h_col,text_size=16,hover_col=bb_col,hover_width=1):
-        user = 'Home'
+        noHomeButton = True
+        newUser_init()
+        user = 'NewUser'        
         petyr = 0
     if petyr == 2:
         Popup(mode='loading')
