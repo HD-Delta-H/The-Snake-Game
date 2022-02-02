@@ -1297,10 +1297,10 @@ def emulator():
             show('speed 0 realm', h_col, LENGTH // 2 - 110,LENGTH // 2 +20, 22)
         else:
             show('Game Over', h_col, LENGTH // 2 - 120, LENGTH // 2 - 130, 40)
-            show("Score :" + str(score), text1_col, LENGTH // 2 - 100,LENGTH // 2 - 80, 20)
-            show("High Score :" + str(data['highscore']), text1_col, LENGTH // 2 - 100,LENGTH // 2 - 50, 20)
-            show("Time :" + str(int(float(t)))+'s', text1_col, LENGTH // 2 - 100, LENGTH // 2 - 20, 20)
-            show("Coins :" + str(coins), text1_col, LENGTH // 2 - 100,LENGTH // 2 + 10, 20)
+            show("Score : " + str(score), text1_col, LENGTH // 2 - 100,LENGTH // 2 - 80, 20)
+            show("High Score : " + str(data['highscore']), text1_col, LENGTH // 2 - 100,LENGTH // 2 - 50, 20)
+            show("Time : " + str(int(float(t)))+' (s)', text1_col, LENGTH // 2 - 100, LENGTH // 2 - 20, 20)
+            show("Coins : " + str(coins), text1_col, LENGTH // 2 - 100,LENGTH // 2 + 10, 20)
             if petyr == 3:
                 data['coin'] = f"{int(data['coin'])+coins}"
                 with open(r'data\bin\missions.dat', 'rb') as file:
@@ -1438,11 +1438,14 @@ def leaderboard():
     show('LEADERBOARDS', text1_col, 15, 5, 20, 'b')
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     if len(sortedData) > 0:
+        show('name', h_col, 32, 55, 20, 'ib')
+        show('score', h_col, 306, 55, 20, 'ib')
+        show('time', h_col, 421, 55, 20, 'ib')
         for i, dt in enumerate(sortedData):
             if i < 10:
                 show(dt[0], text2_col, 30, 75 + i * 35, 30, 'ib')
                 show(str(dt[1]), text2_col, 305, 75 + i * 35, 30, 'ib')
-                show(str(int(float(dt[2]))), text2_col, 420, 75 + i * 35, 30, 'ib')
+                show(str(int(float(dt[2]))) + ' (s)', text2_col, 420, 75 + i * 35, 30, 'ib')
     else:
         show('Oops! No Data Available', text2_col, 50, 200, 30, 'b')
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
