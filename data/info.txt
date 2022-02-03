@@ -1,14 +1,13 @@
-Play the most unforgettable game of all time and 
-reawaken your childhood memories. The Snake Game,
-based on its famous arcade counterpart..
+Play the most unforgettable game of all time and reawaken
+your childhood memories. The Snake Game, based 
+on its famous arcade counterpart..
 
-Earn coins by playing the game and completing 
-missions. Use them to buy powerups that will help
-you get an unbeatable score and make it all the
-way to the top of the leaderboard.
-
+Earn coins by playing the game and completing missions.
+Use them to buy powerups that will help you get an 
+unbeatable score and make it all the way to the top of
+the leaderboard.
 Buy items from Shop, activate them from Arsenal or 
-Inventory to use them in your game. 
+Inventory to use them in your game.
 
 DISCLAIMER: Scoring negative score in game will 
-            result in deduction of coins.
+                          result in deduction of coins.
