@@ -37,10 +37,11 @@ internet = connect()
 
 if internet:
     client = FaunaClient(
-        secret="fnAEd7T4kkAASRXchQUxZbvl68JiGY1-lXFL6WuT",
+        secret=" ",     # your API key goes here
         domain="db.us.fauna.com",
         port=443,
         scheme="https")
+
 ndataset = 10
 
 def sortedLeaderboardList(index, collection):
