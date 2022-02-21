@@ -37,7 +37,7 @@ internet = connect()
 
 if internet:
     client = FaunaClient(
-        secret=" ",     # your API key goes here
+        secret=" ", # Your API Key 
         domain="db.us.fauna.com",
         port=443,
         scheme="https")
@@ -273,11 +273,13 @@ tempDataForLead = {'score': 0, 'time': 0}
 
 s = time.time()
 day = int(((s + 19800) / 3600) // 24)
-with open(r'data\bin\daily.dat', 'rb') as file:
-    dail = pickle.load(file)
-    if dail['day'] < day:
-        obj = pullOBJ()
-        update_obj()
+try:
+    with open(r'data\bin\daily.dat', 'rb') as file:
+        dail = pickle.load(file)
+        if dail['day'] < day:
+            obj = pullOBJ()
+            update_obj()
+except:pass
 
 savedDataDict = {'score': 0, 'time': 0}
 
@@ -448,6 +450,7 @@ sideSnake = pygame.image.load(r'data\images\side-snake.png').convert_alpha()
 frontSnake = pygame.image.load(r'data\images\front-snake.png').convert_alpha()
 frontSnake2 = pygame.image.load(r'data\images\front-snake-new.png').convert_alpha()
 github = pygame.transform.scale(pygame.image.load(r'data\images\github.png'), (20, 20)).convert_alpha()
+pygame.display.set_icon(pygame.image.load(r'data\images\icon.png').convert())
 
 A = "".join([chr(x) for x in range(65, 91)])
 ALPHA = A + A.lower() + '_' + ''.join([str(x) for x in range(10)])
@@ -474,6 +477,8 @@ try:
     with open(r'data\bin\missions.dat', 'rb') as file:
         pickle.load(file)
     with open(r'data\bin\items.dat', 'rb') as file:
+        pickle.load(file)
+    with open(r'data\bin\daily.dat', 'rb') as file:
         pickle.load(file)
     non_cheater = True
 except pickle.UnpicklingError:
@@ -592,7 +597,7 @@ def circ(x1, x2, i, n, m, c):
     pygame.draw.circle(SCREEN, text1_col, (x, m * x + c), 4)
 
 def delta_h():
-    global petyr, user, rate
+    global petyr, user, rate, noHomeButton
     SCREEN.fill((0, 0, 0))
     stopper = False
     LENGTH = pygame.display.get_surface().get_width()
@@ -727,6 +732,7 @@ def delta_h():
             if data['name'] == '' or data['name'] == None:
                 user = 'NewUser'
                 newUser_init()
+                noHomeButton=True
             else:
                 user = 'Home'
         else:
