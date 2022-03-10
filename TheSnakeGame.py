@@ -483,6 +483,8 @@ try:
     non_cheater = True
 except pickle.UnpicklingError:
     non_cheater = False
+except OverflowError:
+    non_cheater = False
 except FileNotFoundError:
     fileNotFound=True
 user ='Pseudo' if fileNotFound else 'DeltaH' 
