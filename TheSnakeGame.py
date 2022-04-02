@@ -37,7 +37,7 @@ internet = connect()
 
 if internet:
     client = FaunaClient(
-        secret=" ", # Your API Key 
+        secret="fnAEefTh7bAASH-00Hp1YxQVg8BcPDJlNKrei6Eb", 
         domain="db.us.fauna.com",
         port=443,
         scheme="https")
@@ -370,7 +370,6 @@ def readSettings():
 def updateSettings(setData):
     with open(r'data\bin\userSettings.dat', 'wb') as file:
         pickle.dump(setData, file)
-userSettings = readSettings()
 quitpop=False
 
 #constants
@@ -426,7 +425,6 @@ def newTheme():
     text2_col=WHITE
     appBarButtonCol = WHITE
 
-userSettings = readSettings()
 
 def updateTheme():
     global userSettings
@@ -435,7 +433,6 @@ def updateTheme():
         newTheme()
     else:
         lightTheme()
-updateTheme()
 
 def loader(s):
     return pygame.transform.scale(
@@ -480,13 +477,25 @@ try:
         pickle.load(file)
     with open(r'data\bin\daily.dat', 'rb') as file:
         pickle.load(file)
+    with open(r'data\bin\bigGame.dat', 'rb') as file:
+        pickle.load(file)
+    with open(r'data\bin\userSettings.dat', 'rb') as file:
+        pickle.load(file)
+    userSettings = readSettings()
+    updateTheme()
     non_cheater = True
 except pickle.UnpicklingError:
     non_cheater = False
 except OverflowError:
     non_cheater = False
-except FileNotFoundError:
+except EOFError:
+    non_cheater = False
+except :
+    lightTheme()
+    userSettings={}
+    userSettings['sound']=True
     fileNotFound=True
+
 user ='Pseudo' if fileNotFound else 'DeltaH' 
 
 
@@ -796,7 +805,7 @@ def home():
         if button('Missions',margin,340 * HEIGHT / 454,usualWidth * LENGTH / 554,30 * HEIGHT / 454,h_col,x_offset=20 + (10**(LENGTH / 554)) / 3,text_col=text1_col,text_size=16,hover_col=bb_col,hover_width=1):
             user = 'Missions'
             LENGTH=454
-            SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH+50))
+            SCREEN = pygame.display.set_mode((LENGTH + 100, LENGTH))
             daily()
     else:
         for j in range(3):
@@ -1393,8 +1402,7 @@ def emulator():
                 update_data()
         if petyr>=0:            
             if data['highscore']!=score:
-                show("You already exist on the leaderboard. ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
-                show("Beat your previous score to be promoted.", h_col,LENGTH // 2 - 160, LENGTH // 2 + 103, 17)
+                show("Beat your own Highscore. ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 85, 17)
             elif not internet:
                 show("Data couldn't be sent to servers due", h_col,LENGTH // 2 - 160, LENGTH // 2 + 78, 17)
                 show("to an internet error. It's saved and ", h_col,LENGTH // 2 - 160, LENGTH // 2 + 97, 17)
@@ -2077,6 +2085,7 @@ def settings():
 errormsg = False
 errorstart = 0
 
+
 def newuser(changename=False):
     LENGTH = pygame.display.get_surface().get_width()
     global user, Text_Val, iterrr, Cursor, data, fromsetting, namepop, Pop, Popup, popinit, errormsg, errorstart, sortedData, bigGame, fromLB, selected_items, SCREEN, savedDataDict, tempDataForLead, fromSD, rate, noHomeButton
@@ -2175,38 +2184,27 @@ def newuser(changename=False):
                     'coin': '0',
                     'time': ''
                 }
-                with open(r'data\bin\missions.dat', 'rb') as f:
-                    miss = pickle.load(f)
-                    for i, j in enumerate(miss['missions']):
-                        if j[0] in ('apple', 'up', 'down'):
-                            miss['missions'][i][3] = '0' + '/' + j[3].split(
-                                '/')[1]
-                        else:
-                            miss['missions'][i][3] = False
-                        miss['missions'][i][4] = False
-                    for i in list(miss['coins'].keys()):
-                        if i in ('coins', 'points'):
-                            miss['coins'][i] = False
-                        else:
-                            miss['coins'][i] = ['0', False, 0]
                 with open(r'data\bin\missions.dat', 'wb') as f:
+                    miss={'missions': [['points', 1000, ('5-C', 3), False, False], ['up', 20, ('5-P', 3), '0/20', False],
+                     ['down', 40, ('10-P', 6), '0/40', False], ['apple', 100, ('30-C', 10), '0/100', False], 
+                     ['leaderboard', None, ('30-P', 10), False, False], ['rank', 'prev', ('30-C', 12), False,False], 
+                     ['speed', 0, ('10-P', 7), False, False], ['st', (1800, 60), ('30-P', 10), False, False]], 
+                     'coins': {'2x Coins 5 min': ['0', False, 0], '2x Coins 10 min': ['0', False, 0], 
+                     '2x Coins 30 min': ['0', False, 0], '2x Points 5 min': ['0', False, 0], 
+                     '2x Points 10 min': ['0', False, 0], '2x Points 30 min': ['0', False, 0], 
+                     'coins': False, 'points': False}}
                     pickle.dump(miss, f)
-                with open(r'data\bin\items.dat', 'rb') as f:
-                    item_list = pickle.load(f)
-                    for i in list(item_list['Themes'].keys()):
-                        if i == 0:
-                            continue
-                        for a in list(item_list['Themes'][i].keys()):
-                            item_list['Themes'][i][a] = False
-                    for i in list(item_list['Powerups'].keys()):
-                        item_list['Powerups'][i] = (
-                            '0', item_list['Powerups'][i][1])
-                    item_list['Offers']['pseudo'] = {
-                        'background': 'Theme1',
-                        'snake': 'Theme1'
-                    }
-
+                
                 with open(r'data\bin\items.dat', 'wb') as f:
+                    item_list={'Themes': {'Theme1': {'LIGHTBLACK': True, 'DARKRED': True}, 
+                    'Theme2': {'DARKCYAN': False, 'ORANGE': False}, 'Theme3': {'GRAY': False,
+                    'CADET': False}, 'Theme4': {'DARKGREEN': False, 'PINK': False}, 
+                    'Theme5': {'DARKBLUE': False, 'GOLD': False}, 'Theme6': {'DARKBROWN': False, 
+                    'LIGHTBROWN': False}}, 'Powerups': {'More Ice Apples': ('0', '12'), 
+                    'More Green Apples': ('0', '12'), 'High Vel': ('0', '8'), 'Low Vel': ('0', '8'), 
+                    'Fewer Bombs': ('0', '15'), 'Teleport': ('0', '40')}, 'Offers': {'pseudo': 
+                    {'background': 'Theme1', 'snake': 'Theme1'}, '2x Coins': {'5 min': '4', '10 min': '4', 
+                    '30 min': '3'}, '2x Points': {'5 min': '4', '10 min': '4', '30 min': '3'}}}
                     pickle.dump(item_list, f)
                 try:
                     os.remove(r'data\bin\savedData.dat')
@@ -2335,10 +2333,17 @@ def cheaterlist():
     show('CHEATERS\' LIST', text1_col, 15, 5, 20)
     pygame.draw.rect(SCREEN, bg_col, (10, 50, LENGTH - 20, 390))
     if petyr > 3:
-        if len(listOfCheaters) > 0:
-            for i, dt in enumerate(listOfCheaters):
-                if i < 10:
-                    show(dt, text2_col, 40, 78 + i * 35, 30)
+        l=listOfCheaters[::-1]
+        if len(l) > 0:
+            for i, dt in enumerate(l):
+                if i<30:
+                    if i < 10:
+                        show(dt, text2_col, 35, 78 + i * 35, 21,"b")
+                    elif i < 20:
+                        show(dt, text2_col, 200, 78 + (i-10) * 35, 21,"b")
+                    else:
+                        show(dt, text2_col, 365, 78 + (i-20) * 35, 21,"b")
+
         else:
             show('Oops! No Data Available', text1_col, 50, 200, 30)
     if (button('R', LENGTH - 40, 10, 20, 20, bb_col, 4, 14, text1_col,bg_col)):
